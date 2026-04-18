@@ -62,8 +62,8 @@ export default function UploadPage() {
             onSaved={() => setSaved(true)}
           />
           <details className="text-xs text-gray-500">
-            <summary>원본 OCR 텍스트</summary>
-            <pre className="mt-2 whitespace-pre-wrap">{extracted.ocr_text}</pre>
+            <summary>Gemini 전사 결과</summary>
+            <pre className="mt-2 whitespace-pre-wrap">{extracted.transcript}</pre>
           </details>
           <button
             type="button"

@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { detectDocumentText } from "@/lib/vision";
-import { structureFromOcr } from "@/lib/extractor";
+import { extractFromImage } from "@/lib/extractor";
 import { serverClient } from "@/lib/supabase";
 import { allow, DAILY_EXTRACT, MONTHLY_EXTRACT } from "@/lib/ratelimit";
 
@@ -36,28 +35,36 @@ export async function POST(req: NextRequest) {
   }
 
   const bytes = new Uint8Array(await file.arrayBuffer());
+  const mimeType = file.type || "image/jpeg";
 
   const supabase = serverClient();
-  const ext = (file.type?.split("/")[1] || "jpg").replace("jpeg", "jpg");
+  const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
   const photoPath = `default/${crypto.randomUUID()}.${ext}`;
   const upload = await supabase.storage.from("feed-photos").upload(photoPath, bytes, {
-    contentType: file.type || "image/jpeg",
+    contentType: mimeType,
     upsert: false,
   });
   if (upload.error) {
     return NextResponse.json({ error: `storage: ${upload.error.message}` }, { status: 500 });
   }
 
-  const ocrText = await detectDocumentText(bytes, env.TOKEN_CACHE);
-  if (!ocrText.trim()) {
+  try {
+    const bundle = await extractFromImage(bytes, mimeType, referenceDate);
     return NextResponse.json({
       source_photo: photoPath,
-      ocr_text: "",
-      result: { feeds: [], events: [] },
-      warning: "OCR returned no text — manual entry required",
+      transcript: bundle.transcript,
+      result: { feeds: bundle.feeds, events: bundle.events },
     });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      {
+        source_photo: photoPath,
+        transcript: "",
+        result: { feeds: [], events: [] },
+        warning: `extraction failed: ${message} — manual entry required`,
+      },
+      { status: 200 },
+    );
   }
-
-  const result = await structureFromOcr(ocrText, referenceDate);
-  return NextResponse.json({ source_photo: photoPath, ocr_text: ocrText, result });
 }

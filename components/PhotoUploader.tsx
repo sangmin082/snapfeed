@@ -6,7 +6,7 @@ import type { ExtractResult } from "@/lib/schema";
 
 export type ExtractResponse = {
   source_photo: string;
-  ocr_text: string;
+  transcript: string;
   result: ExtractResult;
   warning?: string;
 };

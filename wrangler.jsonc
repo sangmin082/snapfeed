@@ -12,7 +12,6 @@
     "enabled": true
   },
   "kv_namespaces": [
-    { "binding": "TOKEN_CACHE", "id": "REPLACE_WITH_REAL_KV_ID" },
     { "binding": "RATE_LIMIT", "id": "REPLACE_WITH_REAL_KV_ID" }
   ]
 }
