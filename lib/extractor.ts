@@ -1,10 +1,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { ExtractResult } from "./schema";
 
-const MODEL = "gemini-2.5-flash";
+const MODEL_CHAIN = ["gemini-2.5-flash-lite", "gemini-2.5-flash"] as const;
+const RETRIES_PER_MODEL = 1;
 
 const SYSTEM = `You are shown a photograph of a handwritten Korean baby feeding log (수유 기록).
-Transcribe every entry and return strict JSON only. No prose, no markdown fences.
+Extract every entry and return strict JSON only. No prose, no markdown fences.
 
 Rules:
 - Use the provided reference_date (Asia/Seoul). Times without a date use that date.
@@ -18,13 +19,11 @@ Rules:
   • 수면 / 잠 / 꿈 → "sleep" (pair start+end when both given)
   • 다른 자유 메모 → "note"
 - Use null for unclear or missing fields. Never invent numbers.
-- Keep free-text observations in notes/details verbatim.
-- Also return a "transcript" field: your best plain-text transcription of the log, line-by-line.`;
+- Keep free-text observations in notes/details verbatim.`;
 
 const responseSchema = {
   type: Type.OBJECT,
   properties: {
-    transcript: { type: Type.STRING },
     feeds: {
       type: Type.ARRAY,
       items: {
@@ -62,12 +61,11 @@ const responseSchema = {
       },
     },
   },
-  required: ["transcript", "feeds", "events"],
-  propertyOrdering: ["transcript", "feeds", "events"],
+  required: ["feeds", "events"],
+  propertyOrdering: ["feeds", "events"],
 };
 
 type GeminiShape = {
-  transcript: string;
   feeds: Array<{
     start_at: string;
     end_at: string | null;
@@ -107,27 +105,7 @@ export async function extractFromImage(
 
   const userText = `reference_date: ${referenceDate}`;
 
-  const res = await ai.models.generateContent({
-    model: MODEL,
-    contents: [
-      {
-        role: "user",
-        parts: [
-          { inlineData: { mimeType, data: imageB64 } },
-          { text: userText },
-        ],
-      },
-    ],
-    config: {
-      systemInstruction: SYSTEM,
-      responseMimeType: "application/json",
-      responseSchema,
-      temperature: 0,
-    },
-  });
-
-  const raw = res.text?.trim() ?? "";
-  if (!raw) throw new Error("Gemini returned empty response");
+  const raw = await callWithFallback(ai, imageB64, mimeType, userText);
   const parsed = JSON.parse(raw) as GeminiShape;
 
   const events = parsed.events.map((e) => ({
@@ -138,7 +116,7 @@ export async function extractFromImage(
   }));
 
   const bundle: ExtractBundle = {
-    transcript: parsed.transcript ?? "",
+    transcript: "",
     feeds: parsed.feeds,
     events,
   };
@@ -154,4 +132,53 @@ function safeJsonParse(s: string): Record<string, unknown> {
   } catch {
     return { raw: s };
   }
+}
+
+function isTransientError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /\b(503|429|500|502|504|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)\b/i.test(msg);
+}
+
+async function callWithFallback(
+  ai: GoogleGenAI,
+  imageB64: string,
+  mimeType: string,
+  userText: string,
+): Promise<string> {
+  let lastErr: unknown;
+  for (const model of MODEL_CHAIN) {
+    for (let attempt = 0; attempt <= RETRIES_PER_MODEL; attempt++) {
+      try {
+        const res = await ai.models.generateContent({
+          model,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { inlineData: { mimeType, data: imageB64 } },
+                { text: userText },
+              ],
+            },
+          ],
+          config: {
+            systemInstruction: SYSTEM,
+            responseMimeType: "application/json",
+            responseSchema,
+            temperature: 0,
+            thinkingConfig: { thinkingBudget: 0 },
+          },
+        });
+        const text = res.text?.trim() ?? "";
+        if (!text) throw new Error(`${model}: empty response`);
+        return text;
+      } catch (err) {
+        lastErr = err;
+        if (!isTransientError(err)) throw err;
+        if (attempt < RETRIES_PER_MODEL) {
+          await new Promise((r) => setTimeout(r, 400 * 2 ** attempt));
+        }
+      }
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
 }

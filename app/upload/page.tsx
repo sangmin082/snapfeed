@@ -61,10 +61,12 @@ export default function UploadPage() {
             sourcePhoto={extracted.source_photo}
             onSaved={() => setSaved(true)}
           />
-          <details className="text-xs text-gray-500">
-            <summary>Gemini 전사 결과</summary>
-            <pre className="mt-2 whitespace-pre-wrap">{extracted.transcript}</pre>
-          </details>
+          {extracted.transcript ? (
+            <details className="text-xs text-gray-500">
+              <summary>Gemini 전사 결과</summary>
+              <pre className="mt-2 whitespace-pre-wrap">{extracted.transcript}</pre>
+            </details>
+          ) : null}
           <button
             type="button"
             onClick={() => setExtracted(null)}
