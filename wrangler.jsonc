@@ -1,0 +1,18 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "snapfeed",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-04-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "kv_namespaces": [
+    { "binding": "TOKEN_CACHE", "id": "REPLACE_WITH_REAL_KV_ID" },
+    { "binding": "RATE_LIMIT", "id": "REPLACE_WITH_REAL_KV_ID" }
+  ]
+}
