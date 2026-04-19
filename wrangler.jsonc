@@ -10,8 +10,5 @@
   },
   "observability": {
     "enabled": true
-  },
-  "kv_namespaces": [
-    { "binding": "RATE_LIMIT", "id": "REPLACE_WITH_REAL_KV_ID" }
-  ]
+  }
 }
