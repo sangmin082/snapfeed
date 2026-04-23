@@ -3,8 +3,6 @@ import { z } from "zod";
 import { serverClient } from "@/lib/supabase";
 import { FeedRecord } from "@/lib/schema";
 
-export const runtime = "edge";
-
 const DEFAULT_USER = "default";
 
 const PostBody = z.object({

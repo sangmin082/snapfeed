@@ -4,8 +4,6 @@ import { extractFromImage } from "@/lib/extractor";
 import { serverClient } from "@/lib/supabase";
 import { allow, DAILY_EXTRACT, MONTHLY_EXTRACT } from "@/lib/ratelimit";
 
-export const runtime = "edge";
-
 export async function POST(req: NextRequest) {
   const { env } = getCloudflareContext();
 
