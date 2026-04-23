@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { serverClient } from "@/lib/supabase";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_USER = "default";
