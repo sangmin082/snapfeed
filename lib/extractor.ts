@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ExtractResult } from "./schema";
 
 const MODEL_CHAIN = ["gemini-2.5-flash-lite", "gemini-2.5-flash"] as const;
@@ -88,7 +89,8 @@ export async function extractFromImage(
   mimeType: string,
   referenceDate: string,
 ): Promise<ExtractBundle> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const cfEnv = getCloudflareContext().env as unknown as Record<string, string | undefined>;
+  const apiKey = cfEnv.GEMINI_API_KEY ?? process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY missing");
   const ai = new GoogleGenAI({ apiKey });
 
