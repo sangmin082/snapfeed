@@ -22,13 +22,15 @@ export async function createBaby(formData: FormData) {
   }
 
   const supabase = await serverSupabase();
-  const { data: auth } = await supabase.auth.getUser();
-  if (!auth.user) return redirect("/login");
+  const { data: authData } = await supabase.auth.getUser();
+  if (!authData.user) return redirect("/login");
+  const userId = authData.user.id;
+
+  const admin = serviceSupabase();
 
   let photo_path: string | null = null;
   const photoFile = formData.get("photo");
   if (photoFile instanceof File && photoFile.size > 0) {
-    const admin = serviceSupabase();
     const ext = (photoFile.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg");
     photo_path = `baby-profile/${crypto.randomUUID()}.${ext}`;
     const bytes = new Uint8Array(await photoFile.arrayBuffer());
@@ -39,7 +41,7 @@ export async function createBaby(formData: FormData) {
     if (up.error) photo_path = null;
   }
 
-  const { data: baby, error: insertErr } = await supabase
+  const { data: baby, error: insertErr } = await admin
     .from("babies")
     .insert({
       name,
@@ -47,15 +49,15 @@ export async function createBaby(formData: FormData) {
       birth_weight_kg,
       birth_height_cm,
       photo_path,
-      created_by: auth.user.id,
+      created_by: userId,
     })
     .select("id")
     .single();
   if (insertErr || !baby) return redirect(`/onboarding?error=${encodeURIComponent(insertErr?.message ?? "insert")}`);
 
-  const { error: memberErr } = await supabase
+  const { error: memberErr } = await admin
     .from("baby_members")
-    .insert({ baby_id: baby.id, user_id: auth.user.id, role: "owner", relationship });
+    .insert({ baby_id: baby.id, user_id: userId, role: "owner", relationship });
   if (memberErr) return redirect(`/onboarding?error=${encodeURIComponent(memberErr.message)}`);
 
   redirect("/");

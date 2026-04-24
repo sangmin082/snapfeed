@@ -24,7 +24,7 @@ export async function acceptInvite(formData: FormData) {
   if (invite.expires_at && new Date(invite.expires_at) < new Date())
     return redirect(`/invite/${code}?error=expired`);
 
-  const { error: joinErr } = await supabase
+  const { error: joinErr } = await admin
     .from("baby_members")
     .upsert(
       { baby_id: invite.baby_id, user_id: auth.user.id, role: "member", relationship },
