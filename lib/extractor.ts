@@ -8,23 +8,47 @@ const RETRIES_PER_MODEL = 1;
 const SYSTEM = `You are shown a photograph of a handwritten Korean baby feeding log (수유 기록).
 Extract every entry and return strict JSON only. No prose, no markdown fences.
 
-Rules:
-- Use the provided reference_date (Asia/Seoul). Times without a date use that date.
-  Output ISO 8601 with +09:00 offset.
-- Korean term mapping:
-  • 모유직수 / 직수 → feed_type "breast_direct"
-  • 유축 / 짜둔 / 짠 모유 → "breast_pumped"
-  • 분유 / 포뮬러 → "formula"
-  • 대변 / 응가 → event_type "diaper_poop"
-  • 소변 / 쉬 / 오줌 → "diaper_pee"
-  • 수면 / 잠 / 꿈 → "sleep" (pair start+end when both given)
-  • 다른 자유 메모 → "note"
-- Feed type default: when an entry shows a volume (예: "80ml", "60") but
-  the type is not explicitly 모유/직수/유축/짠젖, treat it as "formula".
-  Only classify as breast_direct / breast_pumped when the record clearly
-  says so. When truly ambiguous, prefer "formula" over guessing breast.
-- Use null for unclear or missing numeric fields. Never invent numbers.
-- Keep free-text observations in notes/details verbatim.`;
+Common table layout (신생아 양육표 / newborn record chart):
+- Leftmost column is an hour label: 0AM..11AM, 12PM..11PM. These label
+  the hour of that row, they are NOT minute values. Map them as:
+    0AM → 00, 1AM..11AM → 01..11, 12PM → 12, 1PM..11PM → 13..23.
+- Under "섭취" there are sub-columns:
+    • "시간(분)" = feeding DURATION in minutes (e.g. 35 means the feed
+      lasted 35 minutes). Do NOT treat this number as a timestamp or
+      as the volume.
+    • "형태" = feed type (모유직수/유축/분유 등).
+    • "양(ml)" = volume in milliliters.
+- Under "배설": "소변" / "대변" / "구토" mark events that happened
+  during that hour row.
+- "기타" column holds free-text notes for the row.
+
+Derive fields:
+- start_at = reference_date at the row's hour label, minute=0 unless a
+  specific clock time is written in the cell. Output ISO 8601 with
+  +09:00 offset.
+- end_at = start_at + "시간(분)" minutes when a duration is given;
+  otherwise null. Never fabricate a duration.
+- volume_ml = number from "양(ml)" column, else null.
+- feed_type from "형태" per the mapping below.
+- If multiple feeds share the same hour row, emit them as separate
+  entries (read left-to-right / top-to-bottom within the cell).
+
+Korean term mapping:
+- 모유직수 / 직수 → feed_type "breast_direct"
+- 유축 / 짜둔 / 짠 모유 → "breast_pumped"
+- 분유 / 포뮬러 → "formula"
+- 대변 / 응가 → event_type "diaper_poop"
+- 소변 / 쉬 / 오줌 → "diaper_pee"
+- 수면 / 잠 / 꿈 → "sleep" (pair start+end when both given)
+- 다른 자유 메모 → "note"
+
+Feed type default: when a row shows a volume (e.g. "80ml", "60") but
+the type is not explicitly 모유/직수/유축/짠젖, treat it as "formula".
+Only classify as breast_direct / breast_pumped when the record clearly
+says so. When truly ambiguous, prefer "formula" over guessing breast.
+
+Use null for unclear or missing numeric fields. Never invent numbers.
+Keep free-text observations in notes/details verbatim.`;
 
 const responseSchema = {
   type: Type.OBJECT,
