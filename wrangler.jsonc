@@ -7,6 +7,10 @@
   "placement": {
     "region": "gcp:us-east4"
   },
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://rswasfflcyabqncldyzd.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_xzkgOIX6noWWQ8T7vWb-PA_YXLBxn5N"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
