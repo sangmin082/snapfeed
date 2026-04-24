@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
@@ -120,26 +121,49 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-2xl px-6 py-14 sm:py-20">
+      <section className="mx-auto w-full max-w-3xl px-6 py-14 sm:py-20">
         <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-          이렇게 작동합니다
+          이렇게 사용하세요
         </h2>
         <p className="mt-3 text-center text-sm text-gray-500 sm:text-base">
-          세 단계로 하루치 기록이 디지털로 정리됩니다
+          종이 한 장에서 시작해 디지털 패턴 분석까지, 5단계로 끝
         </p>
-        <ol className="mt-10 flex flex-col gap-5">
+
+        <ol className="mt-10 flex flex-col gap-2 sm:flex-row sm:items-stretch sm:justify-between sm:gap-1">
           {STEPS.map((s, i) => (
-            <li key={i} className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-lg font-bold text-emerald-700">
-                {i + 1}
-              </div>
-              <div className="flex flex-col gap-1">
-                <h3 className="text-base font-semibold text-gray-900 sm:text-lg">{s.title}</h3>
-                <p className="text-sm leading-relaxed text-gray-600 sm:text-base">{s.body}</p>
-              </div>
-            </li>
+            <Fragment key={i}>
+              <li className="flex min-w-0 flex-1 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-col sm:items-center sm:gap-3 sm:p-4">
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-3xl">
+                  {s.emoji}
+                </div>
+                <div className="flex flex-col sm:items-center sm:text-center">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
+                    Step {i + 1}
+                  </span>
+                  <span className="text-sm font-bold text-gray-900 sm:text-base">
+                    {s.title}
+                  </span>
+                  <span className="mt-0.5 text-xs leading-relaxed text-gray-500">
+                    {s.body}
+                  </span>
+                </div>
+              </li>
+              {i < STEPS.length - 1 ? (
+                <li
+                  aria-hidden
+                  className="flex shrink-0 items-center justify-center text-xl text-gray-300 sm:text-2xl"
+                >
+                  <span className="sm:hidden">↓</span>
+                  <span className="hidden sm:inline">→</span>
+                </li>
+              ) : null}
+            </Fragment>
           ))}
         </ol>
+
+        <p className="mt-8 text-center text-xs text-gray-400">
+          1~2단계는 종이로, 3~5단계는 1분 안에 끝납니다.
+        </p>
       </section>
 
       <section className="bg-gray-50">
@@ -295,21 +319,11 @@ function DashboardBlock({
 }
 
 const STEPS = [
-  {
-    title: "📷 수첩을 사진으로",
-    body:
-      "어르신·산후도우미가 적어주신 수첩 한 페이지를 휴대폰 카메라로 찍거나 앨범에서 선택합니다. 여러 기록이 섞여 있어도 한 번에 처리됩니다.",
-  },
-  {
-    title: "✨ AI가 한국어로 인식",
-    body:
-      "Google Gemini가 시간·양·종류(직수·유축·분유)와 배변·수면 메모까지 그대로 읽어냅니다.",
-  },
-  {
-    title: "💾 확인하고 한 번에 저장",
-    body:
-      "결과를 표로 한눈에 확인하고 필요하면 바로 수정. 저장 버튼 한 번으로 모든 기록이 DB에 들어갑니다.",
-  },
+  { emoji: "🖨️", title: "인쇄", body: "양육표 PDF를 A4에 출력" },
+  { emoji: "✏️", title: "수기 기록", body: "어르신·도우미가 손으로 작성" },
+  { emoji: "📷", title: "사진 촬영", body: "완성된 페이지를 스마트폰으로" },
+  { emoji: "🤖", title: "AI 인식", body: "Gemini가 자동 디지털화" },
+  { emoji: "📊", title: "패턴 보기", body: "일·주·월 단위로 추이 확인" },
 ];
 
 const FEATURES = [

@@ -138,20 +138,56 @@ export async function extractFromImage(
   const raw = await callWithFallback(ai, imageB64, mimeType, userText);
   const parsed = JSON.parse(raw) as GeminiShape;
 
+  const feeds = parsed.feeds.map((f) => ({
+    ...f,
+    start_at: normalizeIso(f.start_at, referenceDate)!,
+    end_at: normalizeIso(f.end_at, referenceDate),
+  }));
   const events = parsed.events.map((e) => ({
     event_type: e.event_type,
-    at: e.at,
-    end_at: e.end_at,
+    at: normalizeIso(e.at, referenceDate)!,
+    end_at: normalizeIso(e.end_at, referenceDate),
     details: e.details ? safeJsonParse(e.details) : null,
   }));
 
   const bundle: ExtractBundle = {
     transcript: "",
-    feeds: parsed.feeds,
+    feeds,
     events,
   };
   ExtractResult.parse({ feeds: bundle.feeds, events: bundle.events });
   return bundle;
+}
+
+// Accept what Gemini actually emits (e.g. "01:35", "2026-04-24T01:35+09:00",
+// missing seconds, "Z" instead of offset) and return a strict ISO 8601 string
+// with seconds and +09:00. Returns null if the input can't be parsed.
+function normalizeIso(input: string | null | undefined, referenceDate: string): string | null {
+  if (!input) return null;
+  const trimmed = String(input).trim();
+  if (!trimmed) return null;
+
+  // Time-only "HH:MM" or "HH:MM:SS" → attach reference date + KST offset.
+  const hhmm = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(trimmed);
+  if (hhmm) {
+    const h = hhmm[1].padStart(2, "0");
+    const m = hhmm[2];
+    const s = (hhmm[3] ?? "00").padStart(2, "0");
+    return `${referenceDate}T${h}:${m}:${s}+09:00`;
+  }
+
+  const d = new Date(trimmed);
+  if (Number.isNaN(d.getTime())) return null;
+
+  // Reformat as KST (+09:00) with full HH:MM:SS.
+  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const y = kst.getUTCFullYear();
+  const mo = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const da = String(kst.getUTCDate()).padStart(2, "0");
+  const hh = String(kst.getUTCHours()).padStart(2, "0");
+  const mm = String(kst.getUTCMinutes()).padStart(2, "0");
+  const ss = String(kst.getUTCSeconds()).padStart(2, "0");
+  return `${y}-${mo}-${da}T${hh}:${mm}:${ss}+09:00`;
 }
 
 function safeJsonParse(s: string): Record<string, unknown> {
