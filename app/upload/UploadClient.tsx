@@ -17,6 +17,12 @@ export function UploadClient({ babyName }: { babyName: string }) {
           <h1 className="text-2xl font-bold text-emerald-900 sm:text-3xl">저장 완료</h1>
           <p className="text-base text-emerald-800">기록이 성공적으로 저장되었습니다.</p>
         </div>
+        <Link
+          href="/stats"
+          className="rounded-full bg-emerald-600 px-6 py-4 text-center text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"
+        >
+          📊 패턴 보기
+        </Link>
         <div className="flex flex-col gap-3 sm:flex-row">
           <button
             type="button"
@@ -24,15 +30,15 @@ export function UploadClient({ babyName }: { babyName: string }) {
               setExtracted(null);
               setSaved(false);
             }}
-            className="flex-1 rounded-full bg-emerald-600 px-6 py-4 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"
+            className="flex-1 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98]"
           >
             📷 다른 사진 기록하기
           </button>
           <Link
             href="/records"
-            className="flex-1 rounded-full border border-gray-300 bg-white px-6 py-4 text-center text-base font-semibold text-gray-900 transition hover:bg-gray-50 active:scale-[0.98]"
+            className="flex-1 rounded-full border border-gray-300 bg-white px-6 py-3 text-center text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98]"
           >
-            기록 보기
+            전체 기록 목록
           </Link>
         </div>
       </div>
