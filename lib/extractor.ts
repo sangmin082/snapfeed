@@ -138,7 +138,7 @@ function safeJsonParse(s: string): Record<string, unknown> {
 
 function isTransientError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
-  return /\b(503|429|500|502|504|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)\b/i.test(msg);
+  return /\b(408|429|500|502|503|504|522|523|524|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)\b/i.test(msg);
 }
 
 async function callWithFallback(
