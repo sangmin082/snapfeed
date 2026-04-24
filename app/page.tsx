@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
-import { getUser, getPrimaryBaby } from "@/lib/auth";
+import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
 import { InviteButton } from "@/components/InviteButton";
 
 export const dynamic = "force-dynamic";
@@ -9,12 +10,13 @@ export default async function Home() {
   const user = await getUser();
   const baby = user ? await getPrimaryBaby(user.id) : null;
   if (user && !baby) redirect("/onboarding");
+  const photoUrl = baby ? await babyPhotoUrl(baby.photo_path) : null;
 
   return (
     <main className="flex flex-col">
       <UserBar user={user} baby={baby} />
 
-      {user && baby ? <DashboardBlock baby={baby} /> : null}
+      {user && baby ? <DashboardBlock baby={baby} photoUrl={photoUrl} /> : null}
 
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50 via-white to-white">
         <div className="mx-auto max-w-2xl px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
@@ -193,15 +195,37 @@ function UserBar({ user, baby }: UserBarProps) {
   );
 }
 
-function DashboardBlock({ baby }: { baby: { id: string; name: string; birth_date: string } }) {
+function DashboardBlock({
+  baby,
+  photoUrl,
+}: {
+  baby: { id: string; name: string; birth_date: string };
+  photoUrl: string | null;
+}) {
   return (
     <section className="bg-emerald-600/5">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 py-6">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">안녕하세요 👋</h2>
-          <span className="text-xs text-gray-500">
-            {baby.name} · {baby.birth_date}
-          </span>
+        <div className="flex items-center gap-4">
+          {photoUrl ? (
+            <Image
+              src={photoUrl}
+              alt={baby.name}
+              width={56}
+              height={56}
+              className="h-14 w-14 rounded-full object-cover ring-2 ring-white shadow-sm"
+              unoptimized
+            />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl">
+              👶
+            </div>
+          )}
+          <div className="flex flex-1 flex-col">
+            <h2 className="text-lg font-semibold text-gray-900">안녕하세요 👋</h2>
+            <span className="text-xs text-gray-500">
+              {baby.name} · {baby.birth_date}
+            </span>
+          </div>
         </div>
         <InviteButton />
       </div>

@@ -14,19 +14,33 @@ export async function requireUser() {
   return user;
 }
 
-export type PrimaryBaby = { id: string; name: string; birth_date: string };
+export type PrimaryBaby = {
+  id: string;
+  name: string;
+  birth_date: string;
+  photo_path: string | null;
+};
 
 export async function getPrimaryBaby(userId: string): Promise<PrimaryBaby | null> {
   const supabase = await serverSupabase();
   const { data } = await supabase
     .from("baby_members")
-    .select("baby_id, babies(id,name,birth_date)")
+    .select("baby_id, babies(id,name,birth_date,photo_path)")
     .eq("user_id", userId)
     .order("joined_at", { ascending: true })
     .limit(1)
     .maybeSingle();
   const baby = data?.babies as unknown as PrimaryBaby | null;
   return baby ?? null;
+}
+
+export async function babyPhotoUrl(photoPath: string | null): Promise<string | null> {
+  if (!photoPath) return null;
+  const supabase = await serverSupabase();
+  const { data } = await supabase.storage
+    .from("feed-photos")
+    .createSignedUrl(photoPath, 60 * 60); // 1 hour
+  return data?.signedUrl ?? null;
 }
 
 export async function requireUserAndBaby() {

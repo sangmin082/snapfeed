@@ -40,7 +40,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
           </div>
         ) : null}
 
-        <form action={createBaby} className="flex flex-col gap-4">
+        <form action={createBaby} className="flex flex-col gap-4" encType="multipart/form-data">
           <label className="flex flex-col gap-1 text-sm text-gray-700">
             이름 (애칭)
             <input
@@ -64,15 +64,15 @@ export default async function OnboardingPage({ searchParams }: Props) {
 
           <div className="grid grid-cols-2 gap-3">
             <label className="flex flex-col gap-1 text-sm text-gray-700">
-              출생 몸무게 (g)
+              출생 몸무게 (kg)
               <input
                 type="number"
-                inputMode="numeric"
-                name="birth_weight_g"
+                inputMode="decimal"
+                name="birth_weight_kg"
                 min={0}
-                step={10}
+                step={0.01}
                 className="rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-emerald-500 focus:outline-none"
-                placeholder="예: 3200"
+                placeholder="예: 3.20"
               />
             </label>
             <label className="flex flex-col gap-1 text-sm text-gray-700">
@@ -88,7 +88,19 @@ export default async function OnboardingPage({ searchParams }: Props) {
               />
             </label>
           </div>
-          <p className="text-xs text-gray-500">몸무게와 키는 나중에 입력해도 됩니다.</p>
+
+          <label className="flex flex-col gap-1 text-sm text-gray-700">
+            아이 사진 (선택)
+            <input
+              type="file"
+              name="photo"
+              accept="image/*"
+              className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700 hover:file:bg-emerald-100"
+            />
+            <span className="text-xs text-gray-500">프로필용 사진, 얼굴이 잘 나온 사진이면 좋아요.</span>
+          </label>
+
+          <p className="text-xs text-gray-500">몸무게·키·사진은 나중에 입력해도 됩니다.</p>
 
           <button
             type="submit"
