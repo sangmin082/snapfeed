@@ -19,29 +19,34 @@ export default async function Home() {
       {user && !baby ? <OnboardingPrompt /> : null}
 
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50 via-white to-white">
-        <div className="mx-auto max-w-2xl px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
+        <div className="pointer-events-none absolute -top-20 -right-20 h-72 w-72 rounded-full bg-emerald-300/20 blur-3xl animate-float-slow" />
+        <div className="pointer-events-none absolute top-40 -left-24 h-64 w-64 rounded-full bg-sky-300/20 blur-3xl animate-float" />
+        <div className="relative mx-auto max-w-2xl px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
           <div className="flex flex-col items-center gap-6 text-center sm:gap-8">
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 sm:text-sm">
+            <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 animate-fade-up sm:text-sm" style={{ animationDelay: "0ms" }}>
               어르신·산후도우미 ↔ 부모를 잇는
             </span>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-900 animate-fade-up sm:text-5xl" style={{ animationDelay: "80ms" }}>
               수첩에 쓴 수유 기록,<br />
-              <span className="text-emerald-600">사진 한 장</span>으로 통합
+              <span className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient">
+                사진 한 장
+              </span>
+              으로 통합
             </h1>
-            <p className="max-w-md text-base leading-relaxed text-gray-600 sm:text-lg">
+            <p className="max-w-md text-base leading-relaxed text-gray-600 animate-fade-up sm:text-lg" style={{ animationDelay: "160ms" }}>
               할머니·할아버지·산후도우미가 수기로 남겨주신 수유 기록을,
               부모가 한 번에 디지털로 정리해 전체 패턴을 한눈에 확인합니다.
             </p>
-            <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row sm:justify-center">
+            <div className="flex w-full flex-col gap-3 pt-2 animate-fade-up sm:w-auto sm:flex-row sm:justify-center" style={{ animationDelay: "240ms" }}>
               <Link
                 href={user ? "/upload" : "/login?mode=signup"}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-4 text-lg font-semibold text-white shadow-md shadow-emerald-600/30 transition hover:bg-emerald-700 active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-4 text-lg font-semibold text-white shadow-md shadow-emerald-600/30 transition hover:-translate-y-0.5 hover:bg-emerald-700 hover:shadow-lg hover:shadow-emerald-600/40 active:scale-[0.98]"
               >
                 {user ? "📷 지금 기록하기" : "무료로 시작하기"}
               </Link>
               <Link
                 href={user ? "/records" : "/login"}
-                className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-8 py-4 text-lg font-semibold text-gray-900 transition hover:bg-gray-50 active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-8 py-4 text-lg font-semibold text-gray-900 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-md active:scale-[0.98]"
               >
                 {user ? "기록 보기" : "로그인"}
               </Link>
@@ -81,7 +86,7 @@ export default async function Home() {
         <div className="rounded-3xl border-2 border-dashed border-pink-300 bg-pink-50/50 p-6 sm:p-8">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
             <div className="flex h-28 w-full flex-shrink-0 items-center justify-center rounded-xl border border-pink-200 bg-white text-5xl sm:h-32 sm:w-28">
-              📋
+              <span className="animate-float inline-block">📋</span>
             </div>
             <div className="flex flex-1 flex-col gap-3">
               <div>
@@ -101,14 +106,14 @@ export default async function Home() {
                 <a
                   href="/baby-chart.xls"
                   download
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600 active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-pink-600 hover:shadow-md active:scale-[0.98]"
                 >
                   📄 엑셀 (.xls) 다운로드
                 </a>
                 <a
                   href="/baby-chart.pdf"
                   download
-                  className="inline-flex items-center justify-center gap-2 rounded-full border border-pink-400 bg-white px-5 py-2.5 text-sm font-semibold text-pink-700 transition hover:bg-pink-50 active:scale-[0.98]"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-pink-400 bg-white px-5 py-2.5 text-sm font-semibold text-pink-700 transition hover:-translate-y-0.5 hover:bg-pink-50 hover:shadow-md active:scale-[0.98]"
                 >
                   📑 PDF 다운로드
                 </a>
@@ -132,8 +137,14 @@ export default async function Home() {
         <ol className="mt-10 flex flex-col gap-2 sm:flex-row sm:items-stretch sm:justify-between sm:gap-1">
           {STEPS.map((s, i) => (
             <Fragment key={i}>
-              <li className="flex min-w-0 flex-1 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:flex-col sm:items-center sm:gap-3 sm:p-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-3xl">
+              <li
+                className="group flex min-w-0 flex-1 items-center gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition animate-fade-up hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md sm:flex-col sm:items-center sm:gap-3 sm:p-4"
+                style={{ animationDelay: `${i * 80}ms` }}
+              >
+                <div
+                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-3xl transition group-hover:bg-emerald-200 animate-float"
+                  style={{ animationDelay: `${i * 200}ms` }}
+                >
                   {s.emoji}
                 </div>
                 <div className="flex flex-col sm:items-center sm:text-center">
@@ -151,7 +162,7 @@ export default async function Home() {
               {i < STEPS.length - 1 ? (
                 <li
                   aria-hidden
-                  className="flex shrink-0 items-center justify-center text-xl text-gray-300 sm:text-2xl"
+                  className="flex shrink-0 items-center justify-center text-xl text-emerald-400 animate-arrow-pulse sm:text-2xl"
                 >
                   <span className="sm:hidden">↓</span>
                   <span className="hidden sm:inline">→</span>
@@ -172,9 +183,13 @@ export default async function Home() {
             왜 snapfeed인가요?
           </h2>
           <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="rounded-2xl bg-white p-5 shadow-sm">
-                <div className="text-2xl">{f.emoji}</div>
+            {FEATURES.map((f, i) => (
+              <div
+                key={f.title}
+                className="group rounded-2xl bg-white p-5 shadow-sm transition animate-fade-up hover:-translate-y-0.5 hover:shadow-md"
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                <div className="text-2xl transition-transform group-hover:scale-110">{f.emoji}</div>
                 <h3 className="mt-3 text-base font-semibold text-gray-900 sm:text-lg">{f.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-gray-600">{f.body}</p>
               </div>
@@ -184,21 +199,25 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto w-full max-w-2xl px-6 py-14 sm:py-20">
-        <div className="rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-8 text-center text-white shadow-lg sm:p-12">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            {user ? "오늘 수첩부터 시작해보세요" : "지금 바로 시작하기"}
-          </h2>
-          <p className="mt-3 text-base text-emerald-50 sm:text-lg">
-            {user
-              ? "가장 최근에 받은 수유 기록 수첩 한 장을 찍어보시면 됩니다."
-              : "이메일 또는 구글 계정으로 1분 내 시작할 수 있습니다."}
-          </p>
-          <Link
-            href={user ? "/upload" : "/login?mode=signup"}
-            className="mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-emerald-700 shadow-md transition hover:bg-emerald-50 active:scale-[0.98]"
-          >
-            {user ? "📷 사진 찍으러 가기" : "가입하고 시작하기"}
-          </Link>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 bg-[length:200%_200%] p-8 text-center text-white shadow-lg animate-gradient sm:p-12">
+          <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-float-slow" />
+          <div className="pointer-events-none absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-white/10 blur-2xl animate-float" />
+          <div className="relative">
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              {user ? "오늘 수첩부터 시작해보세요" : "지금 바로 시작하기"}
+            </h2>
+            <p className="mt-3 text-base text-emerald-50 sm:text-lg">
+              {user
+                ? "가장 최근에 받은 수유 기록 수첩 한 장을 찍어보시면 됩니다."
+                : "이메일 또는 구글 계정으로 1분 내 시작할 수 있습니다."}
+            </p>
+            <Link
+              href={user ? "/upload" : "/login?mode=signup"}
+              className="mt-7 inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-emerald-700 shadow-md transition hover:-translate-y-0.5 hover:bg-emerald-50 hover:shadow-lg active:scale-[0.98]"
+            >
+              {user ? "📷 사진 찍으러 가기" : "가입하고 시작하기"}
+            </Link>
+          </div>
         </div>
       </section>
 
