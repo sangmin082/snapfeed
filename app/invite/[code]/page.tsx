@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import { serviceSupabase } from "@/lib/supabase-server";
+import { RelationshipPicker } from "@/components/RelationshipPicker";
 import { acceptInvite } from "./actions";
 
 type Props = {
@@ -12,6 +13,7 @@ const ERROR_MESSAGE: Record<string, string> = {
   notfound: "초대 코드를 찾을 수 없습니다.",
   revoked: "이 초대는 취소되었습니다.",
   expired: "이 초대는 만료되었습니다.",
+  relationship: "아이와의 관계를 선택해주세요.",
 };
 
 export default async function InvitePage({ params, searchParams }: Props) {
@@ -58,8 +60,9 @@ export default async function InvitePage({ params, searchParams }: Props) {
             링크를 다시 확인하거나 초대한 분에게 문의해주세요.
           </p>
         ) : user ? (
-          <form action={acceptInvite} className="flex flex-col gap-3">
+          <form action={acceptInvite} className="flex flex-col gap-4">
             <input type="hidden" name="code" value={code} />
+            <RelationshipPicker />
             <button
               type="submit"
               className="rounded-full bg-emerald-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"

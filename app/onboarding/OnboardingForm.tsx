@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { resizeImageToBlob } from "@/lib/resizeImage";
+import { RelationshipPicker } from "@/components/RelationshipPicker";
 import { createBaby } from "./actions";
 
 export function OnboardingForm() {
@@ -65,6 +66,8 @@ export function OnboardingForm() {
           className="rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-emerald-500 focus:outline-none"
         />
       </label>
+
+      <RelationshipPicker />
 
       <div className="grid grid-cols-2 gap-3">
         <label className="flex flex-col gap-1 text-sm text-gray-700">

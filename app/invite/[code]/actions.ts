@@ -5,7 +5,9 @@ import { serviceSupabase, serverSupabase } from "@/lib/supabase-server";
 
 export async function acceptInvite(formData: FormData) {
   const code = String(formData.get("code") ?? "").trim();
+  const relationship = String(formData.get("relationship") ?? "").trim();
   if (!code) return redirect("/");
+  if (!relationship) return redirect(`/invite/${code}?error=relationship`);
 
   const supabase = await serverSupabase();
   const { data: auth } = await supabase.auth.getUser();
@@ -25,7 +27,7 @@ export async function acceptInvite(formData: FormData) {
   const { error: joinErr } = await supabase
     .from("baby_members")
     .upsert(
-      { baby_id: invite.baby_id, user_id: auth.user.id, role: "member" },
+      { baby_id: invite.baby_id, user_id: auth.user.id, role: "member", relationship },
       { onConflict: "baby_id,user_id", ignoreDuplicates: true },
     );
   if (joinErr) return redirect(`/invite/${code}?error=${encodeURIComponent(joinErr.message)}`);

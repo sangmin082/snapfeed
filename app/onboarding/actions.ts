@@ -6,10 +6,11 @@ import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
 export async function createBaby(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const birthDate = String(formData.get("birth_date") ?? "").trim();
+  const relationship = String(formData.get("relationship") ?? "").trim();
   const weightRaw = String(formData.get("birth_weight_kg") ?? "").trim();
   const heightRaw = String(formData.get("birth_height_cm") ?? "").trim();
 
-  if (!name || !birthDate) return redirect("/onboarding?error=required");
+  if (!name || !birthDate || !relationship) return redirect("/onboarding?error=required");
 
   const birth_weight_kg = weightRaw === "" ? null : Number.parseFloat(weightRaw);
   const birth_height_cm = heightRaw === "" ? null : Number.parseFloat(heightRaw);
@@ -54,7 +55,7 @@ export async function createBaby(formData: FormData) {
 
   const { error: memberErr } = await supabase
     .from("baby_members")
-    .insert({ baby_id: baby.id, user_id: auth.user.id, role: "owner" });
+    .insert({ baby_id: baby.id, user_id: auth.user.id, role: "owner", relationship });
   if (memberErr) return redirect(`/onboarding?error=${encodeURIComponent(memberErr.message)}`);
 
   redirect("/");

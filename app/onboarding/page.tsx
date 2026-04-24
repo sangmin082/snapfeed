@@ -7,7 +7,7 @@ type Props = {
 };
 
 const ERROR_MESSAGE: Record<string, string> = {
-  required: "이름과 생년월일은 필수입니다.",
+  required: "이름·생년월일·아이와의 관계는 필수입니다.",
   number: "몸무게(kg)와 키(cm)는 숫자로 입력해주세요.",
 };
 
