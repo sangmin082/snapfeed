@@ -53,12 +53,18 @@ export async function createBaby(formData: FormData) {
     })
     .select("id")
     .single();
-  if (insertErr || !baby) return redirect(`/onboarding?error=${encodeURIComponent(insertErr?.message ?? "insert")}`);
+  if (insertErr || !baby) {
+    console.error("[onboarding] babies insert failed via admin client", insertErr);
+    return redirect(`/onboarding?error=${encodeURIComponent(`babies-insert: ${insertErr?.message ?? "unknown"}`)}`);
+  }
 
   const { error: memberErr } = await admin
     .from("baby_members")
     .insert({ baby_id: baby.id, user_id: userId, role: "owner", relationship });
-  if (memberErr) return redirect(`/onboarding?error=${encodeURIComponent(memberErr.message)}`);
+  if (memberErr) {
+    console.error("[onboarding] baby_members insert failed via admin client", memberErr);
+    return redirect(`/onboarding?error=${encodeURIComponent(`members-insert: ${memberErr.message}`)}`);
+  }
 
   redirect("/");
 }
