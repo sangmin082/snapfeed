@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getPrimaryBaby, requireUser } from "@/lib/auth";
 import { OnboardingForm } from "./OnboardingForm";
@@ -41,6 +42,13 @@ export default async function OnboardingPage({ searchParams }: Props) {
         ) : null}
 
         <OnboardingForm />
+
+        <Link
+          href="/"
+          className="text-center text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline"
+        >
+          나중에 하기
+        </Link>
       </div>
     </main>
   );

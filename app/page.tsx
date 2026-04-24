@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
 import { InviteButton } from "@/components/InviteButton";
 
@@ -9,7 +8,6 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const user = await getUser();
   const baby = user ? await getPrimaryBaby(user.id) : null;
-  if (user && !baby) redirect("/onboarding");
   const photoUrl = baby ? await babyPhotoUrl(baby.photo_path) : null;
 
   return (
@@ -17,6 +15,7 @@ export default async function Home() {
       <UserBar user={user} baby={baby} />
 
       {user && baby ? <DashboardBlock baby={baby} photoUrl={photoUrl} /> : null}
+      {user && !baby ? <OnboardingPrompt /> : null}
 
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50 via-white to-white">
         <div className="mx-auto max-w-2xl px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
@@ -192,6 +191,24 @@ function UserBar({ user, baby }: UserBarProps) {
         )}
       </div>
     </div>
+  );
+}
+
+function OnboardingPrompt() {
+  return (
+    <section className="bg-amber-50">
+      <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-4 px-6 py-4">
+        <p className="text-sm text-amber-900">
+          아이 정보 등록이 아직 완료되지 않았어요.
+        </p>
+        <Link
+          href="/onboarding"
+          className="rounded-full bg-amber-600 px-4 py-1.5 text-sm font-semibold text-white transition hover:bg-amber-700"
+        >
+          이어서 등록
+        </Link>
+      </div>
+    </section>
   );
 }
 
