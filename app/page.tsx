@@ -76,6 +76,50 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-2xl px-6 pb-4 sm:pb-6">
+        <div className="rounded-3xl border-2 border-dashed border-pink-300 bg-pink-50/50 p-6 sm:p-8">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+            <div className="flex h-28 w-full flex-shrink-0 items-center justify-center rounded-xl border border-pink-200 bg-white text-5xl sm:h-32 sm:w-28">
+              📋
+            </div>
+            <div className="flex flex-1 flex-col gap-3">
+              <div>
+                <span className="rounded-full bg-pink-200 px-2.5 py-0.5 text-xs font-semibold text-pink-800">
+                  FREE
+                </span>
+                <h2 className="mt-2 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl">
+                  인쇄용 신생아 양육 기록지
+                </h2>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-700 sm:text-base">
+                0AM–11PM 24시간 칸에 <strong>수유(시간·형태·양)</strong>, <strong>배설(소변·대변·구토)</strong>,
+                <strong> 체중·체온</strong>까지 손으로 바로 적을 수 있는 표준 양식.
+                프린트해서 어르신·산후도우미께 드리고, 하루 끝에 사진 한 장으로 snapfeed에 올리시면 됩니다.
+              </p>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <a
+                  href="/baby-chart.xls"
+                  download
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-pink-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-pink-600 active:scale-[0.98]"
+                >
+                  📄 엑셀 (.xls) 다운로드
+                </a>
+                <a
+                  href="/baby-chart.pdf"
+                  download
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-pink-400 bg-white px-5 py-2.5 text-sm font-semibold text-pink-700 transition hover:bg-pink-50 active:scale-[0.98]"
+                >
+                  📑 PDF 다운로드
+                </a>
+              </div>
+              <p className="text-xs text-gray-500">
+                A4 1장에 3일치가 들어갑니다. 프린트 후 칸마다 채워 넣기만 하면 됩니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto w-full max-w-2xl px-6 py-14 sm:py-20">
         <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
           이렇게 작동합니다
