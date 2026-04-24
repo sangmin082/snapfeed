@@ -7,15 +7,15 @@ export default function Home() {
         <div className="mx-auto max-w-2xl px-6 pt-16 pb-14 sm:pt-24 sm:pb-20">
           <div className="flex flex-col items-center gap-6 text-center sm:gap-8">
             <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 sm:text-sm">
-              AI 수유 기록 도우미
+              어르신·산후도우미 ↔ 부모를 잇는
             </span>
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-900 sm:text-5xl">
-              수기 수유 기록을<br />
-              <span className="text-emerald-600">사진 한 장</span>으로
+              수첩에 쓴 수유 기록,<br />
+              <span className="text-emerald-600">사진 한 장</span>으로 통합
             </h1>
             <p className="max-w-md text-base leading-relaxed text-gray-600 sm:text-lg">
-              수첩에 적어둔 시간·양·종류를 AI가 한 번에 읽어 정리합니다.
-              확인하고 저장만 누르면 끝.
+              할머니·할아버지·산후도우미가 수기로 남겨주신 수유 기록을,
+              부모가 한 번에 디지털로 정리해 전체 패턴을 한눈에 확인합니다.
             </p>
             <div className="flex w-full flex-col gap-3 pt-2 sm:w-auto sm:flex-row sm:justify-center">
               <Link
@@ -37,6 +37,33 @@ export default function Home() {
 
       <section className="mx-auto w-full max-w-2xl px-6 py-14 sm:py-20">
         <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+          이런 상황을 위해 만들었습니다
+        </h2>
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5 sm:p-6">
+            <div className="text-2xl">👵🏻</div>
+            <h3 className="mt-3 text-base font-semibold text-amber-900 sm:text-lg">돌봐주시는 분</h3>
+            <p className="mt-2 text-sm leading-relaxed text-amber-900/80 sm:text-base">
+              어르신(할머니·할아버지)이나 산후도우미는 앱 설치·입력이 번거롭습니다.
+              수첩에 손으로 편하게 기록하는 게 가장 자연스럽습니다.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-sky-200 bg-sky-50/60 p-5 sm:p-6">
+            <div className="text-2xl">👨‍👩‍👧</div>
+            <h3 className="mt-3 text-base font-semibold text-sky-900 sm:text-lg">부모</h3>
+            <p className="mt-2 text-sm leading-relaxed text-sky-900/80 sm:text-base">
+              흩어진 수첩 기록을 모아 수유 간격·총량·시간대 패턴을 확인하고 싶은데,
+              하나하나 입력할 시간이 없습니다.
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 rounded-2xl bg-emerald-50 p-5 text-center text-sm font-medium text-emerald-900 sm:p-6 sm:text-base">
+          snapfeed가 이 두 과정을 연결합니다 — 사진 한 장으로.
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-2xl px-6 py-14 sm:py-20">
+        <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
           이렇게 작동합니다
         </h2>
         <p className="mt-3 text-center text-sm text-gray-500 sm:text-base">
@@ -48,10 +75,10 @@ export default function Home() {
               1
             </div>
             <div className="flex flex-col gap-1">
-              <h3 className="text-base font-semibold text-gray-900 sm:text-lg">📷 사진으로 찍거나 선택</h3>
+              <h3 className="text-base font-semibold text-gray-900 sm:text-lg">📷 수첩을 사진으로</h3>
               <p className="text-sm leading-relaxed text-gray-600 sm:text-base">
-                수기 수유 기록지를 휴대폰 카메라로 찍거나 앨범에서 선택합니다.
-                한 페이지에 여러 기록이 있어도 괜찮습니다.
+                어르신·산후도우미가 적어주신 수첩 한 페이지를 휴대폰 카메라로 찍거나 앨범에서 선택합니다.
+                여러 기록이 섞여 있어도 한 번에 처리됩니다.
               </p>
             </div>
           </li>
@@ -123,10 +150,10 @@ export default function Home() {
       <section className="mx-auto w-full max-w-2xl px-6 py-14 sm:py-20">
         <div className="rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-700 p-8 text-center text-white shadow-lg sm:p-12">
           <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            지금 첫 기록 남기기
+            오늘 수첩부터 시작해보세요
           </h2>
           <p className="mt-3 text-base text-emerald-50 sm:text-lg">
-            가장 최근 수유 기록지를 한 번 찍어보세요.
+            가장 최근에 받은 수유 기록 수첩 한 장을 찍어보시면 됩니다.
           </p>
           <Link
             href="/upload"
