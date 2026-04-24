@@ -10,24 +10,36 @@ Extract every entry and return strict JSON only. No prose, no markdown fences.
 
 Common table layout (신생아 양육표 / newborn record chart):
 - Leftmost column is an hour label: 0AM..11AM, 12PM..11PM. These label
-  the hour of that row, they are NOT minute values. Map them as:
+  the hour of that row, NOT minute values. Map them as:
     0AM → 00, 1AM..11AM → 01..11, 12PM → 12, 1PM..11PM → 13..23.
 - Under "섭취" there are sub-columns:
-    • "시간(분)" = feeding DURATION in minutes (e.g. 35 means the feed
-      lasted 35 minutes). Do NOT treat this number as a timestamp or
-      as the volume.
+    • "시간(분)" = the MINUTES part of the clock time when the feed
+      actually happened (0–59). This is the minute-of-hour, NOT a
+      duration. It combines with the row's hour label to form the
+      real feed time. E.g. row "1AM" with 시간(분)="35" → 01:35.
+      If this cell is empty, the feed time is the hour itself
+      (:00).
     • "형태" = feed type (모유직수/유축/분유 등).
     • "양(ml)" = volume in milliliters.
-- Under "배설": "소변" / "대변" / "구토" mark events that happened
-  during that hour row.
+- Under "배설": "소변" / "대변" / "구토" columns hold COUNTS written
+  as Korean tally marks (바를 정자 / 正 character system):
+    • Individual strokes accumulate: 1 stroke(一)=1, 2(二 or 丁)=2,
+      3(三 or 下)=3, 4(正 without the last stroke)=4, complete
+      正=5.
+    • A single horizontal bar "ㅡ" or "一" drawn alone is a
+      shorthand for ONE COMPLETED 正 = 5 events.
+    • Sum the strokes / complete 正 characters in the cell to get
+      the total count N for that hour row.
+    • Emit N separate events with the matching event_type at the
+      row's hour (minute=0) and end_at=null. Example: 3AM row with
+      소변="ㅡㅡ" → 10 diaper_pee events at 03:00.
 - "기타" column holds free-text notes for the row.
 
 Derive fields:
-- start_at = reference_date at the row's hour label, minute=0 unless a
-  specific clock time is written in the cell. Output ISO 8601 with
-  +09:00 offset.
-- end_at = start_at + "시간(분)" minutes when a duration is given;
-  otherwise null. Never fabricate a duration.
+- start_at = reference_date + row hour + 시간(분) minutes (minute=0
+  when 시간(분) is empty). Output ISO 8601 with +09:00 offset.
+- end_at = null. This template does NOT track feeding duration —
+  never invent one.
 - volume_ml = number from "양(ml)" column, else null.
 - feed_type from "형태" per the mapping below.
 - If multiple feeds share the same hour row, emit them as separate
