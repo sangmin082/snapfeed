@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { serverClient } from "@/lib/supabase";
+import { requireUserAndBaby } from "@/lib/auth";
+import { serverSupabase } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
-
-const DEFAULT_USER = "default";
 
 const FEED_TYPE_LABEL: Record<string, string> = {
   breast_direct: "직수",
@@ -25,18 +24,20 @@ function fmt(iso: string | null): string {
 }
 
 export default async function RecordsPage() {
-  const supabase = serverClient();
+  const { baby } = await requireUserAndBaby();
+  const supabase = await serverSupabase();
+
   const [{ data: feeds, error: feedErr }, { data: events, error: eventErr }] = await Promise.all([
     supabase
       .from("feeds")
       .select("*")
-      .eq("user_id", DEFAULT_USER)
+      .eq("baby_id", baby.id)
       .order("start_at", { ascending: false })
       .limit(100),
     supabase
       .from("events")
       .select("*")
-      .eq("user_id", DEFAULT_USER)
+      .eq("baby_id", baby.id)
       .order("at", { ascending: false })
       .limit(100),
   ]);
@@ -44,10 +45,11 @@ export default async function RecordsPage() {
   return (
     <main className="mx-auto flex max-w-3xl flex-col gap-6 p-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">기록 목록</h1>
-        <Link href="/" className="text-sm text-gray-500 underline">
-          홈
-        </Link>
+        <div>
+          <h1 className="text-2xl font-bold">기록 목록</h1>
+          <p className="text-sm text-gray-500">{baby.name}</p>
+        </div>
+        <Link href="/" className="text-sm text-gray-500 underline">홈</Link>
       </header>
 
       <section>

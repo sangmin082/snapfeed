@@ -1,48 +1,57 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
-import { serverClient } from "@/lib/supabase";
+import { serverSupabase } from "@/lib/supabase-server";
 import { EventRecord } from "@/lib/schema";
 
-const DEFAULT_USER = "default";
-
 const PostBody = z.object({
-  user_id: z.string().default(DEFAULT_USER),
-  baby_id: z.string().nullable().optional(),
+  baby_id: z.string().uuid().optional(),
   source_photo: z.string().nullable().optional(),
   events: z.array(EventRecord).min(1),
 });
 
 export async function POST(req: NextRequest) {
+  const supabase = await serverSupabase();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
   const json = await req.json().catch(() => null);
   const parsed = PostBody.safeParse(json);
-  if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.message }, { status: 400 });
-  }
-  const { user_id, baby_id = null, source_photo = null, events } = parsed.data;
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.message }, { status: 400 });
+
+  const babyId = parsed.data.baby_id ?? (await resolveFirstBabyId(supabase));
+  if (!babyId) return NextResponse.json({ error: "no baby context" }, { status: 400 });
+
+  const { source_photo = null, events } = parsed.data;
   const rows = events.map((e) => ({
-    user_id,
-    baby_id,
+    baby_id: babyId,
+    uploaded_by: auth.user.id,
     source_photo,
     event_type: e.event_type,
     at: e.at,
     end_at: e.end_at,
     details: e.details,
   }));
-  const { data, error } = await serverClient().from("events").insert(rows).select("id");
+  const { data, error } = await supabase.from("events").insert(rows).select("id");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ inserted: data?.length ?? 0, ids: data?.map((r) => r.id) ?? [] });
 }
 
 export async function GET(req: NextRequest) {
+  const supabase = await serverSupabase();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
   const url = new URL(req.url);
-  const user_id = url.searchParams.get("user_id") ?? DEFAULT_USER;
+  const babyId = url.searchParams.get("baby_id") ?? (await resolveFirstBabyId(supabase));
+  if (!babyId) return NextResponse.json({ error: "no baby context" }, { status: 400 });
+
   const from = url.searchParams.get("from");
   const to = url.searchParams.get("to");
 
-  let q = serverClient()
+  let q = supabase
     .from("events")
     .select("*")
-    .eq("user_id", user_id)
+    .eq("baby_id", babyId)
     .order("at", { ascending: false })
     .limit(500);
   if (from) q = q.gte("at", from);
@@ -51,4 +60,14 @@ export async function GET(req: NextRequest) {
   const { data, error } = await q;
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json({ events: data });
+}
+
+async function resolveFirstBabyId(supabase: Awaited<ReturnType<typeof serverSupabase>>): Promise<string | null> {
+  const { data } = await supabase
+    .from("baby_members")
+    .select("baby_id")
+    .order("joined_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  return data?.baby_id ?? null;
 }

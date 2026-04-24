@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { serverClient } from "@/lib/supabase";
+import { requireUserAndBaby } from "@/lib/auth";
+import { serverSupabase } from "@/lib/supabase-server";
 
 export const dynamic = "force-dynamic";
-
-const DEFAULT_USER = "default";
 
 type Feed = {
   start_at: string;
@@ -16,14 +15,17 @@ function dayKey(iso: string): string {
 }
 
 export default async function StatsPage() {
+  const { baby } = await requireUserAndBaby();
+  const supabase = await serverSupabase();
+
   const since = new Date();
   since.setDate(since.getDate() - 13);
   since.setHours(0, 0, 0, 0);
 
-  const { data, error } = await serverClient()
+  const { data, error } = await supabase
     .from("feeds")
     .select("start_at,volume_ml")
-    .eq("user_id", DEFAULT_USER)
+    .eq("baby_id", baby.id)
     .gte("start_at", since.toISOString())
     .order("start_at", { ascending: true });
 
@@ -38,7 +40,6 @@ export default async function StatsPage() {
 
   const feeds = (data ?? []) as Feed[];
 
-  // Daily totals
   const dailyMap = new Map<string, { count: number; totalMl: number }>();
   const hourCounts = new Array<number>(24).fill(0);
   const intervalsMin: number[] = [];
@@ -72,10 +73,11 @@ export default async function StatsPage() {
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-8 p-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">패턴 분석</h1>
-        <Link href="/" className="text-sm text-gray-500 underline">
-          홈
-        </Link>
+        <div>
+          <h1 className="text-2xl font-bold">패턴 분석</h1>
+          <p className="text-sm text-gray-500">{baby.name}</p>
+        </div>
+        <Link href="/" className="text-sm text-gray-500 underline">홈</Link>
       </header>
 
       <section>

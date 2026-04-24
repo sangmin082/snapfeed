@@ -1,10 +1,23 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { extractFromImage } from "@/lib/extractor";
-import { serverClient } from "@/lib/supabase";
+import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
 import { allow, DAILY_EXTRACT, MONTHLY_EXTRACT } from "@/lib/ratelimit";
 
 export async function POST(req: NextRequest) {
+  const supabase = await serverSupabase();
+  const { data: auth } = await supabase.auth.getUser();
+  if (!auth.user) return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+
+  const { data: member } = await supabase
+    .from("baby_members")
+    .select("baby_id")
+    .order("joined_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  const babyId = member?.baby_id;
+  if (!babyId) return NextResponse.json({ error: "no baby context" }, { status: 400 });
+
   const { env } = getCloudflareContext();
 
   const form = await req.formData();
@@ -35,10 +48,10 @@ export async function POST(req: NextRequest) {
   const bytes = new Uint8Array(await file.arrayBuffer());
   const mimeType = file.type || "image/jpeg";
 
-  const supabase = serverClient();
+  const admin = serviceSupabase();
   const ext = mimeType.split("/")[1]?.replace("jpeg", "jpg") ?? "jpg";
-  const photoPath = `default/${crypto.randomUUID()}.${ext}`;
-  const upload = await supabase.storage.from("feed-photos").upload(photoPath, bytes, {
+  const photoPath = `${babyId}/${crypto.randomUUID()}.${ext}`;
+  const upload = await admin.storage.from("feed-photos").upload(photoPath, bytes, {
     contentType: mimeType,
     upsert: false,
   });
@@ -50,6 +63,7 @@ export async function POST(req: NextRequest) {
     const bundle = await extractFromImage(bytes, mimeType, referenceDate);
     return NextResponse.json({
       source_photo: photoPath,
+      baby_id: babyId,
       transcript: bundle.transcript,
       result: { feeds: bundle.feeds, events: bundle.events },
     });
@@ -58,6 +72,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         source_photo: photoPath,
+        baby_id: babyId,
         transcript: "",
         result: { feeds: [], events: [] },
         warning: `extraction failed: ${message} — manual entry required`,
