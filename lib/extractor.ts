@@ -19,7 +19,11 @@ Rules:
   • 소변 / 쉬 / 오줌 → "diaper_pee"
   • 수면 / 잠 / 꿈 → "sleep" (pair start+end when both given)
   • 다른 자유 메모 → "note"
-- Use null for unclear or missing fields. Never invent numbers.
+- Feed type default: when an entry shows a volume (예: "80ml", "60") but
+  the type is not explicitly 모유/직수/유축/짠젖, treat it as "formula".
+  Only classify as breast_direct / breast_pumped when the record clearly
+  says so. When truly ambiguous, prefer "formula" over guessing breast.
+- Use null for unclear or missing numeric fields. Never invent numbers.
 - Keep free-text observations in notes/details verbatim.`;
 
 const responseSchema = {
