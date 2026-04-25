@@ -24,19 +24,19 @@ export default async function OnboardingPage({ searchParams }: Props) {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-center">
-          <span className="mx-auto rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+          <span className="mx-auto rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
             환영합니다 👋
           </span>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-neutral-100">
             아이 정보를 알려주세요
           </h1>
-          <p className="text-sm text-gray-600 sm:text-base">
+          <p className="text-sm text-gray-600 sm:text-base dark:text-neutral-400">
             기본 정보는 언제든 수정할 수 있고, 가족 초대 후에도 공유됩니다.
           </p>
         </div>
 
         {errorMsg ? (
-          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800">
+          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">
             {errorMsg}
           </div>
         ) : null}
@@ -45,7 +45,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
 
         <Link
           href="/"
-          className="text-center text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline"
+          className="text-center text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100"
         >
           나중에 하기
         </Link>

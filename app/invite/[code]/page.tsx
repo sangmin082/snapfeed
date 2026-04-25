@@ -35,28 +35,28 @@ export default async function InvitePage({ params, searchParams }: Props) {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
-      <div className="flex flex-col gap-6 rounded-3xl border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="flex flex-col gap-6 rounded-3xl border border-gray-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="text-4xl">👨‍👩‍👧</div>
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">가족 초대</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">가족 초대</h1>
           {baby ? (
-            <p className="text-base text-gray-600">
-              <span className="font-semibold text-gray-900">{baby.name}</span>의 기록을 함께 볼 수 있게
+            <p className="text-base text-gray-600 dark:text-neutral-400">
+              <span className="font-semibold text-gray-900 dark:text-neutral-100">{baby.name}</span>의 기록을 함께 볼 수 있게
               초대받으셨어요.
             </p>
           ) : (
-            <p className="text-sm text-gray-500">초대 링크 정보를 확인하는 중입니다.</p>
+            <p className="text-sm text-gray-500 dark:text-neutral-500">초대 링크 정보를 확인하는 중입니다.</p>
           )}
         </div>
 
         {errorMsg ? (
-          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800">
+          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">
             {errorMsg}
           </div>
         ) : null}
 
         {invalid ? (
-          <p className="text-center text-sm text-gray-500">
+          <p className="text-center text-sm text-gray-500 dark:text-neutral-500">
             링크를 다시 확인하거나 초대한 분에게 문의해주세요.
           </p>
         ) : user ? (
@@ -69,7 +69,7 @@ export default async function InvitePage({ params, searchParams }: Props) {
             >
               수락하고 가족으로 참여
             </button>
-            <p className="text-center text-xs text-gray-500">
+            <p className="text-center text-xs text-gray-500 dark:text-neutral-500">
               {user.email}으로 로그인된 상태입니다.
             </p>
           </form>

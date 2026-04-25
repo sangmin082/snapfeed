@@ -37,20 +37,20 @@ export function InviteButton() {
           type="button"
           disabled={pending}
           onClick={generate}
-          className="rounded-full border border-emerald-300 bg-emerald-50 px-6 py-3 text-base font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-[0.98] disabled:opacity-50"
+          className="rounded-full border border-emerald-300 bg-emerald-50 px-6 py-3 text-base font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-[0.98] disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
         >
           {pending ? "초대 링크 생성 중…" : "👨‍👩‍👧 가족 초대 링크 만들기"}
         </button>
       ) : (
-        <div className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
-          <p className="text-xs font-medium text-emerald-800">
+        <div className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40">
+          <p className="text-xs font-medium text-emerald-800 dark:text-emerald-200">
             7일 동안 유효합니다. 이 링크를 공유하면 가족이 같은 아이 기록을 볼 수 있어요.
           </p>
           <input
             readOnly
             value={link}
             onClick={(e) => (e.target as HTMLInputElement).select()}
-            className="w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-sm text-gray-900"
+            className="w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-emerald-800 dark:bg-neutral-900 dark:text-neutral-100"
           />
           <div className="flex gap-2">
             <button
@@ -63,14 +63,14 @@ export function InviteButton() {
             <button
               type="button"
               onClick={() => setLink(null)}
-              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
             >
               닫기
             </button>
           </div>
         </div>
       )}
-      {error ? <p className="text-sm text-red-600">오류: {error}</p> : null}
+      {error ? <p className="text-sm text-red-600 dark:text-red-400">오류: {error}</p> : null}
     </div>
   );
 }

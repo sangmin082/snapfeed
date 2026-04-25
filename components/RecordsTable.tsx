@@ -214,13 +214,13 @@ export function RecordsTable({
   }
 
   if (items.length === 0) {
-    return <p className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">아직 기록이 없습니다.</p>;
+    return <p className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-500">아직 기록이 없습니다.</p>;
   }
 
   return (
     <div className="flex flex-col gap-6">
       {error ? (
-        <div className="rounded-xl bg-red-50 p-3 text-sm text-red-800">{error}</div>
+        <div className="rounded-xl bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">{error}</div>
       ) : null}
       {orderedKeys.map((dateKey) => {
         const rows = (groups.get(dateKey) ?? []).sort((a, b) =>
@@ -236,14 +236,14 @@ export function RecordsTable({
           <section key={dateKey} className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold text-gray-900">{dateLabel}</h3>
-                <p className="text-xs text-gray-500">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">{dateLabel}</h3>
+                <p className="text-xs text-gray-500 dark:text-neutral-500">
                   수유 {feedCount}회{totalMl > 0 ? ` · 합계 ${totalMl}ml` : ""} · 이벤트 {eventCount}
                 </p>
               </div>
               {isConfirming ? (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-red-700">전체 삭제?</span>
+                  <span className="text-xs text-red-700 dark:text-red-300">전체 삭제?</span>
                   <button
                     type="button"
                     onClick={() => removeDay(dateKey)}
@@ -255,7 +255,7 @@ export function RecordsTable({
                   <button
                     type="button"
                     onClick={() => setConfirmDay(null)}
-                    className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 hover:bg-gray-50"
+                    className="rounded-full border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
                   >
                     취소
                   </button>
@@ -264,16 +264,16 @@ export function RecordsTable({
                 <button
                   type="button"
                   onClick={() => setConfirmDay(dateKey)}
-                  className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
+                  className="rounded-full border border-red-200 bg-red-50 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-950/60"
                 >
                   🗑️ 날짜 전체 삭제
                 </button>
               )}
             </div>
 
-            <div className="overflow-hidden rounded-xl border border-gray-200">
+            <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-neutral-800">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-xs text-gray-500">
+                <thead className="bg-gray-50 text-xs text-gray-500 dark:bg-neutral-900/60 dark:text-neutral-500">
                   <tr>
                     <th className="px-3 py-2 text-left font-medium">시각</th>
                     <th className="px-3 py-2 text-left font-medium">종류</th>
@@ -287,15 +287,15 @@ export function RecordsTable({
                     const isFeed = isFeedKind(it.kind);
                     return (
                       <Fragment key={`${it.source}-${it.id}`}>
-                        <tr className="border-t border-gray-100">
+                        <tr className="border-t border-gray-100 dark:border-neutral-800">
                           <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">{fmtTime(it.at)}</td>
                           <td className="px-3 py-1.5 whitespace-nowrap">{KIND_LABEL[it.kind]}</td>
-                          <td className="px-3 py-1.5 text-gray-600">{detailText(it)}</td>
+                          <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailText(it)}</td>
                           <td className="px-3 py-1.5 whitespace-nowrap text-right">
                             <button
                               type="button"
                               onClick={() => setEditingId(editing ? null : it.id)}
-                              className="text-xs text-blue-600 underline"
+                              className="text-xs text-blue-600 underline dark:text-blue-400"
                             >
                               {editing ? "닫기" : "수정"}
                             </button>
@@ -362,22 +362,22 @@ function EditRow({
   }
 
   return (
-    <tr className="border-t border-gray-100 bg-gray-50/60">
+    <tr className="border-t border-gray-100 bg-gray-50/60 dark:border-neutral-800 dark:bg-neutral-900/60">
       <td colSpan={4} className="px-3 py-3">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="text-xs text-gray-600">
+          <label className="text-xs text-gray-600 dark:text-neutral-400">
             시각
             <input
               type="datetime-local"
-              className="mt-1 w-full rounded border px-2 py-1 text-sm"
+              className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               value={at}
               onChange={(e) => setAt(e.target.value)}
             />
           </label>
-          <label className="text-xs text-gray-600">
+          <label className="text-xs text-gray-600 dark:text-neutral-400">
             종류
             <select
-              className="mt-1 w-full rounded border px-2 py-1 text-sm"
+              className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               value={kind}
               onChange={(e) => setKind(e.target.value as Kind)}
             >
@@ -389,21 +389,21 @@ function EditRow({
             </select>
           </label>
           {isFeed ? (
-            <label className="text-xs text-gray-600">
+            <label className="text-xs text-gray-600 dark:text-neutral-400">
               양 (ml)
               <input
                 type="number"
-                className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                 value={volumeMl}
                 onChange={(e) => setVolumeMl(e.target.value)}
               />
             </label>
           ) : null}
-          <label className={`text-xs text-gray-600 ${isFeed ? "" : "sm:col-span-2"}`}>
+          <label className={`text-xs text-gray-600 dark:text-neutral-400 ${isFeed ? "" : "sm:col-span-2"}`}>
             메모
             <input
               type="text"
-              className="mt-1 w-full rounded border px-2 py-1 text-sm"
+              className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
             />
@@ -413,7 +413,7 @@ function EditRow({
           <button
             type="button"
             onClick={onDelete}
-            className="text-xs text-red-600 underline"
+            className="text-xs text-red-600 underline dark:text-red-400"
           >
             이 기록 삭제
           </button>
@@ -421,7 +421,7 @@ function EditRow({
             <button
               type="button"
               onClick={onClose}
-              className="rounded border border-gray-300 bg-white px-3 py-1 text-xs"
+              className="rounded border border-gray-300 bg-white px-3 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
             >
               취소
             </button>

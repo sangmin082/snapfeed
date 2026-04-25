@@ -80,7 +80,7 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
         type="button"
         disabled={busy}
         onClick={() => cameraRef.current?.click()}
-        className="rounded-xl bg-black px-6 py-4 text-lg font-medium text-white shadow-sm disabled:opacity-50"
+        className="rounded-xl bg-black px-6 py-4 text-lg font-medium text-white shadow-sm disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
       >
         {cameraLabel}
       </button>
@@ -88,11 +88,11 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
         type="button"
         disabled={busy}
         onClick={() => libraryRef.current?.click()}
-        className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-800 disabled:opacity-50"
+        className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-800 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
       >
         🖼️ 사진 선택하기
       </button>
-      {error ? <p className="text-sm text-red-600">오류: {error}</p> : null}
+      {error ? <p className="text-sm text-red-600 dark:text-red-400">오류: {error}</p> : null}
     </div>
   );
 }

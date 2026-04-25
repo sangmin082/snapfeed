@@ -39,7 +39,7 @@ function intervalLabel(a: string, b: string): string {
 export function DayTimeline({ feeds }: { feeds: Feed[] }) {
   if (feeds.length === 0) {
     return (
-      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-500">
         이 날은 수유 기록이 없습니다.
       </div>
     );
@@ -71,8 +71,8 @@ export function DayTimeline({ feeds }: { feeds: Feed[] }) {
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-pink-200 bg-white shadow-sm">
-      <div className="grid grid-cols-[4rem_1fr] bg-pink-100 text-xs font-semibold text-pink-700">
+    <div className="overflow-hidden rounded-2xl border border-pink-200 bg-white shadow-sm dark:border-pink-900 dark:bg-neutral-900">
+      <div className="grid grid-cols-[4rem_1fr] bg-pink-100 text-xs font-semibold text-pink-700 dark:bg-pink-950/50 dark:text-pink-300">
         <div className="px-2 py-2 text-center">시간(시)</div>
         <div className="px-2 py-2 text-center">수유 간격</div>
       </div>
@@ -82,17 +82,17 @@ export function DayTimeline({ feeds }: { feeds: Feed[] }) {
           const midLabel = midLabels.get(h);
           return (
             <Fragment key={h}>
-              <div className="flex h-12 items-center justify-center border-t border-pink-100 text-sm tabular-nums text-gray-600">
+              <div className="flex h-12 items-center justify-center border-t border-pink-100 text-sm tabular-nums text-gray-600 dark:border-pink-950/60 dark:text-neutral-400">
                 {h}
               </div>
-              <div className="relative flex h-12 items-center border-t border-pink-100 px-4">
-                <div className="pointer-events-none absolute top-0 bottom-0 left-6 w-px border-l border-dashed border-pink-300" />
+              <div className="relative flex h-12 items-center border-t border-pink-100 px-4 dark:border-pink-950/60">
+                <div className="pointer-events-none absolute top-0 bottom-0 left-6 w-px border-l border-dashed border-pink-300 dark:border-pink-800" />
                 {feedsAtHour ? (
                   <div className="relative z-10 flex flex-wrap gap-1">
                     {feedsAtHour.map((f, idx) => (
                       <span
                         key={idx}
-                        className="rounded-full bg-pink-400 px-3 py-1 text-xs font-semibold text-white shadow-sm"
+                        className="rounded-full bg-pink-400 px-3 py-1 text-xs font-semibold text-white shadow-sm dark:bg-pink-500"
                       >
                         {pillLabel(f)}
                       </span>
@@ -100,7 +100,7 @@ export function DayTimeline({ feeds }: { feeds: Feed[] }) {
                   </div>
                 ) : null}
                 {midLabel ? (
-                  <span className="relative z-10 ml-auto text-xs font-medium text-gray-700">
+                  <span className="relative z-10 ml-auto text-xs font-medium text-gray-700 dark:text-neutral-300">
                     {midLabel}
                   </span>
                 ) : null}

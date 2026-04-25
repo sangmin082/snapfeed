@@ -46,9 +46,9 @@ export function RangeBarChart({
   const maxCount = [...totals.values()].reduce((m, v) => Math.max(m, v.count), 0);
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <h3 className="text-sm font-semibold text-gray-700">일별 수유량</h3>
-      <p className="mt-1 text-xs text-gray-500">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <h3 className="text-sm font-semibold text-gray-700 dark:text-neutral-200">일별 수유량</h3>
+      <p className="mt-1 text-xs text-gray-500 dark:text-neutral-500">
         {dayLabel(keys[0])} – {dayLabel(keys[keys.length - 1])} ({days}일)
       </p>
       <ul className="mt-4 flex flex-col gap-1 text-xs">
@@ -57,21 +57,21 @@ export function RangeBarChart({
           const wMl = maxMl > 0 ? (v.ml / maxMl) * 100 : 0;
           return (
             <li key={k} className="flex items-center gap-2">
-              <span className="w-12 tabular-nums text-gray-600">{dayLabel(k)}</span>
-              <div className="relative h-4 flex-1 rounded bg-gray-100">
+              <span className="w-12 tabular-nums text-gray-600 dark:text-neutral-400">{dayLabel(k)}</span>
+              <div className="relative h-4 flex-1 rounded bg-gray-100 dark:bg-neutral-800">
                 <div
                   className="h-4 rounded bg-emerald-500"
                   style={{ width: `${wMl}%` }}
                 />
               </div>
-              <span className="w-28 text-right tabular-nums text-gray-700">
+              <span className="w-28 text-right tabular-nums text-gray-700 dark:text-neutral-300">
                 {v.ml > 0 ? `${v.ml}ml · ${v.count}회` : "—"}
               </span>
             </li>
           );
         })}
       </ul>
-      <p className="mt-3 text-xs text-gray-400">
+      <p className="mt-3 text-xs text-gray-400 dark:text-neutral-500">
         최대: {maxMl > 0 ? `${maxMl}ml` : "—"} / {maxCount}회
       </p>
     </div>

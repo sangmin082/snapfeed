@@ -226,11 +226,11 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
         <h2 className="text-lg font-semibold">요약 ({items.length})</h2>
 
         {items.length === 0 ? (
-          <p className="text-sm text-gray-500">추출된 기록이 없습니다. 아래에서 추가하세요.</p>
+          <p className="text-sm text-gray-500 dark:text-neutral-500">추출된 기록이 없습니다. 아래에서 추가하세요.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-neutral-800">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 text-xs text-gray-500">
+              <thead className="bg-gray-50 text-xs text-gray-500 dark:bg-neutral-900/60 dark:text-neutral-500">
                 <tr>
                   <th className="px-3 py-2 text-left font-medium">날짜</th>
                   <th className="px-3 py-2 text-left font-medium">시각</th>
@@ -249,34 +249,34 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
                   const showEnd = isFeed || it.kind === "sleep";
                   return (
                     <Fragment key={it.id}>
-                      <tr className="border-t border-gray-100">
-                        <td className="px-3 py-1.5 text-gray-700 whitespace-nowrap">
+                      <tr className="border-t border-gray-100 dark:border-neutral-800">
+                        <td className="px-3 py-1.5 text-gray-700 whitespace-nowrap dark:text-neutral-300">
                           {showDate ? dLabel : ""}
                         </td>
                         <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">
                           {timeLabel(it.at)}
                         </td>
                         <td className="px-3 py-1.5 whitespace-nowrap">{KIND_LABEL[it.kind]}</td>
-                        <td className="px-3 py-1.5 text-gray-600">{detailLabel(it)}</td>
+                        <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailLabel(it)}</td>
                         <td className="px-3 py-1.5 whitespace-nowrap text-right">
                           <button
                             type="button"
                             onClick={() => setEditingId(editing ? null : it.id)}
-                            className="text-xs text-blue-600 underline"
+                            className="text-xs text-blue-600 underline dark:text-blue-400"
                           >
                             {editing ? "닫기" : "수정"}
                           </button>
                         </td>
                       </tr>
                       {editing ? (
-                        <tr className="border-t border-gray-100 bg-gray-50/60">
+                        <tr className="border-t border-gray-100 bg-gray-50/60 dark:border-neutral-800 dark:bg-neutral-900/60">
                           <td colSpan={5} className="px-3 py-3">
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                              <label className="text-xs text-gray-600">
+                              <label className="text-xs text-gray-600 dark:text-neutral-400">
                                 시각
                                 <input
                                   type="datetime-local"
-                                  className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                                  className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                   value={toLocalInput(it.at)}
                                   onChange={(e) =>
                                     update(it.id, {
@@ -285,10 +285,10 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
                                   }
                                 />
                               </label>
-                              <label className="text-xs text-gray-600">
+                              <label className="text-xs text-gray-600 dark:text-neutral-400">
                                 종류
                                 <select
-                                  className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                                  className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                   value={it.kind}
                                   onChange={(e) =>
                                     update(it.id, { kind: e.target.value as Kind })
@@ -311,11 +311,11 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
                                 </select>
                               </label>
                               {isFeed ? (
-                                <label className="text-xs text-gray-600">
+                                <label className="text-xs text-gray-600 dark:text-neutral-400">
                                   양 (ml)
                                   <input
                                     type="number"
-                                    className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                                    className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                     value={it.volume_ml ?? ""}
                                     onChange={(e) =>
                                       update(it.id, {
@@ -327,11 +327,11 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
                                 </label>
                               ) : null}
                               {showEnd ? (
-                                <label className="text-xs text-gray-600">
+                                <label className="text-xs text-gray-600 dark:text-neutral-400">
                                   종료
                                   <input
                                     type="datetime-local"
-                                    className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                                    className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                     value={toLocalInput(it.end_at)}
                                     onChange={(e) =>
                                       update(it.id, { end_at: fromLocalInput(e.target.value) })
@@ -339,11 +339,11 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
                                   />
                                 </label>
                               ) : null}
-                              <label className="text-xs text-gray-600 sm:col-span-2">
+                              <label className="text-xs text-gray-600 sm:col-span-2 dark:text-neutral-400">
                                 메모
                                 <input
                                   type="text"
-                                  className="mt-1 w-full rounded border px-2 py-1 text-sm"
+                                  className="mt-1 w-full rounded border border-gray-300 bg-white px-2 py-1 text-sm text-gray-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
                                   value={it.notes ?? ""}
                                   onChange={(e) =>
                                     update(it.id, { notes: e.target.value || null })
@@ -355,14 +355,14 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
                               <button
                                 type="button"
                                 onClick={() => remove(it.id)}
-                                className="text-xs text-red-600 underline"
+                                className="text-xs text-red-600 underline dark:text-red-400"
                               >
                                 삭제
                               </button>
                               <button
                                 type="button"
                                 onClick={() => setEditingId(null)}
-                                className="rounded border px-3 py-1 text-xs"
+                                className="rounded border border-gray-300 px-3 py-1 text-xs text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
                               >
                                 완료
                               </button>
@@ -382,21 +382,21 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
           <button
             type="button"
             onClick={() => addRow("breast_pumped")}
-            className="rounded border border-dashed px-3 py-1 text-sm"
+            className="rounded border border-dashed border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
           >
             + 수유
           </button>
           <button
             type="button"
             onClick={() => addRow("diaper_pee")}
-            className="rounded border border-dashed px-3 py-1 text-sm"
+            className="rounded border border-dashed border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800"
           >
             + 이벤트
           </button>
         </div>
       </section>
 
-      {error ? <p className="text-sm text-red-600">저장 실패: {error}</p> : null}
+      {error ? <p className="text-sm text-red-600 dark:text-red-400">저장 실패: {error}</p> : null}
 
       <button
         type="button"

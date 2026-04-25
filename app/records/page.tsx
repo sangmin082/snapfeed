@@ -31,11 +31,11 @@ export default async function RecordsPage() {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">기록 목록</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-neutral-500">
             {baby.name} · 총 {total}건
           </p>
         </div>
-        <Link href="/" className="text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline">
+        <Link href="/" className="text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
           홈
         </Link>
       </header>

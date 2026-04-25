@@ -102,9 +102,9 @@ export default async function StatsPage({ searchParams }: Props) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">패턴 분석</h1>
-          <p className="text-sm text-gray-500">{baby.name}</p>
+          <p className="text-sm text-gray-500 dark:text-neutral-500">{baby.name}</p>
         </div>
-        <Link href="/" className="text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline">
+        <Link href="/" className="text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
           홈
         </Link>
       </header>
@@ -136,9 +136,9 @@ export default async function StatsPage({ searchParams }: Props) {
       )}
 
       {availableDates.length === 0 ? (
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500">
+        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-500">
           아직 수유 기록이 없습니다.{" "}
-          <Link href="/upload" className="font-medium text-emerald-700 underline-offset-4 hover:underline">
+          <Link href="/upload" className="font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-300">
             지금 기록하기
           </Link>
         </div>
@@ -157,10 +157,10 @@ function SummaryCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 text-lg font-semibold tabular-nums text-gray-900">{value}</p>
-      {hint ? <p className="mt-0.5 text-[10px] text-gray-400">{hint}</p> : null}
+    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+      <p className="text-xs text-gray-500 dark:text-neutral-500">{label}</p>
+      <p className="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-neutral-100">{value}</p>
+      {hint ? <p className="mt-0.5 text-[10px] text-gray-400 dark:text-neutral-500">{hint}</p> : null}
     </div>
   );
 }

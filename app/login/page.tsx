@@ -20,20 +20,20 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
       <div className="flex flex-col gap-6">
-        <Link href="/" className="mx-auto text-2xl font-bold tracking-tight text-emerald-600">
+        <Link href="/" className="mx-auto text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
           snapfeed
         </Link>
-        <h1 className="text-center text-2xl font-bold text-gray-900 sm:text-3xl">
+        <h1 className="text-center text-2xl font-bold text-gray-900 sm:text-3xl dark:text-neutral-100">
           {isSignup ? "가입하기" : "로그인"}
         </h1>
 
         {sp.notice === "check-email" ? (
-          <div className="rounded-xl bg-emerald-50 p-4 text-center text-sm text-emerald-900">
+          <div className="rounded-xl bg-emerald-50 p-4 text-center text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
             이메일로 확인 링크를 보냈습니다. 링크를 눌러 가입을 완료해주세요.
           </div>
         ) : null}
         {sp.error ? (
-          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800">
+          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">
             {sp.error}
           </div>
         ) : null}
@@ -42,17 +42,17 @@ export default async function LoginPage({ searchParams }: Props) {
           <input type="hidden" name="from" value={from} />
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98] dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
           >
             <GoogleMark />
             Google로 계속하기
           </button>
         </form>
 
-        <div className="flex items-center gap-3 text-xs text-gray-400">
-          <div className="h-px flex-1 bg-gray-200" />
+        <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-neutral-500">
+          <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
           또는
-          <div className="h-px flex-1 bg-gray-200" />
+          <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
         </div>
 
         <form
@@ -60,18 +60,18 @@ export default async function LoginPage({ searchParams }: Props) {
           className="flex flex-col gap-3"
         >
           <input type="hidden" name="from" value={from} />
-          <label className="flex flex-col gap-1 text-sm text-gray-700">
+          <label className="flex flex-col gap-1 text-sm text-gray-700 dark:text-neutral-300">
             이메일
             <input
               required
               type="email"
               name="email"
               autoComplete="email"
-              className="rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-emerald-500 focus:outline-none"
+              className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
               placeholder="you@example.com"
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-700">
+          <label className="flex flex-col gap-1 text-sm text-gray-700 dark:text-neutral-300">
             비밀번호
             <input
               required
@@ -79,7 +79,7 @@ export default async function LoginPage({ searchParams }: Props) {
               name="password"
               autoComplete={isSignup ? "new-password" : "current-password"}
               minLength={6}
-              className="rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-emerald-500 focus:outline-none"
+              className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
               placeholder="6자 이상"
             />
           </label>
@@ -91,13 +91,13 @@ export default async function LoginPage({ searchParams }: Props) {
           </button>
         </form>
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-600 dark:text-neutral-400">
           {isSignup ? (
             <>
               이미 계정이 있나요?{" "}
               <Link
                 href={{ pathname: "/login", query: { from, mode: "signin" } }}
-                className="font-medium text-emerald-700 underline-offset-4 hover:underline"
+                className="font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-300"
               >
                 로그인
               </Link>
@@ -107,7 +107,7 @@ export default async function LoginPage({ searchParams }: Props) {
               처음 방문하셨나요?{" "}
               <Link
                 href={{ pathname: "/login", query: { from, mode: "signup" } }}
-                className="font-medium text-emerald-700 underline-offset-4 hover:underline"
+                className="font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-300"
               >
                 가입하기
               </Link>

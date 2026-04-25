@@ -27,7 +27,7 @@ export function RelationshipPicker({
   const value = choice === "기타" ? custom : choice;
 
   return (
-    <label className="flex flex-col gap-1 text-sm text-gray-700">
+    <label className="flex flex-col gap-1 text-sm text-gray-700 dark:text-neutral-300">
       아이와의 관계
       <div className="flex flex-col gap-2">
         <select
@@ -37,7 +37,7 @@ export function RelationshipPicker({
             setChoice(e.target.value);
             if (e.target.value !== "기타") setCustom("");
           }}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
         >
           <option value="" disabled>
             선택해주세요
@@ -57,7 +57,7 @@ export function RelationshipPicker({
             value={custom}
             onChange={(e) => setCustom(e.target.value)}
             placeholder="예: 이모, 고모, 친구 등"
-            className="rounded-lg border border-gray-300 px-3 py-3 text-base focus:border-emerald-500 focus:outline-none"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
           />
         ) : null}
       </div>

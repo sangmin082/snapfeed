@@ -12,10 +12,10 @@ export function UploadClient({ babyName }: { babyName: string }) {
   if (saved) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-3 rounded-2xl bg-emerald-50 p-8 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-2xl bg-emerald-50 p-8 text-center dark:bg-emerald-950/40">
           <div className="text-5xl">✅</div>
-          <h1 className="text-2xl font-bold text-emerald-900 sm:text-3xl">저장 완료</h1>
-          <p className="text-base text-emerald-800">기록이 성공적으로 저장되었습니다.</p>
+          <h1 className="text-2xl font-bold text-emerald-900 sm:text-3xl dark:text-emerald-100">저장 완료</h1>
+          <p className="text-base text-emerald-800 dark:text-emerald-200">기록이 성공적으로 저장되었습니다.</p>
         </div>
         <Link
           href="/stats"
@@ -30,7 +30,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
               setExtracted(null);
               setSaved(false);
             }}
-            className="flex-1 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98]"
+            className="flex-1 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98] dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
           >
             📷 다른 사진 기록하기
           </button>
@@ -50,19 +50,19 @@ export function UploadClient({ babyName }: { babyName: string }) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">사진으로 기록</h1>
-          <p className="mt-1 text-sm text-gray-500">👶 {babyName}</p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-neutral-500">👶 {babyName}</p>
         </div>
-        <Link href="/" className="text-sm font-medium text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline">
+        <Link href="/" className="text-sm font-medium text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
           홈
         </Link>
       </header>
 
       {!extracted ? (
         <>
-          <p className="text-base leading-relaxed text-gray-600">
+          <p className="text-base leading-relaxed text-gray-600 dark:text-neutral-400">
             수기 수유 기록지를 촬영하면 AI가 자동으로 인식해서 수정 가능한 표로 보여줍니다.
           </p>
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 text-sm leading-relaxed text-emerald-900 sm:p-6 sm:text-base">
+          <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 text-sm leading-relaxed text-emerald-900 sm:p-6 sm:text-base dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
             <p className="font-semibold">📝 잘 찍는 팁</p>
             <ul className="mt-3 flex flex-col gap-1.5 pl-1">
               <li>· 기록지 전체가 프레임에 들어오게</li>
@@ -76,7 +76,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
       ) : (
         <>
           {extracted.warning ? (
-            <p className="rounded bg-amber-50 p-3 text-sm text-amber-800">
+            <p className="rounded bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
               ⚠️ {extracted.warning}
             </p>
           ) : null}
@@ -86,7 +86,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
             onSaved={() => setSaved(true)}
           />
           {extracted.transcript ? (
-            <details className="text-xs text-gray-500">
+            <details className="text-xs text-gray-500 dark:text-neutral-500">
               <summary>Gemini 전사 결과</summary>
               <pre className="mt-2 whitespace-pre-wrap">{extracted.transcript}</pre>
             </details>
@@ -94,7 +94,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
           <button
             type="button"
             onClick={() => setExtracted(null)}
-            className="self-start text-sm text-gray-500 underline"
+            className="self-start text-sm text-gray-500 underline dark:text-neutral-500"
           >
             다시 찍기
           </button>
