@@ -310,25 +310,40 @@ function DashboardBlock({
     <section className="bg-emerald-600/5 dark:bg-emerald-900/10">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 py-6">
         <div className="flex items-center gap-4">
-          {photoUrl ? (
-            <Image
-              src={photoUrl}
-              alt={baby.name}
-              width={56}
-              height={56}
-              className="h-14 w-14 rounded-full object-cover ring-2 ring-white shadow-sm dark:ring-neutral-800"
-              unoptimized
-            />
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl dark:bg-emerald-900/40">
-              👶
-            </div>
-          )}
+          <Link
+            href="/profile"
+            aria-label="프로필 수정"
+            className="group relative inline-block rounded-full transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+          >
+            {photoUrl ? (
+              <Image
+                src={photoUrl}
+                alt={baby.name}
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-full object-cover ring-2 ring-white shadow-sm dark:ring-neutral-800"
+                unoptimized
+              />
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl ring-2 ring-white shadow-sm dark:bg-emerald-900/40 dark:ring-neutral-800">
+                👶
+              </div>
+            )}
+            <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[11px] text-white ring-2 ring-white shadow-sm transition group-hover:bg-emerald-700 dark:ring-neutral-950">
+              {photoUrl ? "✎" : "+"}
+            </span>
+          </Link>
           <div className="flex flex-1 flex-col">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-neutral-100">안녕하세요 👋</h2>
             <span className="text-xs text-gray-500 dark:text-neutral-500">
               {baby.name} · {baby.birth_date}
             </span>
+            <Link
+              href="/profile"
+              className="mt-0.5 text-xs font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-300"
+            >
+              프로필 수정
+            </Link>
           </div>
         </div>
         <InviteButton />
