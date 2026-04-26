@@ -63,10 +63,12 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
       form.append("reference_date", referenceDate ?? todayKstYmd());
 
       const controller = new AbortController();
-      // Idle-based timeout: abort if no chunk for 30s
+      // Idle-based timeout: abort only if server stops sending heartbeats too.
+      // Server emits a heartbeat every 5s, so 60s without any chunk means
+      // the connection is genuinely dead.
       let lastChunkAt = Date.now();
       const watchdog = setInterval(() => {
-        if (Date.now() - lastChunkAt > 30_000) {
+        if (Date.now() - lastChunkAt > 60_000) {
           controller.abort();
         }
       }, 2000);

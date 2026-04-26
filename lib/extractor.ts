@@ -8,8 +8,7 @@ const PER_CALL_TIMEOUT_MS = 22_000;
 
 // Streaming model: thinking + thought summaries enabled.
 const STREAM_MODEL = "gemini-2.5-flash";
-const STREAM_OVERALL_TIMEOUT_MS = 90_000;
-const STREAM_IDLE_TIMEOUT_MS = 25_000;
+const STREAM_OVERALL_TIMEOUT_MS = 150_000;
 
 const SYSTEM = `You are shown a photograph of a "신생아 양육표" — a printable
 Korean newborn-care chart (24-hour feeding/care log) filled in by hand.
@@ -296,7 +295,6 @@ export async function* extractFromImageStream(
 
   const overallDeadline = Date.now() + STREAM_OVERALL_TIMEOUT_MS;
   let acc = "";
-  let lastChunkAt = Date.now();
 
   try {
     const stream = await ai.models.generateContentStream({
@@ -321,15 +319,9 @@ export async function* extractFromImageStream(
 
     for await (const part of stream) {
       if (Date.now() > overallDeadline) {
-        yield { type: "error", message: "전체 시간 초과" };
+        yield { type: "error", message: "전체 시간 초과 (150초)" };
         return;
       }
-      if (Date.now() - lastChunkAt > STREAM_IDLE_TIMEOUT_MS) {
-        yield { type: "error", message: "응답이 너무 느립니다" };
-        return;
-      }
-      lastChunkAt = Date.now();
-
       const parts = part.candidates?.[0]?.content?.parts ?? [];
       for (const p of parts) {
         const text = (p as { text?: string }).text;

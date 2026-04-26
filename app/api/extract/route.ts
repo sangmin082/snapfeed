@@ -69,8 +69,15 @@ export async function POST(req: NextRequest) {
       );
       controller.enqueue(enc({ type: "status", text: "사진 저장 완료" }));
 
+      const startedAt = Date.now();
+      const heartbeat = setInterval(() => {
+        const sec = Math.floor((Date.now() - startedAt) / 1000);
+        controller.enqueue(enc({ type: "status", text: `처리 중… (${sec}s)` }));
+      }, 5000);
+
       try {
-        for await (const ev of extractFromImageStream(bytes, mimeType, referenceDate)) {
+        const it = extractFromImageStream(bytes, mimeType, referenceDate);
+        for await (const ev of it) {
           controller.enqueue(enc(ev));
           if (ev.type === "result" || ev.type === "error") break;
         }
@@ -78,6 +85,7 @@ export async function POST(req: NextRequest) {
         const msg = err instanceof Error ? err.message : String(err);
         controller.enqueue(enc({ type: "error", message: msg }));
       } finally {
+        clearInterval(heartbeat);
         controller.close();
       }
     },
