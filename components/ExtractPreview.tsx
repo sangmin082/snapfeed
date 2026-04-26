@@ -1,11 +1,12 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { ExtractResult, FeedRecord, EventRecord } from "@/lib/schema";
 
 type Props = {
   initial: ExtractResult;
   sourcePhoto: string;
+  previewUrl?: string;
   onSaved: () => void;
 };
 
@@ -148,11 +149,31 @@ function toEvent(item: Item): EventRecord {
   };
 }
 
-export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
+export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Props) {
   const [items, setItems] = useState<Item[]>(() => initialItems(initial));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [zoomed, setZoomed] = useState(false);
+
+  useEffect(() => {
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
+
+  useEffect(() => {
+    if (!zoomed) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZoomed(false);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [zoomed]);
 
   function update(id: string, patch: Partial<Item>) {
     setItems((prev) => prev.map((it) => (it.id === id ? { ...it, ...patch } : it)));
@@ -222,6 +243,33 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
 
   return (
     <div className="flex flex-col gap-4">
+      {previewUrl ? (
+        <section className="flex flex-col gap-2">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-lg font-semibold">원본 사진</h2>
+            <span className="text-xs text-gray-500 dark:text-neutral-500">
+              인식 결과와 비교해 확인하세요
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setZoomed(true)}
+            className="group relative block overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 transition hover:border-emerald-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-emerald-700"
+            aria-label="사진 크게 보기"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt="업로드한 기록지"
+              className="block max-h-[70vh] w-full object-contain"
+            />
+            <span className="pointer-events-none absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-black/60 px-2.5 py-1 text-xs font-medium text-white opacity-0 backdrop-blur transition group-hover:opacity-100">
+              🔍 크게 보기
+            </span>
+          </button>
+        </section>
+      ) : null}
+
       <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold">요약 ({items.length})</h2>
 
@@ -406,6 +454,31 @@ export function ExtractPreview({ initial, sourcePhoto, onSaved }: Props) {
       >
         {saving ? "저장 중…" : items.length === 0 ? "저장할 항목 없음" : "저장"}
       </button>
+
+      {zoomed && previewUrl ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setZoomed(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={previewUrl}
+            alt="업로드한 기록지 (확대)"
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[95vh] max-w-[95vw] cursor-default object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => setZoomed(false)}
+            aria-label="닫기"
+            className="fixed top-4 right-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-xl text-gray-900 shadow-md hover:bg-white"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -27,11 +27,11 @@ export default async function Home() {
               어르신·산후도우미 ↔ 부모를 잇는
             </span>
             <h1 className="text-4xl font-bold leading-tight tracking-tight text-gray-900 animate-fade-up sm:text-5xl dark:text-neutral-100" style={{ animationDelay: "80ms" }}>
-              수첩에 쓴 수유 기록,<br />
+              손으로 적어주신 수유 기록,<br />
               <span className="bg-gradient-to-r from-emerald-500 via-emerald-600 to-emerald-500 bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient dark:from-emerald-400 dark:via-emerald-300 dark:to-emerald-400">
-                사진 한 장
+                찰칵 한 번
               </span>
-              으로 통합
+              이면 디지털로 정리
             </h1>
             <p className="max-w-md text-base leading-relaxed text-gray-600 animate-fade-up sm:text-lg dark:text-neutral-400" style={{ animationDelay: "160ms" }}>
               할머니·할아버지·산후도우미가 수기로 남겨주신 수유 기록을,

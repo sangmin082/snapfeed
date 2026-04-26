@@ -72,7 +72,7 @@ export default function ThemeToggle() {
 
   return (
     <div
-      className="fixed top-3 right-3 z-50 inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-white/80 p-0.5 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/80"
+      className="inline-flex items-center gap-0.5 rounded-full border border-gray-200 bg-white/80 p-0.5 shadow-sm backdrop-blur dark:border-neutral-800 dark:bg-neutral-900/80"
       role="group"
       aria-label="테마 전환"
     >

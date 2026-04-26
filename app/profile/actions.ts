@@ -4,6 +4,15 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
 
+function asUploadedBlob(v: FormDataEntryValue | null): Blob | null {
+  if (v === null || typeof v === "string") return null;
+  const b = v as unknown as Blob;
+  if (typeof b.arrayBuffer !== "function" || typeof b.size !== "number" || b.size <= 0) {
+    return null;
+  }
+  return b;
+}
+
 export async function updateBaby(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const birthDate = String(formData.get("birth_date") ?? "").trim();
@@ -45,16 +54,20 @@ export async function updateBaby(formData: FormData) {
   const oldPhotoPath = baby.photo_path;
   let newPhotoPath: string | null | undefined; // undefined = no change
 
-  const photoFile = formData.get("photo");
-  if (photoFile instanceof File && photoFile.size > 0) {
-    const ext = (photoFile.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg");
+  const photoBlob = asUploadedBlob(formData.get("photo"));
+  if (photoBlob) {
+    const ext = (photoBlob.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg");
     const candidate = `baby-profile/${crypto.randomUUID()}.${ext}`;
-    const bytes = new Uint8Array(await photoFile.arrayBuffer());
+    const bytes = new Uint8Array(await photoBlob.arrayBuffer());
     const up = await admin.storage.from("feed-photos").upload(candidate, bytes, {
-      contentType: photoFile.type || "image/jpeg",
+      contentType: photoBlob.type || "image/jpeg",
       upsert: false,
     });
-    if (!up.error) newPhotoPath = candidate;
+    if (up.error) {
+      console.error("[profile] storage upload failed", up.error);
+      return redirect(`/profile?error=${encodeURIComponent(`upload: ${up.error.message}`)}`);
+    }
+    newPhotoPath = candidate;
   } else if (removePhoto) {
     newPhotoPath = null;
   }

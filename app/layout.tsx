@@ -60,7 +60,9 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-full flex flex-col bg-white text-gray-900 font-sans dark:bg-neutral-950 dark:text-neutral-100">
-        <ThemeToggle />
+        <div className="sticky top-0 z-40 flex justify-end border-b border-gray-200/60 bg-white/80 px-3 py-1.5 backdrop-blur dark:border-neutral-800/60 dark:bg-neutral-950/80">
+          <ThemeToggle />
+        </div>
         {children}
       </body>
     </html>

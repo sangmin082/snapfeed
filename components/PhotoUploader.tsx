@@ -9,6 +9,8 @@ export type ExtractResponse = {
   transcript: string;
   result: ExtractResult;
   warning?: string;
+  /** Local blob URL for the resized image, for visual verification. */
+  preview_url?: string;
 };
 
 type Props = {
@@ -27,9 +29,11 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
     const file = input.files?.[0];
     if (!file) return;
     setError(null);
+    let previewUrl: string | undefined;
     try {
       setState("resizing");
       const blob = await resizeImageToBlob(file);
+      previewUrl = URL.createObjectURL(blob);
 
       setState("uploading");
       const form = new FormData();
@@ -44,9 +48,11 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
         throw new Error(body.error ?? `HTTP ${res.status}`);
       }
       const json = (await res.json()) as ExtractResponse;
-      onExtracted(json);
+      onExtracted({ ...json, preview_url: previewUrl });
+      previewUrl = undefined; // ownership handed off
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     } finally {
       setState("idle");
       input.value = "";

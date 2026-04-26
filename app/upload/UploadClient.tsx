@@ -83,6 +83,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
           <ExtractPreview
             initial={extracted.result}
             sourcePhoto={extracted.source_photo}
+            previewUrl={extracted.preview_url}
             onSaved={() => setSaved(true)}
           />
           {extracted.transcript ? (
