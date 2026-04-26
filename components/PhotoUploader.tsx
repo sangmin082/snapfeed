@@ -4,6 +4,14 @@ import { useRef, useState } from "react";
 import { resizeImageToBlob } from "@/lib/resizeImage";
 import type { ExtractResult } from "@/lib/schema";
 
+function todayKstYmd(): string {
+  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const y = kst.getUTCFullYear();
+  const m = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(kst.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
 export type ExtractResponse = {
   source_photo: string;
   transcript: string;
@@ -38,10 +46,7 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
       setState("uploading");
       const form = new FormData();
       form.append("image", blob, "feed.jpg");
-      form.append(
-        "reference_date",
-        referenceDate ?? new Date().toISOString().slice(0, 10),
-      );
+      form.append("reference_date", referenceDate ?? todayKstYmd());
       const res = await fetch("/api/extract", { method: "POST", body: form });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };

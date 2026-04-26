@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getUser } from "@/lib/auth";
-import { signInWithPassword, signUpWithPassword, signInWithGoogle } from "./actions";
+import {
+  signInWithPassword,
+  signUpWithPassword,
+  signInWithGoogle,
+  resendConfirmation,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
 
 type Props = {
-  searchParams: Promise<{ from?: string; error?: string; notice?: string; mode?: string }>;
+  searchParams: Promise<{
+    from?: string;
+    error?: string;
+    notice?: string;
+    mode?: string;
+    email?: string;
+  }>;
 };
 
 export default async function LoginPage({ searchParams }: Props) {
@@ -16,6 +27,10 @@ export default async function LoginPage({ searchParams }: Props) {
   const from = sp.from ?? "/";
   const mode = sp.mode === "signup" ? "signup" : "signin";
   const isSignup = mode === "signup";
+  const looksLikeBadCreds =
+    !!sp.error &&
+    /invalid|email not confirmed|credentials/i.test(sp.error);
+  const failedEmail = sp.email ?? "";
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
@@ -32,9 +47,39 @@ export default async function LoginPage({ searchParams }: Props) {
             이메일로 확인 링크를 보냈습니다. 링크를 눌러 가입을 완료해주세요.
           </div>
         ) : null}
+        {sp.notice === "resent" ? (
+          <div className="rounded-xl bg-emerald-50 p-4 text-center text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
+            확인 메일을 다시 보냈습니다. 메일함(스팸 포함)을 확인해주세요.
+          </div>
+        ) : null}
         {sp.error ? (
-          <div className="rounded-xl bg-red-50 p-4 text-center text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">
-            {sp.error}
+          <div className="flex flex-col gap-3 rounded-xl bg-red-50 p-4 text-sm text-red-800 dark:bg-red-950/40 dark:text-red-200">
+            <p className="text-center">{sp.error}</p>
+            {looksLikeBadCreds ? (
+              <div className="flex flex-col gap-2 border-t border-red-200 pt-3 text-center dark:border-red-900">
+                <p className="text-xs">
+                  최근에 가입하셨다면 이메일로 보낸 확인 링크를 먼저 눌러야 로그인됩니다.
+                  메일이 안 왔으면 아래 버튼으로 다시 받을 수 있어요.
+                </p>
+                <form action={resendConfirmation} className="flex flex-col gap-2 sm:flex-row">
+                  <input
+                    required
+                    type="email"
+                    name="email"
+                    defaultValue={failedEmail}
+                    placeholder="가입한 이메일"
+                    className="flex-1 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-900 dark:border-red-900 dark:bg-neutral-900 dark:text-neutral-100"
+                  />
+                  <input type="hidden" name="from" value={from} />
+                  <button
+                    type="submit"
+                    className="rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700"
+                  >
+                    확인 메일 재전송
+                  </button>
+                </form>
+              </div>
+            ) : null}
           </div>
         ) : null}
 

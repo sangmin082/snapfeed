@@ -8,6 +8,22 @@ const RETRIES_PER_MODEL = 1;
 const SYSTEM = `You are shown a photograph of a handwritten Korean baby feeding log (수유 기록).
 Extract every entry and return strict JSON only. No prose, no markdown fences.
 
+Detect the chart date FIRST, before reading the rows:
+- Chart sheets carry a date label per day. Look for any of:
+  "날짜", "Date", "_년 _월 _일", "YYYY/MM/DD", "MM/DD",
+  "M월 D일", a weekday next to a number (e.g. "23(목)").
+- If a single A4 contains multiple days (commonly 2–3 days per
+  printable chart), each day block has its OWN date label —
+  associate each row with the date of the block it sits in.
+- Use the detected date for that block's start_at / at fields.
+- Year handling:
+    • If only month+day are written (e.g. "4/22"), use the year
+      from reference_date.
+    • If month+day are missing but a year is, still combine with
+      reference_date's month+day (rare).
+- ONLY when no date can be read from the photo at all, fall back
+  to reference_date for every row.
+
 Common table layout (신생아 양육표 / newborn record chart):
 - Leftmost column is an hour label: 0AM..11AM, 12PM..11PM. These label
   the hour of that row, NOT minute values. Map them as:
@@ -36,8 +52,12 @@ Common table layout (신생아 양육표 / newborn record chart):
 - "기타" column holds free-text notes for the row.
 
 Derive fields:
-- start_at = reference_date + row hour + 시간(분) minutes (minute=0
-  when 시간(분) is empty). Output ISO 8601 with +09:00 offset.
+- start_at = (detected chart date for this row's day-block, falling
+  back to reference_date) + row hour + 시간(분) minutes (minute=0
+  when 시간(분) is empty). Output ISO 8601 with +09:00 offset, e.g.
+  "2026-04-22T01:35:00+09:00".
+- ALWAYS output the full date+time form when you have a detected
+  date. Do not output bare "HH:MM".
 - end_at = null. This template does NOT track feeding duration —
   never invent one.
 - volume_ml = number from "양(ml)" column, else null.

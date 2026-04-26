@@ -5,9 +5,31 @@ import { useState } from "react";
 import { PhotoUploader, type ExtractResponse } from "@/components/PhotoUploader";
 import { ExtractPreview } from "@/components/ExtractPreview";
 
+function todayKstYmd(): string {
+  const kst = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  const y = kst.getUTCFullYear();
+  const m = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(kst.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function shiftKstYmd(ymd: string, days: number): string {
+  const d = new Date(`${ymd}T00:00:00+09:00`);
+  d.setUTCDate(d.getUTCDate() + days);
+  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const y = kst.getUTCFullYear();
+  const mo = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const da = String(kst.getUTCDate()).padStart(2, "0");
+  return `${y}-${mo}-${da}`;
+}
+
 export function UploadClient({ babyName }: { babyName: string }) {
   const [extracted, setExtracted] = useState<ExtractResponse | null>(null);
   const [saved, setSaved] = useState(false);
+  const [referenceDate, setReferenceDate] = useState<string>(todayKstYmd);
+  const today = todayKstYmd();
+  const yesterday = shiftKstYmd(today, -1);
+  const dayBefore = shiftKstYmd(today, -2);
 
   if (saved) {
     return (
@@ -71,7 +93,47 @@ export function UploadClient({ babyName }: { babyName: string }) {
               <li>· 손글씨도 인식합니다 — 너무 흐리지만 않으면 OK</li>
             </ul>
           </div>
-          <PhotoUploader onExtracted={setExtracted} />
+
+          <div className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+            <label className="text-sm font-medium text-gray-700 dark:text-neutral-300">
+              이 사진은 며칠 기록인가요?
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { value: today, label: "오늘" },
+                { value: yesterday, label: "어제" },
+                { value: dayBefore, label: "그저께" },
+              ].map((opt) => {
+                const active = referenceDate === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setReferenceDate(opt.value)}
+                    className={
+                      active
+                        ? "rounded-full bg-emerald-600 px-3 py-1.5 text-sm font-semibold text-white shadow-sm"
+                        : "rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800"
+                    }
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
+              <input
+                type="date"
+                value={referenceDate}
+                max={today}
+                onChange={(e) => setReferenceDate(e.target.value || today)}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 focus:border-emerald-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+              />
+            </div>
+            <p className="text-xs text-gray-500 dark:text-neutral-500">
+              사진 속 시간(0AM~11PM)이 이 날짜의 시간으로 저장됩니다.
+            </p>
+          </div>
+
+          <PhotoUploader referenceDate={referenceDate} onExtracted={setExtracted} />
         </>
       ) : (
         <>

@@ -12,8 +12,29 @@ export async function signInWithPassword(formData: FormData) {
 
   const supabase = await serverSupabase();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  if (error) {
+    const params = new URLSearchParams({ error: error.message });
+    if (email) params.set("email", email);
+    if (from && from !== "/") params.set("from", from);
+    return redirect(`/login?${params.toString()}`);
+  }
   redirect(from || "/");
+}
+
+export async function resendConfirmation(formData: FormData) {
+  const email = String(formData.get("email") ?? "").trim();
+  const from = String(formData.get("from") ?? "/");
+  if (!email) return redirect("/login?error=fields");
+
+  const supabase = await serverSupabase();
+  const origin = (await headers()).get("origin") ?? "";
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${origin}/auth/callback?from=${encodeURIComponent(from)}` },
+  });
+  if (error) return redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  redirect("/login?notice=resent");
 }
 
 export async function signUpWithPassword(formData: FormData) {
