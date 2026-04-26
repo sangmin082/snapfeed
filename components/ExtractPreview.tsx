@@ -307,13 +307,22 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
                         <td className="px-3 py-1.5 whitespace-nowrap">{KIND_LABEL[it.kind]}</td>
                         <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailLabel(it)}</td>
                         <td className="px-3 py-1.5 whitespace-nowrap text-right">
-                          <button
-                            type="button"
-                            onClick={() => setEditingId(editing ? null : it.id)}
-                            className="text-xs text-blue-600 underline dark:text-blue-400"
-                          >
-                            {editing ? "닫기" : "수정"}
-                          </button>
+                          <div className="inline-flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setEditingId(editing ? null : it.id)}
+                              className="text-xs text-blue-600 underline dark:text-blue-400"
+                            >
+                              {editing ? "닫기" : "수정"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => remove(it.id)}
+                              className="text-xs text-red-600 underline dark:text-red-400"
+                            >
+                              삭제
+                            </button>
+                          </div>
                         </td>
                       </tr>
                       {editing ? (

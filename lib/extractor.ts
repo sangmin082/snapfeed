@@ -49,7 +49,18 @@ Common table layout (신생아 양육표 / newborn record chart):
     • Emit N separate events with the matching event_type at the
       row's hour (minute=0) and end_at=null. Example: 3AM row with
       소변="ㅡㅡ" → 10 diaper_pee events at 03:00.
-- "기타" column holds free-text notes for the row.
+- "기타" / "비고" column holds free-text notes for the row. Common
+  entries to watch for (often abbreviated):
+    • Supplements: "유산균", "비타민D", "비타민 D", "vit D",
+      "비타민C", "vit C", "철분", "DHA", "영양제".
+    • Health/care: "약", "해열제", "체온 37.6", "트림", "구토",
+      "황달", "목욕".
+    • Mood / behavior: "보챔", "잘 잠", "안 잠", "혀짧음" 등.
+  EVERY non-empty 기타/비고 cell becomes ONE event_type "note"
+  with `at` set to the row's hour (minute=0) and details = the
+  EXACT verbatim text from the cell (one note event per cell, even
+  if the cell has multiple words). Do NOT skip a row just because
+  it ONLY has a note.
 
 Derive fields:
 - start_at = (detected chart date for this row's day-block, falling
@@ -72,6 +83,9 @@ Korean term mapping:
 - 대변 / 응가 → event_type "diaper_poop"
 - 소변 / 쉬 / 오줌 → "diaper_pee"
 - 수면 / 잠 / 꿈 → "sleep" (pair start+end when both given)
+- 유산균 / 비타민 / 비타민D / 비타민C / 영양제 / 약 / 트림 /
+  해열제 / 체온 / 목욕 / 보챔 / 잘 잠 / etc. → event_type "note"
+  with the original phrase preserved verbatim in details.
 - 다른 자유 메모 → "note"
 
 Feed type default: when a row shows a volume (e.g. "80ml", "60") but
