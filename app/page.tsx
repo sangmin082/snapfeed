@@ -10,6 +10,13 @@ export default async function Home() {
   const user = await getUser();
   const baby = user ? await getPrimaryBaby(user.id) : null;
   const photoUrl = baby ? await babyPhotoUrl(baby.photo_path) : null;
+  if (baby) {
+    console.log("[home] baby photo state", {
+      babyId: baby.id,
+      photoPath: baby.photo_path,
+      hasSignedUrl: !!photoUrl,
+    });
+  }
 
   return (
     <main className="flex flex-col">

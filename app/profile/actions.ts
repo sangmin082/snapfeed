@@ -54,7 +54,15 @@ export async function updateBaby(formData: FormData) {
   const oldPhotoPath = baby.photo_path;
   let newPhotoPath: string | null | undefined; // undefined = no change
 
-  const photoBlob = asUploadedBlob(formData.get("photo"));
+  const rawPhoto = formData.get("photo");
+  const photoBlob = asUploadedBlob(rawPhoto);
+  console.log("[profile] photo intake", {
+    rawType: rawPhoto === null ? "null" : typeof rawPhoto,
+    isBlobish: photoBlob != null,
+    size: photoBlob?.size ?? null,
+    mime: photoBlob?.type ?? null,
+    removePhoto,
+  });
   if (photoBlob) {
     const ext = (photoBlob.type.split("/")[1] ?? "jpg").replace("jpeg", "jpg");
     const candidate = `baby-profile/${crypto.randomUUID()}.${ext}`;

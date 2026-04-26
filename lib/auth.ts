@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { serverSupabase } from "./supabase-server";
+import { serverSupabase, serviceSupabase } from "./supabase-server";
 
 export async function getUser() {
   const supabase = await serverSupabase();
@@ -36,11 +36,15 @@ export async function getPrimaryBaby(userId: string): Promise<PrimaryBaby | null
 
 export async function babyPhotoUrl(photoPath: string | null): Promise<string | null> {
   if (!photoPath) return null;
-  const supabase = await serverSupabase();
-  const { data } = await supabase.storage
+  const admin = serviceSupabase();
+  const { data, error } = await admin.storage
     .from("feed-photos")
     .createSignedUrl(photoPath, 60 * 60); // 1 hour
-  return data?.signedUrl ?? null;
+  if (error || !data?.signedUrl) {
+    console.error("[auth] babyPhotoUrl failed", { photoPath, error });
+    return null;
+  }
+  return data.signedUrl;
 }
 
 export async function requireUserAndBaby() {
