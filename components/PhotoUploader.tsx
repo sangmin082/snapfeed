@@ -21,12 +21,25 @@ export type ExtractResponse = {
   preview_url?: string;
 };
 
+export type ProgressEvent =
+  | { type: "status"; text: string }
+  | { type: "thought"; text: string };
+
 type Props = {
   referenceDate?: string;
   onExtracted: (resp: ExtractResponse) => void;
+  onProgress?: (ev: ProgressEvent) => void;
+  onStart?: () => void;
 };
 
-export function PhotoUploader({ referenceDate, onExtracted }: Props) {
+type StreamEvent =
+  | { type: "meta"; source_photo: string; baby_id: string }
+  | { type: "status"; text: string }
+  | { type: "thought"; text: string }
+  | { type: "result"; bundle: { transcript: string } & ExtractResult }
+  | { type: "error"; message: string };
+
+export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const libraryRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<"idle" | "resizing" | "uploading">("idle");
@@ -37,6 +50,7 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
     const file = input.files?.[0];
     if (!file) return;
     setError(null);
+    onStart?.();
     let previewUrl: string | undefined;
     try {
       setState("resizing");
@@ -47,8 +61,16 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
       const form = new FormData();
       form.append("image", blob, "feed.jpg");
       form.append("reference_date", referenceDate ?? todayKstYmd());
+
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 28_000);
+      // Idle-based timeout: abort if no chunk for 30s
+      let lastChunkAt = Date.now();
+      const watchdog = setInterval(() => {
+        if (Date.now() - lastChunkAt > 30_000) {
+          controller.abort();
+        }
+      }, 2000);
+
       let res: Response;
       try {
         res = await fetch("/api/extract", {
@@ -56,20 +78,69 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
           body: form,
           signal: controller.signal,
         });
-      } catch (e) {
+      } catch (err) {
+        clearInterval(watchdog);
         if (controller.signal.aborted) {
-          throw new Error("인식이 너무 오래 걸려요. 사진을 더 밝고 선명하게 다시 찍거나 잠시 후 다시 시도해주세요.");
+          throw new Error("응답이 너무 느립니다. 사진을 다시 찍거나 잠시 후 다시 시도해주세요.");
         }
-        throw e;
-      } finally {
-        clearTimeout(timeoutId);
+        throw err;
       }
-      if (!res.ok) {
+
+      if (!res.ok || !res.body) {
+        clearInterval(watchdog);
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(body.error ?? `HTTP ${res.status}`);
       }
-      const json = (await res.json()) as ExtractResponse;
-      onExtracted({ ...json, preview_url: previewUrl });
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let meta: { source_photo: string; baby_id: string } | null = null;
+      let bundle: { transcript: string } & ExtractResult = {
+        transcript: "",
+        feeds: [],
+        events: [],
+      };
+      let warning: string | undefined;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        lastChunkAt = Date.now();
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+          let ev: StreamEvent;
+          try {
+            ev = JSON.parse(trimmed) as StreamEvent;
+          } catch {
+            continue;
+          }
+          if (ev.type === "meta") {
+            meta = { source_photo: ev.source_photo, baby_id: ev.baby_id };
+          } else if (ev.type === "status" || ev.type === "thought") {
+            onProgress?.(ev);
+          } else if (ev.type === "result") {
+            bundle = ev.bundle;
+          } else if (ev.type === "error") {
+            warning = `extraction failed: ${ev.message} — manual entry required`;
+          }
+        }
+      }
+      clearInterval(watchdog);
+
+      if (!meta) throw new Error("응답이 손상되었습니다 (meta 없음)");
+
+      onExtracted({
+        source_photo: meta.source_photo,
+        transcript: bundle.transcript,
+        result: { feeds: bundle.feeds, events: bundle.events },
+        warning,
+        preview_url: previewUrl,
+      });
       previewUrl = undefined; // ownership handed off
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));

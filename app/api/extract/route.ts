@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { extractFromImage } from "@/lib/extractor";
+import { extractFromImageStream } from "@/lib/extractor";
 import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
 import { allow, DAILY_EXTRACT, MONTHLY_EXTRACT } from "@/lib/ratelimit";
 
@@ -59,25 +59,35 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `storage: ${upload.error.message}` }, { status: 500 });
   }
 
-  try {
-    const bundle = await extractFromImage(bytes, mimeType, referenceDate);
-    return NextResponse.json({
-      source_photo: photoPath,
-      baby_id: babyId,
-      transcript: bundle.transcript,
-      result: { feeds: bundle.feeds, events: bundle.events },
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      {
-        source_photo: photoPath,
-        baby_id: babyId,
-        transcript: "",
-        result: { feeds: [], events: [] },
-        warning: `extraction failed: ${message} — manual entry required`,
-      },
-      { status: 200 },
-    );
-  }
+  const encoder = new TextEncoder();
+  const enc = (obj: unknown) => encoder.encode(JSON.stringify(obj) + "\n");
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      controller.enqueue(
+        enc({ type: "meta", source_photo: photoPath, baby_id: babyId }),
+      );
+      controller.enqueue(enc({ type: "status", text: "사진 저장 완료" }));
+
+      try {
+        for await (const ev of extractFromImageStream(bytes, mimeType, referenceDate)) {
+          controller.enqueue(enc(ev));
+          if (ev.type === "result" || ev.type === "error") break;
+        }
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        controller.enqueue(enc({ type: "error", message: msg }));
+      } finally {
+        controller.close();
+      }
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "application/x-ndjson; charset=utf-8",
+      "Cache-Control": "no-cache, no-transform",
+      "X-Accel-Buffering": "no",
+    },
+  });
 }

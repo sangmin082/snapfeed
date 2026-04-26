@@ -6,6 +6,11 @@ const MODEL_CHAIN = ["gemini-2.5-flash-lite"] as const;
 const RETRIES_PER_MODEL = 0;
 const PER_CALL_TIMEOUT_MS = 22_000;
 
+// Streaming model: thinking + thought summaries enabled.
+const STREAM_MODEL = "gemini-2.5-flash";
+const STREAM_OVERALL_TIMEOUT_MS = 90_000;
+const STREAM_IDLE_TIMEOUT_MS = 25_000;
+
 const SYSTEM = `You are shown a photograph of a "신생아 양육표" — a printable
 Korean newborn-care chart (24-hour feeding/care log) filled in by hand.
 Extract every entry and return strict JSON only. No prose, no fences.
@@ -207,6 +212,12 @@ type GeminiShape = {
 
 export type ExtractBundle = { transcript: string } & ExtractResult;
 
+export type ExtractEvent =
+  | { type: "status"; text: string }
+  | { type: "thought"; text: string }
+  | { type: "result"; bundle: ExtractBundle }
+  | { type: "error"; message: string };
+
 export async function extractFromImage(
   imageBytes: Uint8Array,
   mimeType: string,
@@ -252,6 +263,120 @@ export async function extractFromImage(
   };
   ExtractResult.parse({ feeds: bundle.feeds, events: bundle.events });
   return bundle;
+}
+
+export async function* extractFromImageStream(
+  imageBytes: Uint8Array,
+  mimeType: string,
+  referenceDate: string,
+): AsyncGenerator<ExtractEvent, void, unknown> {
+  const cfEnv = getCloudflareContext().env as unknown as Record<string, string | undefined>;
+  const apiKey = cfEnv.GEMINI_API_KEY ?? process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    yield { type: "error", message: "GEMINI_API_KEY missing" };
+    return;
+  }
+
+  yield { type: "status", text: "사진 분석 시작" };
+
+  const ai = new GoogleGenAI({ apiKey });
+
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < imageBytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(
+      null,
+      Array.from(imageBytes.subarray(i, i + chunk)),
+    );
+  }
+  const imageB64 = btoa(bin);
+  const userText = `reference_date: ${referenceDate}`;
+
+  yield { type: "status", text: "Gemini 호출 중" };
+
+  const overallDeadline = Date.now() + STREAM_OVERALL_TIMEOUT_MS;
+  let acc = "";
+  let lastChunkAt = Date.now();
+
+  try {
+    const stream = await ai.models.generateContentStream({
+      model: STREAM_MODEL,
+      contents: [
+        {
+          role: "user",
+          parts: [
+            { inlineData: { mimeType, data: imageB64 } },
+            { text: userText },
+          ],
+        },
+      ],
+      config: {
+        systemInstruction: SYSTEM,
+        responseMimeType: "application/json",
+        responseSchema,
+        temperature: 0,
+        thinkingConfig: { thinkingBudget: -1, includeThoughts: true },
+      },
+    });
+
+    for await (const part of stream) {
+      if (Date.now() > overallDeadline) {
+        yield { type: "error", message: "전체 시간 초과" };
+        return;
+      }
+      if (Date.now() - lastChunkAt > STREAM_IDLE_TIMEOUT_MS) {
+        yield { type: "error", message: "응답이 너무 느립니다" };
+        return;
+      }
+      lastChunkAt = Date.now();
+
+      const parts = part.candidates?.[0]?.content?.parts ?? [];
+      for (const p of parts) {
+        const text = (p as { text?: string }).text;
+        const isThought = (p as { thought?: boolean }).thought === true;
+        if (!text) continue;
+        if (isThought) {
+          yield { type: "thought", text };
+        } else {
+          acc += text;
+        }
+      }
+    }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    yield { type: "error", message: msg };
+    return;
+  }
+
+  yield { type: "status", text: "결과 정리 중" };
+
+  let parsed: GeminiShape;
+  try {
+    parsed = JSON.parse(acc) as GeminiShape;
+  } catch {
+    yield { type: "error", message: `JSON 파싱 실패: ${acc.slice(0, 200)}` };
+    return;
+  }
+
+  try {
+    const feeds = parsed.feeds.map((f) => ({
+      ...f,
+      start_at: normalizeIso(f.start_at, referenceDate)!,
+      end_at: normalizeIso(f.end_at, referenceDate),
+    }));
+    const events = parsed.events.map((e) => ({
+      event_type: e.event_type,
+      at: normalizeIso(e.at, referenceDate)!,
+      end_at: normalizeIso(e.end_at, referenceDate),
+      details: e.details ? safeJsonParse(e.details) : null,
+    }));
+    const bundle: ExtractBundle = { transcript: "", feeds, events };
+    ExtractResult.parse({ feeds: bundle.feeds, events: bundle.events });
+    yield { type: "result", bundle };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    yield { type: "error", message: `검증 실패: ${msg}` };
+  }
 }
 
 // Accept what Gemini actually emits (e.g. "01:35", "2026-04-24T01:35+09:00",

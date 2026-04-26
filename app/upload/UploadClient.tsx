@@ -1,13 +1,41 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { PhotoUploader, type ExtractResponse } from "@/components/PhotoUploader";
+import { useEffect, useRef, useState } from "react";
+import {
+  PhotoUploader,
+  type ExtractResponse,
+  type ProgressEvent,
+} from "@/components/PhotoUploader";
 import { ExtractPreview } from "@/components/ExtractPreview";
+
+type ProgressLine = { kind: "status" | "thought"; text: string; ts: number };
 
 export function UploadClient({ babyName }: { babyName: string }) {
   const [extracted, setExtracted] = useState<ExtractResponse | null>(null);
   const [saved, setSaved] = useState(false);
+  const [progress, setProgress] = useState<ProgressLine[]>([]);
+  const [busy, setBusy] = useState(false);
+  const logRef = useRef<HTMLDivElement | null>(null);
+
+  function handleProgress(ev: ProgressEvent) {
+    setBusy(true);
+    setProgress((prev) => [
+      ...prev,
+      { kind: ev.type, text: ev.text, ts: Date.now() },
+    ]);
+  }
+
+  function handleExtracted(resp: ExtractResponse) {
+    setBusy(false);
+    setExtracted(resp);
+  }
+
+  useEffect(() => {
+    if (logRef.current) {
+      logRef.current.scrollTop = logRef.current.scrollHeight;
+    }
+  }, [progress]);
 
   if (saved) {
     return (
@@ -73,7 +101,54 @@ export function UploadClient({ babyName }: { babyName: string }) {
             </ul>
           </div>
 
-          <PhotoUploader onExtracted={setExtracted} />
+          <PhotoUploader
+            onExtracted={handleExtracted}
+            onProgress={handleProgress}
+            onStart={() => {
+              setProgress([]);
+              setBusy(true);
+            }}
+          />
+
+          {(busy || progress.length > 0) && !extracted ? (
+            <section className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-gray-700 dark:text-neutral-300">
+                  🤖 Gemini 추론 로그
+                </h3>
+                {busy ? (
+                  <span className="inline-flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                    분석 중
+                  </span>
+                ) : null}
+              </div>
+              <div
+                ref={logRef}
+                className="max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-3 font-mono text-xs leading-relaxed text-gray-700 dark:bg-neutral-950 dark:text-neutral-300"
+              >
+                {progress.map((l, i) => (
+                  <div key={i} className="mb-1.5 last:mb-0">
+                    {l.kind === "status" ? (
+                      <span className="text-emerald-700 dark:text-emerald-400">▸ {l.text}</span>
+                    ) : (
+                      <span className="whitespace-pre-wrap text-gray-600 dark:text-neutral-400">
+                        💭 {l.text}
+                      </span>
+                    )}
+                  </div>
+                ))}
+                {progress.length === 0 ? (
+                  <span className="text-gray-400 dark:text-neutral-500">
+                    아직 응답이 없습니다…
+                  </span>
+                ) : null}
+              </div>
+              <p className="text-xs text-gray-500 dark:text-neutral-500">
+                Gemini가 사진을 보며 생각하는 과정이 실시간으로 표시됩니다.
+              </p>
+            </section>
+          ) : null}
         </>
       ) : (
         <>
@@ -96,7 +171,10 @@ export function UploadClient({ babyName }: { babyName: string }) {
           ) : null}
           <button
             type="button"
-            onClick={() => setExtracted(null)}
+            onClick={() => {
+              setExtracted(null);
+              setProgress([]);
+            }}
             className="self-start text-sm text-gray-500 underline dark:text-neutral-500"
           >
             다시 찍기
