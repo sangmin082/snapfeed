@@ -5,95 +5,143 @@ import { ExtractResult } from "./schema";
 const MODEL_CHAIN = ["gemini-2.5-flash-lite", "gemini-2.5-flash"] as const;
 const RETRIES_PER_MODEL = 1;
 
-const SYSTEM = `You are shown a photograph of a handwritten Korean baby feeding log (수유 기록).
-Extract every entry and return strict JSON only. No prose, no markdown fences.
+const SYSTEM = `You are shown a photograph of a "신생아 양육표" — a printable
+Korean newborn-care chart (24-hour feeding/care log) filled in by hand.
+Extract every entry and return strict JSON only. No prose, no fences.
 
-Detect the chart date FIRST, before reading the rows:
-- Chart sheets carry a date label per day. Look for any of:
-  "날짜", "Date", "_년 _월 _일", "YYYY/MM/DD", "MM/DD",
-  "M월 D일", a weekday next to a number (e.g. "23(목)").
-- If a single A4 contains multiple days (commonly 2–3 days per
-  printable chart), each day block has its OWN date label —
-  associate each row with the date of the block it sits in.
-- Use the detected date for that block's start_at / at fields.
+────────────────────────────────────────────────────────
+SHEET LAYOUT (memorize this; the photo will look like it)
+────────────────────────────────────────────────────────
+The standard form is one A4 page split into THREE day-blocks
+arranged side-by-side (left → middle → right). Each block has:
+
+(1) Sheet-level header at the very top (shared across all 3 blocks):
+    • "이름:" (baby name) — IGNORE for extraction.
+    • "수유방법:" (default feeding method, e.g. "직수", "분유",
+      "혼합", "유축") — use this as the DEFAULT feed_type when a
+      row shows volume but no explicit "형태" cell value (see
+      "Feed type default" below).
+
+(2) Per-block date header: a row reading
+       "___ 년 ___ 월 ___ 일"
+    Users write any subset, e.g. "2026 년 4 월 22 일", "4 월 22",
+    "22 일", "4/22", or attach a weekday "22(화)". Treat all of
+    these as the date for THAT block. Year defaults to
+    reference_date's year when omitted.
+
+(3) Per-block table header (two rows):
+       시간 | 섭취 (시간(분) / 형태 / 양(ml)) | 배설 (소변 / 대변 /
+             구토) | 기타
+    The "기타" column here is PER-ROW (per-hour) and is a
+    different field from the day-level footer "기타기록 / 비고"
+    described in (5) below — do not merge them.
+
+(4) 24 body rows: 0AM, 1AM, …, 11AM, 12PM, 1PM, …, 11PM.
+    Hour mapping:
+       0AM → 00, 1AM..11AM → 01..11, 12PM → 12, 1PM..11PM → 13..23.
+
+(5) Per-block footer rows BELOW the 24-hour table:
+       "기타기록"  |  "비고"
+       "체중"      |  <value>
+       "체온"      |  <value>
+       "수유총량"  |  <value>
+       (one extra blank row sometimes)
+    These are DAY-LEVEL — emit them with at = that block's date
+    at 12:00 (noon) so they sort in the middle of the day:
+       • 기타기록 / 비고 (any free text) → ONE note per non-empty
+         cell, details = verbatim text.
+       • 체중 (weight) → note, details = "체중 <value>" verbatim
+         (e.g. "체중 4.2kg").
+       • 체온 (temperature) → note, details = "체온 <value>"
+         verbatim. If multiple readings are written, emit each
+         separately and try to anchor at the recorded time; if
+         only the day-level cell, use 12:00.
+       • 수유총량 (daily feeding total in ml) → note,
+         details = "수유총량 <value>". Do NOT try to back-fill
+         per-feed volumes from this — it is a summary.
+
+If only ONE day block is visible (cropped photo), still process it
+the same way. If a block is fully blank, skip it.
+
+────────────────────────────────────────────────────────
+DATE DETECTION (do this FIRST, before reading any row)
+────────────────────────────────────────────────────────
+- Read each block's date header. Each block can be a different
+  day; associate every row/footer entry with its own block's date.
 - Year handling:
-    • If only month+day are written (e.g. "4/22"), use the year
-      from reference_date.
-    • If month+day are missing but a year is, still combine with
-      reference_date's month+day (rare).
-- ONLY when no date can be read from the photo at all, fall back
-  to reference_date for every row.
+    • Year omitted ("4 월 22") → use reference_date's year.
+    • Month omitted but day present and another block has a full
+      date → assume contiguous days when adjacent blocks form a
+      sequence; otherwise fall back to reference_date.
+- Only when NO date can be read on a block at all, fall back to
+  reference_date for that block.
+- ALWAYS output the full date+time ISO form when you have a date.
+  Never output bare "HH:MM".
 
-Common table layout (신생아 양육표 / newborn record chart):
-- Leftmost column is an hour label: 0AM..11AM, 12PM..11PM. These label
-  the hour of that row, NOT minute values. Map them as:
-    0AM → 00, 1AM..11AM → 01..11, 12PM → 12, 1PM..11PM → 13..23.
-- Under "섭취" there are sub-columns:
-    • "시간(분)" = the MINUTES part of the clock time when the feed
-      actually happened (0–59). This is the minute-of-hour, NOT a
-      duration. It combines with the row's hour label to form the
-      real feed time. E.g. row "1AM" with 시간(분)="35" → 01:35.
-      If this cell is empty, the feed time is the hour itself
-      (:00).
-    • "형태" = feed type (모유직수/유축/분유 등).
-    • "양(ml)" = volume in milliliters.
-- Under "배설": "소변" / "대변" / "구토" columns hold COUNTS written
-  as Korean tally marks (바를 정자 / 正 character system):
-    • Individual strokes accumulate: 1 stroke(一)=1, 2(二 or 丁)=2,
-      3(三 or 下)=3, 4(正 without the last stroke)=4, complete
-      正=5.
-    • A single horizontal bar "ㅡ" or "一" drawn alone is a
-      shorthand for ONE COMPLETED 正 = 5 events.
-    • Sum the strokes / complete 正 characters in the cell to get
-      the total count N for that hour row.
-    • Emit N separate events with the matching event_type at the
-      row's hour (minute=0) and end_at=null. Example: 3AM row with
-      소변="ㅡㅡ" → 10 diaper_pee events at 03:00.
-- "기타" / "비고" column holds free-text notes for the row. Common
-  entries to watch for (often abbreviated):
-    • Supplements: "유산균", "비타민D", "비타민 D", "vit D",
-      "비타민C", "vit C", "철분", "DHA", "영양제".
-    • Health/care: "약", "해열제", "체온 37.6", "트림", "구토",
-      "황달", "목욕".
-    • Mood / behavior: "보챔", "잘 잠", "안 잠", "혀짧음" 등.
-  EVERY non-empty 기타/비고 cell becomes ONE event_type "note"
-  with `at` set to the row's hour (minute=0) and details = the
-  EXACT verbatim text from the cell (one note event per cell, even
-  if the cell has multiple words). Do NOT skip a row just because
-  it ONLY has a note.
+────────────────────────────────────────────────────────
+PER-ROW EXTRACTION (the 24-hour table)
+────────────────────────────────────────────────────────
+Under "섭취":
+- "시간(분)" = the MINUTE part (0–59) of the actual feed time.
+  Combine with the row's hour: row "1AM" with 시간(분)="35" →
+  01:35. Empty cell → :00.
+- "형태" = feed type. Map (case/spacing-insensitive):
+       모유직수 / 직수 / 모유            → "breast_direct"
+       유축 / 짜둔 / 짠 모유 / 짠젖      → "breast_pumped"
+       분유 / 포뮬러 / 우유              → "formula"
+- "양(ml)" = integer ml. Strip "ml" suffix. Empty → null.
+- Multiple feeds in the same hour cell → separate feed entries.
 
-Derive fields:
-- start_at = (detected chart date for this row's day-block, falling
-  back to reference_date) + row hour + 시간(분) minutes (minute=0
-  when 시간(분) is empty). Output ISO 8601 with +09:00 offset, e.g.
+Under "배설" — counts written as Korean tally marks (바를 정자 / 正):
+- Stroke values: 一=1, 二/丁=2, 三/下=3, 正(no last stroke)=4,
+  complete 正=5. A solo horizontal bar "ㅡ"/"一" drawn alone
+  means ONE complete 正 = 5.
+- Sum the strokes/正's in the cell → count N. Emit N SEPARATE
+  events of the matching event_type at the row's hour (minute=0).
+  Example: row 3AM 소변="ㅡㅡ" → 10× diaper_pee at 03:00.
+- 구토 (vomit) goes to event_type "note" with details = "구토" ×N
+  (one per stroke); we don't have a vomit enum.
+
+Per-row "기타" column (free-text notes anchored to that hour):
+- Common contents:
+    Supplements: 유산균, 비타민 D / 비타민D / vit D, 비타민 C /
+                 비타민C, 철분, DHA, 영양제.
+    Care/health: 약, 해열제, 체온 37.6, 트림, 구토, 황달, 목욕.
+    Sleep:       수면 / 잠 / 꿈 (with start–end when given) →
+                 event_type "sleep" instead of "note" if BOTH a
+                 start and end are clearly written; otherwise note.
+    Behavior:    보챔, 잘 잠, 안 잠, 혀짧음 등.
+- Every non-empty per-row 기타 cell becomes ONE note event at
+  that row's hour (minute=0), details = verbatim text. Do NOT
+  skip a row that has only a note.
+
+────────────────────────────────────────────────────────
+DERIVED FIELDS — what to put on each output entry
+────────────────────────────────────────────────────────
+- start_at / at = block's detected date (or reference_date) + row
+  hour + 시간(분). ISO 8601 with +09:00, e.g.
   "2026-04-22T01:35:00+09:00".
-- ALWAYS output the full date+time form when you have a detected
-  date. Do not output bare "HH:MM".
-- end_at = null. This template does NOT track feeding duration —
-  never invent one.
-- volume_ml = number from "양(ml)" column, else null.
-- feed_type from "형태" per the mapping below.
-- If multiple feeds share the same hour row, emit them as separate
-  entries (read left-to-right / top-to-bottom within the cell).
+- end_at = null in almost every case. This template does NOT
+  record feeding duration; never invent one. The only exception
+  is when the writer explicitly noted both a sleep start and a
+  sleep end in the 기타 cell — then emit a sleep event with
+  end_at filled.
+- volume_ml = integer from "양(ml)", else null.
+- feed_type from "형태" using the mapping above.
+- If multiple entries share an hour cell, emit each separately
+  (left-to-right, top-to-bottom within the cell).
 
-Korean term mapping:
-- 모유직수 / 직수 → feed_type "breast_direct"
-- 유축 / 짜둔 / 짠 모유 → "breast_pumped"
-- 분유 / 포뮬러 → "formula"
-- 대변 / 응가 → event_type "diaper_poop"
-- 소변 / 쉬 / 오줌 → "diaper_pee"
-- 수면 / 잠 / 꿈 → "sleep" (pair start+end when both given)
-- 유산균 / 비타민 / 비타민D / 비타민C / 영양제 / 약 / 트림 /
-  해열제 / 체온 / 목욕 / 보챔 / 잘 잠 / etc. → event_type "note"
-  with the original phrase preserved verbatim in details.
-- 다른 자유 메모 → "note"
+Feed type default (when the row shows a volume but no explicit
+"형태"):
+- Use the sheet header "수유방법:" if present and unambiguous.
+  "직수" → breast_direct; "유축" → breast_pumped; "분유" →
+  formula; "혼합" or two methods listed → formula (safer
+  default).
+- If "수유방법" is missing, default to "formula".
+- Only classify as breast_direct / breast_pumped when the row
+  itself, or the sheet header, says so unambiguously.
 
-Feed type default: when a row shows a volume (e.g. "80ml", "60") but
-the type is not explicitly 모유/직수/유축/짠젖, treat it as "formula".
-Only classify as breast_direct / breast_pumped when the record clearly
-says so. When truly ambiguous, prefer "formula" over guessing breast.
-
-Use null for unclear or missing numeric fields. Never invent numbers.
+Use null for unclear/missing numerics — never invent numbers.
 Keep free-text observations in notes/details verbatim.`;
 
 const responseSchema = {
