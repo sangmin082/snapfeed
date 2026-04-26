@@ -47,7 +47,23 @@ export function PhotoUploader({ referenceDate, onExtracted }: Props) {
       const form = new FormData();
       form.append("image", blob, "feed.jpg");
       form.append("reference_date", referenceDate ?? todayKstYmd());
-      const res = await fetch("/api/extract", { method: "POST", body: form });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 28_000);
+      let res: Response;
+      try {
+        res = await fetch("/api/extract", {
+          method: "POST",
+          body: form,
+          signal: controller.signal,
+        });
+      } catch (e) {
+        if (controller.signal.aborted) {
+          throw new Error("인식이 너무 오래 걸려요. 사진을 더 밝고 선명하게 다시 찍거나 잠시 후 다시 시도해주세요.");
+        }
+        throw e;
+      } finally {
+        clearTimeout(timeoutId);
+      }
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(body.error ?? `HTTP ${res.status}`);

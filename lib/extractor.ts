@@ -2,8 +2,9 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ExtractResult } from "./schema";
 
-const MODEL_CHAIN = ["gemini-2.5-flash-lite", "gemini-2.5-flash"] as const;
-const RETRIES_PER_MODEL = 1;
+const MODEL_CHAIN = ["gemini-2.5-flash-lite"] as const;
+const RETRIES_PER_MODEL = 0;
+const PER_CALL_TIMEOUT_MS = 22_000;
 
 const SYSTEM = `You are shown a photograph of a "신생아 양육표" — a printable
 Korean newborn-care chart (24-hour feeding/care log) filled in by hand.
@@ -309,25 +310,29 @@ async function callWithFallback(
   for (const model of MODEL_CHAIN) {
     for (let attempt = 0; attempt <= RETRIES_PER_MODEL; attempt++) {
       try {
-        const res = await ai.models.generateContent({
-          model,
-          contents: [
-            {
-              role: "user",
-              parts: [
-                { inlineData: { mimeType, data: imageB64 } },
-                { text: userText },
-              ],
+        const res = await withTimeout(
+          ai.models.generateContent({
+            model,
+            contents: [
+              {
+                role: "user",
+                parts: [
+                  { inlineData: { mimeType, data: imageB64 } },
+                  { text: userText },
+                ],
+              },
+            ],
+            config: {
+              systemInstruction: SYSTEM,
+              responseMimeType: "application/json",
+              responseSchema,
+              temperature: 0,
+              thinkingConfig: { thinkingBudget: 0 },
             },
-          ],
-          config: {
-            systemInstruction: SYSTEM,
-            responseMimeType: "application/json",
-            responseSchema,
-            temperature: 0,
-            thinkingConfig: { thinkingBudget: 0 },
-          },
-        });
+          }),
+          PER_CALL_TIMEOUT_MS,
+          `${model} timed out`,
+        );
         const text = res.text?.trim() ?? "";
         if (!text) throw new Error(`${model}: empty response`);
         return text;
@@ -341,4 +346,20 @@ async function callWithFallback(
     }
   }
   throw lastErr instanceof Error ? lastErr : new Error(String(lastErr));
+}
+
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(label)), ms);
+    p.then(
+      (v) => {
+        clearTimeout(t);
+        resolve(v);
+      },
+      (e) => {
+        clearTimeout(t);
+        reject(e);
+      },
+    );
+  });
 }
