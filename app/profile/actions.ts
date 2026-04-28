@@ -3,15 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { serverSupabase, serviceSupabase } from "@/lib/supabase-server";
-
-function asUploadedBlob(v: FormDataEntryValue | null): Blob | null {
-  if (v === null || typeof v === "string") return null;
-  const b = v as unknown as Blob;
-  if (typeof b.arrayBuffer !== "function" || typeof b.size !== "number" || b.size <= 0) {
-    return null;
-  }
-  return b;
-}
+import { asUploadedBlob } from "@/lib/formdata-utils";
 
 export async function updateBaby(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();

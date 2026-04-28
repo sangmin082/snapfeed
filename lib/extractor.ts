@@ -1,6 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ExtractResult } from "./schema";
+import { isTransientError, normalizeIso, safeJsonParse } from "./extractor-helpers";
 
 const MODEL_CHAIN = ["gemini-2.5-flash-lite"] as const;
 const RETRIES_PER_MODEL = 0;
@@ -479,52 +480,6 @@ export async function* extractFromImageStream(
     const msg = err instanceof Error ? err.message : String(err);
     yield { type: "error", message: `검증 실패: ${msg}` };
   }
-}
-
-// Accept what Gemini actually emits (e.g. "01:35", "2026-04-24T01:35+09:00",
-// missing seconds, "Z" instead of offset) and return a strict ISO 8601 string
-// with seconds and +09:00. Returns null if the input can't be parsed.
-function normalizeIso(input: string | null | undefined, referenceDate: string): string | null {
-  if (!input) return null;
-  const trimmed = String(input).trim();
-  if (!trimmed) return null;
-
-  // Time-only "HH:MM" or "HH:MM:SS" → attach reference date + KST offset.
-  const hhmm = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/.exec(trimmed);
-  if (hhmm) {
-    const h = hhmm[1].padStart(2, "0");
-    const m = hhmm[2];
-    const s = (hhmm[3] ?? "00").padStart(2, "0");
-    return `${referenceDate}T${h}:${m}:${s}+09:00`;
-  }
-
-  const d = new Date(trimmed);
-  if (Number.isNaN(d.getTime())) return null;
-
-  // Reformat as KST (+09:00) with full HH:MM:SS.
-  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-  const y = kst.getUTCFullYear();
-  const mo = String(kst.getUTCMonth() + 1).padStart(2, "0");
-  const da = String(kst.getUTCDate()).padStart(2, "0");
-  const hh = String(kst.getUTCHours()).padStart(2, "0");
-  const mm = String(kst.getUTCMinutes()).padStart(2, "0");
-  const ss = String(kst.getUTCSeconds()).padStart(2, "0");
-  return `${y}-${mo}-${da}T${hh}:${mm}:${ss}+09:00`;
-}
-
-function safeJsonParse(s: string): Record<string, unknown> {
-  try {
-    const v = JSON.parse(s);
-    if (v && typeof v === "object" && !Array.isArray(v)) return v as Record<string, unknown>;
-    return { raw: s };
-  } catch {
-    return { raw: s };
-  }
-}
-
-function isTransientError(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String(err);
-  return /\b(408|429|500|502|503|504|522|523|524|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)\b/i.test(msg);
 }
 
 async function callWithFallback(
