@@ -10,9 +10,34 @@ const PER_CALL_TIMEOUT_MS = 22_000;
 const STREAM_MODEL = "gemini-2.5-flash";
 const STREAM_OVERALL_TIMEOUT_MS = 150_000;
 
-const SYSTEM = `You are shown a photograph of a "신생아 양육표" — a printable
-Korean newborn-care chart (24-hour feeding/care log) filled in by hand.
-Extract every entry and return strict JSON only. No prose, no fences.
+const SYSTEM = `You are shown a photograph of a handwritten Korean baby care
+record (수유 / 배변 / 수면 일지). Extract every entry and return
+strict JSON only. No prose, no fences.
+
+The page may use one of two common formats. Decide which applies,
+then follow that section's rules.
+
+────────────────────────────────────────────────────────
+FORMAT IDENTIFICATION (do this FIRST)
+────────────────────────────────────────────────────────
+- LAYOUT A — "신생아 양육표": printable A4 chart with up to three
+  day-blocks side-by-side. Hour rows labelled 0AM..11AM, 12PM..11PM.
+  Sheet header has "이름:" and "수유방법:". Per-row columns:
+  섭취 (시간(분)/형태/양(ml)) | 배설 (소변/대변/구토) | 기타.
+  Day-level footer with 기타기록 / 체중 / 체온 / 수유총량.
+- LAYOUT B — "DAY+N 일일 다이어리": tall single-day spiral-notebook
+  planner. Header reads "____ 년 ____ 월 ____ 일 ____요일 [DAY+ ___]".
+  Hour rows labelled "1시..12시" split into 오전 / 오후 sections.
+  Columns: 시간 | 모유(분) | 분유(ml) | 유축(ml) | 소변 | 대변 |
+  수면 | 이유식(양,종류) | 기타.
+
+Tie-breakers: presence of "0AM..11PM" labels → LAYOUT A. Presence
+of "오전/오후" section headers and a "DAY+" header → LAYOUT B.
+Use only the rules of the chosen layout.
+
+════════════════════════════════════════════════════════
+LAYOUT A — 신생아 양육표
+════════════════════════════════════════════════════════
 
 ────────────────────────────────────────────────────────
 SHEET LAYOUT (memorize this; the photo will look like it)
@@ -147,7 +172,92 @@ Feed type default (when the row shows a volume but no explicit
   itself, or the sheet header, says so unambiguously.
 
 Use null for unclear/missing numerics — never invent numbers.
-Keep free-text observations in notes/details verbatim.`;
+Keep free-text observations in notes/details verbatim.
+
+════════════════════════════════════════════════════════
+LAYOUT B — DAY+N 일일 다이어리
+════════════════════════════════════════════════════════
+
+────────────────────────────────────────────────────────
+DATE DETECTION
+────────────────────────────────────────────────────────
+- Parse the header "____ 년 ____ 월 ____ 일 _____요일 [DAY+ ___]".
+  Year omitted → use reference_date's year.
+- If the page is a notebook spread with multiple day blocks side-
+  by-side (each with its own DATE / DAY+N header), advance the
+  date along the visible DAY+N delta or DATE label and emit each
+  block's entries against its own date. If a block's date is
+  ambiguous, extract only the leftmost block.
+
+────────────────────────────────────────────────────────
+HOUR MAPPING
+────────────────────────────────────────────────────────
+Rows list "1시..12시" inside 오전 / 오후 sections. Map to 24h:
+  오전 12시 → 00      오전 1시..11시 → 01..11
+  오후 12시 → 12      오후 1시..11시 → 13..23
+
+────────────────────────────────────────────────────────
+PER-COLUMN EXTRACTION
+────────────────────────────────────────────────────────
+"모유(분)" — DURATION IN MINUTES of breastfeeding (NOT a clock minute).
+  Examples and how to read them:
+    "20분"          → 20 min total
+    "30분 R15 L15"  → 30 min total (R/L = right/left breast minutes)
+    "R15 L20"       → 35 min (sum of R+L)
+    bare "분"       → empty / no feed
+  When a duration is present, emit a feed:
+    feed_type = "breast_direct"
+    start_at  = row hour:00
+    end_at    = start_at + total_minutes
+    volume_ml = null
+    notes     = R/L split verbatim if present (e.g. "R15 L15")
+
+"분유(ml)" — formula volume in mL. Non-empty → emit:
+    feed_type = "formula", start_at = row hour:00,
+    volume_ml = number, end_at = null.
+
+"유축(ml)" — pumped breast milk volume in mL. Non-empty → emit:
+    feed_type = "breast_pumped", start_at = row hour:00,
+    volume_ml = number, end_at = null.
+
+"소변" / "대변" — cells hold CHECKMARKS (✓ or v) ONLY in this
+layout — NOT 正-style tally marks. Count the checkmarks in the
+cell; emit one event per ✓:
+    event_type = "diaper_pee" (소변) or "diaper_poop" (대변)
+    at         = row hour:00, end_at = null
+
+"수면" — vertical arrow ↕ spans across multiple hour rows with a
+duration label nearby (e.g. "2시간", "1시간 30분", "2시간뜸").
+For each arrow span, emit ONE sleep event:
+    event_type = "sleep"
+    at         = top-of-arrow hour:00
+    end_at     = at + parsed duration
+If the arrow has no label, infer duration from the row span
+(1 row = 1 hour). If truly ambiguous, skip.
+
+"이유식(양,종류)" — solid-food entries (e.g. "120g 호박죽"). The
+schema has no solid-food feed type — emit as a note event:
+    event_type = "note"
+    at         = row hour:00, end_at = null
+    details    = JSON-encoded string
+                 '{"kind":"solid_food","raw":"<cell text verbatim>"}'
+
+"기타" — free-text notes for that hour. Emit as a note event:
+    event_type = "note"
+    at         = row hour:00, end_at = null
+    details    = JSON-encoded string '{"raw":"<text verbatim>"}'
+
+────────────────────────────────────────────────────────
+DERIVED FIELDS — LAYOUT B
+────────────────────────────────────────────────────────
+- start_at / at = block's detected date (or reference_date) + row
+  hour. ISO 8601 with +09:00 offset, e.g.
+  "2026-04-22T05:00:00+09:00".
+- end_at is null EXCEPT for "모유(분)" feeds (use duration) and
+  sleep events (use duration).
+- volume_ml comes only from 분유(ml) / 유축(ml) cells. Strip "ml".
+- Use null for unclear/missing numerics — never invent numbers.
+- Keep free-text observations in notes/details verbatim.`;
 
 const responseSchema = {
   type: Type.OBJECT,
