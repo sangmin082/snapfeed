@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 
 type View = "day" | "week";
@@ -32,10 +33,26 @@ export function StatsControls({
 }) {
   const router = useRouter();
   const today = todayKstYmd();
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   function navigate(view: View, date: string) {
     const params = new URLSearchParams({ view, date });
     router.push(`/stats?${params.toString()}`);
+  }
+
+  function openDatePicker() {
+    const input = dateInputRef.current;
+    if (!input) return;
+    if (typeof input.showPicker === "function") {
+      try {
+        input.showPicker();
+        return;
+      } catch {
+        // fall through to focus/click on browsers that reject showPicker
+      }
+    }
+    input.focus();
+    input.click();
   }
 
   const step = currentView === "week" ? 7 : 1;
@@ -84,10 +101,17 @@ export function StatsControls({
         >
           ‹
         </button>
-        <label className="relative flex cursor-pointer items-center gap-2 text-base font-semibold tabular-nums hover:text-gray-900">
-          <span aria-hidden className="text-gray-500">📅</span>
-          <span>{label}</span>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={openDatePicker}
+            className="flex items-center gap-2 text-base font-semibold tabular-nums hover:text-gray-900"
+          >
+            <span aria-hidden className="text-gray-500">📅</span>
+            <span>{label}</span>
+          </button>
           <input
+            ref={dateInputRef}
             type="date"
             value={currentDate}
             max={today}
@@ -96,9 +120,10 @@ export function StatsControls({
               if (v && v <= today) navigate(currentView, v);
             }}
             aria-label="날짜 선택"
-            className="absolute inset-0 cursor-pointer opacity-0"
+            tabIndex={-1}
+            className="pointer-events-none absolute inset-0 h-full w-full opacity-0"
           />
-        </label>
+        </div>
         <button
           type="button"
           onClick={() => canGoNext && navigate(currentView, nextDate)}
