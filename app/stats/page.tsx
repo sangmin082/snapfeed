@@ -2,12 +2,12 @@ import Link from "next/link";
 import { requireUserAndBaby } from "@/lib/auth";
 import { serverSupabase } from "@/lib/supabase-server";
 import { StatsControls } from "@/components/StatsControls";
-import { DayTimeline } from "@/components/DayTimeline";
-import { RangeBarChart } from "@/components/RangeBarChart";
+import { DayClock } from "@/components/DayClock";
+import { WeekColumns } from "@/components/WeekColumns";
 
 export const dynamic = "force-dynamic";
 
-type View = "day" | "week" | "month";
+type View = "day" | "week";
 
 type Feed = {
   start_at: string;
@@ -22,16 +22,39 @@ type Props = {
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
-function toKstYmd(iso: string): string {
-  const d = new Date(iso);
-  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-  return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())}`;
+function todayKstYmd(): string {
+  const d = new Date(Date.now() + 9 * 60 * 60 * 1000);
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
 }
 
-function todayKstYmd(): string {
-  const now = new Date();
-  const kst = new Date(now.getTime() + 9 * 60 * 60 * 1000);
-  return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())}`;
+function shiftYmd(ymd: string, days: number): string {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + days);
+  return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+}
+
+function daysBetween(fromYmd: string, toYmd: string): number {
+  const [y1, m1, d1] = fromYmd.split("-").map(Number);
+  const [y2, m2, d2] = toYmd.split("-").map(Number);
+  const a = Date.UTC(y1, m1 - 1, d1);
+  const b = Date.UTC(y2, m2 - 1, d2);
+  return Math.round((b - a) / 86_400_000);
+}
+
+function ageString(birthYmd: string, asOfYmd: string): string {
+  const [by, bm, bd] = birthYmd.split("-").map(Number);
+  const [ay, am, ad] = asOfYmd.split("-").map(Number);
+  let months = (ay - by) * 12 + (am - bm);
+  let days = ad - bd;
+  if (days < 0) {
+    months -= 1;
+    const prevMonthDays = new Date(Date.UTC(ay, am - 1, 0)).getUTCDate();
+    days += prevMonthDays;
+  }
+  const manse = Math.floor(months / 12);
+  const koreanAge = ay - by + 1;
+  return `${months}개월 ${days}일, ${koreanAge}살(만${manse}세)`;
 }
 
 function intervalText(mins: number): string {
@@ -46,25 +69,17 @@ export default async function StatsPage({ searchParams }: Props) {
   const { baby } = await requireUserAndBaby();
   const supabase = await serverSupabase();
   const sp = await searchParams;
-  const view: View = sp.view === "week" || sp.view === "month" ? sp.view : "day";
+  const view: View = sp.view === "week" ? "week" : "day";
 
-  // All dates that have at least one feed (KST)
-  const { data: allFeeds } = await supabase
-    .from("feeds")
-    .select("start_at")
-    .eq("baby_id", baby.id)
-    .order("start_at", { ascending: false });
+  const today = todayKstYmd();
+  const requested = sp.date && /^\d{4}-\d{2}-\d{2}$/.test(sp.date) ? sp.date : today;
+  const selectedDate = requested > today ? today : requested;
 
-  const availableDatesSet = new Set<string>();
-  for (const r of allFeeds ?? []) availableDatesSet.add(toKstYmd(r.start_at));
-  const availableDates = [...availableDatesSet].sort().reverse();
-  const latestDate = availableDates[0] ?? todayKstYmd();
-  const selectedDate =
-    sp.date && availableDatesSet.has(sp.date) ? sp.date : latestDate;
-
-  // Compute UTC range based on view, anchored to KST day
-  const startKst = new Date(selectedDate + "T00:00:00+09:00");
-  const rangeDays = view === "day" ? 1 : view === "week" ? 7 : 30;
+  const startKst =
+    view === "day"
+      ? new Date(selectedDate + "T00:00:00+09:00")
+      : new Date(shiftYmd(selectedDate, -6) + "T00:00:00+09:00");
+  const rangeDays = view === "day" ? 1 : 7;
   const endKst = new Date(startKst);
   endKst.setDate(endKst.getDate() + rangeDays);
 
@@ -78,10 +93,8 @@ export default async function StatsPage({ searchParams }: Props) {
 
   const feeds = (rangeFeeds ?? []) as Feed[];
 
-  // Stats for the range
   const totalCount = feeds.length;
   const totalMl = feeds.reduce((s, f) => s + (f.volume_ml ?? 0), 0);
-
   const intervals: number[] = [];
   for (let i = 1; i < feeds.length; i++) {
     const diff =
@@ -95,72 +108,95 @@ export default async function StatsPage({ searchParams }: Props) {
       ? Math.round(intervals.reduce((s, v) => s + v, 0) / intervals.length)
       : null;
 
-  const viewLabel = view === "day" ? "일" : view === "week" ? "주" : "월";
+  const dPlus = view === "day" ? daysBetween(baby.birth_date, selectedDate) + 1 : null;
+  const ageLabel = ageString(baby.birth_date, selectedDate);
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 p-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">패턴 분석</h1>
-          <p className="text-sm text-gray-500 dark:text-neutral-500">{baby.name}</p>
-        </div>
-        <Link href="/" className="text-sm text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
-          홈
+    <main className="mx-auto flex max-w-2xl flex-col gap-6 px-4 pt-4 pb-10">
+      <header className="relative flex h-10 items-center justify-center">
+        <Link
+          href="/"
+          aria-label="뒤로"
+          className="absolute left-0 grid h-10 w-10 place-items-center text-2xl text-gray-700"
+        >
+          ‹
         </Link>
+        <h1 className="text-base font-semibold tracking-tight text-gray-900">
+          기록 패턴
+        </h1>
       </header>
 
-      <StatsControls
-        currentView={view}
-        currentDate={selectedDate}
-        availableDates={availableDates}
-      />
+      <StatsControls currentView={view} currentDate={selectedDate} />
 
-      <section className="grid grid-cols-3 gap-3">
-        <SummaryCard label={`${viewLabel} 수유 횟수`} value={`${totalCount}회`} />
-        <SummaryCard label={`${viewLabel} 합계`} value={totalMl > 0 ? `${totalMl}ml` : "—"} />
-        <SummaryCard
-          label="평균 수유 텀"
-          value={avgInterval != null ? intervalText(avgInterval) : "—"}
-          hint={intervals.length > 0 ? `${intervals.length}개 샘플` : undefined}
-        />
-      </section>
+      <CategoryChips />
 
       {view === "day" ? (
-        <DayTimeline feeds={feeds} />
+        <>
+          <DayClock feeds={feeds} dPlus={dPlus} />
+          <p className="text-center text-sm text-gray-500">
+            <span className="text-gray-700">{baby.name}</span>
+            <span className="mx-1.5 text-gray-300">•</span>
+            {ageLabel}
+          </p>
+        </>
       ) : (
-        <RangeBarChart
-          feeds={feeds}
-          startDate={selectedDate}
-          days={rangeDays}
-        />
+        <>
+          <WeekColumns feeds={feeds} endDate={selectedDate} />
+          <p className="text-center text-sm text-gray-500">
+            <span className="text-gray-700">{baby.name}</span>
+            <span className="mx-1.5 text-gray-300">•</span>
+            {ageLabel}
+          </p>
+        </>
       )}
 
-      {availableDates.length === 0 ? (
-        <div className="rounded-2xl border border-gray-200 bg-gray-50 p-8 text-center text-sm text-gray-500 dark:border-neutral-800 dark:bg-neutral-900/50 dark:text-neutral-500">
-          아직 수유 기록이 없습니다.{" "}
-          <Link href="/upload" className="font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-300">
-            지금 기록하기
-          </Link>
+      <section className="rounded-2xl border border-pink-200 bg-white p-4 shadow-sm">
+        <header className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-gray-800">
+            🍼 분유/유축/모유 수유 통계
+          </h2>
+          <span className="text-gray-300">›</span>
+        </header>
+        <div className="mt-4 space-y-3 text-sm">
+          <StatRow label="횟수" value={`${totalCount}회`} />
+          <StatRow label="용량" value={totalMl > 0 ? `${totalMl}ml` : "— ml"} />
+          <StatRow
+            label="평균 텀"
+            value={avgInterval != null ? intervalText(avgInterval) : "—"}
+          />
         </div>
-      ) : null}
+      </section>
     </main>
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
+function StatRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-      <p className="text-xs text-gray-500 dark:text-neutral-500">{label}</p>
-      <p className="mt-1 text-lg font-semibold tabular-nums text-gray-900 dark:text-neutral-100">{value}</p>
-      {hint ? <p className="mt-0.5 text-[10px] text-gray-400 dark:text-neutral-500">{hint}</p> : null}
+    <div className="flex items-center justify-between">
+      <span className="text-gray-500">{label}</span>
+      <span className="font-semibold tabular-nums text-gray-900">{value}</span>
+    </div>
+  );
+}
+
+const CHIPS: { key: string; label: string; ring: string; bg: string; emoji: string }[] = [
+  { key: "formula", label: "분유", ring: "ring-blue-200", bg: "bg-blue-50", emoji: "🍼" },
+  { key: "breast_pumped", label: "유축", ring: "ring-violet-200", bg: "bg-violet-50", emoji: "📣" },
+  { key: "breast_direct", label: "모유", ring: "ring-pink-200", bg: "bg-pink-50", emoji: "🤱" },
+];
+
+function CategoryChips() {
+  return (
+    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      {CHIPS.map((c) => (
+        <span
+          key={c.key}
+          className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-gray-700 ring-1 ${c.ring} ${c.bg}`}
+        >
+          <span aria-hidden>{c.emoji}</span>
+          {c.label}
+        </span>
+      ))}
     </div>
   );
 }
