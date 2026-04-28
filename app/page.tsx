@@ -57,6 +57,14 @@ export default async function Home() {
               >
                 {user ? "기록 보기" : "로그인"}
               </Link>
+              {user ? (
+                <Link
+                  href="/stats"
+                  className="inline-flex items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-8 py-4 text-lg font-semibold text-gray-900 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-md active:scale-[0.98] dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                >
+                  📊 패턴 보기
+                </Link>
+              ) : null}
             </div>
           </div>
         </div>
