@@ -84,10 +84,21 @@ export function StatsControls({
         >
           ‹
         </button>
-        <div className="flex items-center gap-2 text-base font-semibold tabular-nums">
+        <label className="relative flex cursor-pointer items-center gap-2 text-base font-semibold tabular-nums hover:text-gray-900">
           <span aria-hidden className="text-gray-500">📅</span>
           <span>{label}</span>
-        </div>
+          <input
+            type="date"
+            value={currentDate}
+            max={today}
+            onChange={(e) => {
+              const v = e.target.value;
+              if (v && v <= today) navigate(currentView, v);
+            }}
+            aria-label="날짜 선택"
+            className="absolute inset-0 cursor-pointer opacity-0"
+          />
+        </label>
         <button
           type="button"
           onClick={() => canGoNext && navigate(currentView, nextDate)}
