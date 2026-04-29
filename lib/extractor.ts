@@ -7,9 +7,20 @@ const MODEL_CHAIN = ["gemini-2.5-flash-lite"] as const;
 const RETRIES_PER_MODEL = 0;
 const PER_CALL_TIMEOUT_MS = 22_000;
 
-// Streaming model: thinking + thought summaries enabled.
-const STREAM_MODEL = "gemini-2.5-flash";
+// Streaming model chain: try the smarter (thinking) model first, fall back
+// to the lite model when Gemini Flash is overloaded ("This model is currently
+// experiencing high demand", 503 UNAVAILABLE, etc).
+type StreamAttempt = {
+  model: string;
+  thinking: boolean;
+  retriesOnTransient: number;
+};
+const STREAM_MODEL_CHAIN: readonly StreamAttempt[] = [
+  { model: "gemini-2.5-flash", thinking: true, retriesOnTransient: 1 },
+  { model: "gemini-2.5-flash-lite", thinking: false, retriesOnTransient: 1 },
+] as const;
 const STREAM_OVERALL_TIMEOUT_MS = 150_000;
+const STREAM_RETRY_BACKOFF_MS = 1500;
 
 const SYSTEM = `You are shown a photograph of a handwritten Korean baby care
 record (수유 / 배변 / 수면 일지). Extract every entry and return
@@ -402,52 +413,92 @@ export async function* extractFromImageStream(
   const imageB64 = btoa(bin);
   const userText = `reference_date: ${referenceDate}`;
 
-  yield { type: "status", text: "Gemini 호출 중" };
-
   const overallDeadline = Date.now() + STREAM_OVERALL_TIMEOUT_MS;
   let acc = "";
+  let lastErr: unknown = null;
+  let succeeded = false;
 
-  try {
-    const stream = await ai.models.generateContentStream({
-      model: STREAM_MODEL,
-      contents: [
-        {
-          role: "user",
-          parts: [
-            { inlineData: { mimeType, data: imageB64 } },
-            { text: userText },
+  outer: for (const [attemptIdx, attempt] of STREAM_MODEL_CHAIN.entries()) {
+    for (let retry = 0; retry <= attempt.retriesOnTransient; retry++) {
+      if (Date.now() > overallDeadline) break outer;
+
+      const isRetry = attemptIdx > 0 || retry > 0;
+      yield {
+        type: "status",
+        text: isRetry
+          ? `${attempt.model} 호출 중${retry > 0 ? ` (재시도 ${retry})` : " (대체 모델)"}`
+          : "Gemini 호출 중",
+      };
+
+      acc = "";
+      try {
+        const stream = await ai.models.generateContentStream({
+          model: attempt.model,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { inlineData: { mimeType, data: imageB64 } },
+                { text: userText },
+              ],
+            },
           ],
-        },
-      ],
-      config: {
-        systemInstruction: SYSTEM,
-        responseMimeType: "application/json",
-        responseSchema,
-        temperature: 0,
-        thinkingConfig: { thinkingBudget: -1, includeThoughts: true },
-      },
-    });
+          config: {
+            systemInstruction: SYSTEM,
+            responseMimeType: "application/json",
+            responseSchema,
+            temperature: 0,
+            thinkingConfig: attempt.thinking
+              ? { thinkingBudget: -1, includeThoughts: true }
+              : { thinkingBudget: 0 },
+          },
+        });
 
-    for await (const part of stream) {
-      if (Date.now() > overallDeadline) {
-        yield { type: "error", message: "전체 시간 초과 (150초)" };
-        return;
-      }
-      const parts = part.candidates?.[0]?.content?.parts ?? [];
-      for (const p of parts) {
-        const text = (p as { text?: string }).text;
-        const isThought = (p as { thought?: boolean }).thought === true;
-        if (!text) continue;
-        if (isThought) {
-          yield { type: "thought", text };
-        } else {
-          acc += text;
+        for await (const part of stream) {
+          if (Date.now() > overallDeadline) {
+            yield { type: "error", message: "전체 시간 초과 (150초)" };
+            return;
+          }
+          const parts = part.candidates?.[0]?.content?.parts ?? [];
+          for (const p of parts) {
+            const text = (p as { text?: string }).text;
+            const isThought = (p as { thought?: boolean }).thought === true;
+            if (!text) continue;
+            if (isThought) {
+              yield { type: "thought", text };
+            } else {
+              acc += text;
+            }
+          }
+        }
+
+        succeeded = true;
+        lastErr = null;
+        break outer;
+      } catch (err) {
+        lastErr = err;
+        const msg = err instanceof Error ? err.message : String(err);
+        if (!isTransientError(err)) {
+          // Non-transient — surface immediately, don't try fallback.
+          yield { type: "error", message: msg };
+          return;
+        }
+        // Transient — let the loop fall through to the next retry / model.
+        if (retry < attempt.retriesOnTransient) {
+          await new Promise((r) =>
+            setTimeout(r, STREAM_RETRY_BACKOFF_MS * (retry + 1)),
+          );
         }
       }
     }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    yield { type: "error", message: msg };
+  }
+
+  if (!succeeded) {
+    const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+    yield {
+      type: "error",
+      message: `Gemini 모두 실패 (마지막 오류: ${msg.slice(0, 200)})`,
+    };
     return;
   }
 
