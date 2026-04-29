@@ -140,14 +140,18 @@ Never treat them as plain notes; they are categorical events.
 
 Mark counting (Korean tally / 바를 정자 / 正):
 - Stroke values: 一=1, 二/丁=2, 三/下=3, 正(no last stroke)=4,
-  complete 正=5. A solo horizontal bar "ㅡ"/"一" drawn alone
-  means ONE complete 正 = 5.
-- ANY ambiguous mark (✓, ○, dot, slash, scribble) → count = 1.
-  Empty cell → 0 events.
+  complete 正=5.
+- A solo horizontal bar "ㅡ" / "一" / "—" drawn alone = 1 (one
+  stroke). Do NOT auto-promote it to a complete 正 = 5; users
+  most often draw a single line to mean a single occurrence.
+- ANY other ambiguous mark (✓, ○, dot, slash, scribble) → 1.
+- Empty cell → 0 events.
+- Sum the strokes/正 characters in the cell to get total N.
+  Example: row 3AM 소변="ㅡㅡ" → 2× diaper_pee at 03:00:00.
+  Example: row 4AM 소변="正" → 5× diaper_pee at 04:00:00.
 
 Emission rules — apply per cell, per column:
 - "소변" cell → emit event_type "diaper_pee" × N at row hour:00.
-  Example: row 3AM 소변="ㅡㅡ" → 10× diaper_pee at 03:00:00.
 - "대변" cell → emit event_type "diaper_poop" × N at row hour:00.
 - "구토" cell → emit event_type "note" × N at row hour:00 with
   details = '{"kind":"vomit","raw":"구토"}'. Use the literal word
