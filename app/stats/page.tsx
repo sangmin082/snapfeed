@@ -124,6 +124,12 @@ export default async function StatsPage({ searchParams }: Props) {
         <h1 className="text-base font-semibold tracking-tight text-gray-900 dark:text-neutral-100">
           기록 패턴
         </h1>
+        <Link
+          href="/records"
+          className="absolute right-0 inline-flex h-10 items-center px-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+        >
+          기록 보기
+        </Link>
       </header>
 
       <StatsControls currentView={view} currentDate={selectedDate} />
@@ -150,12 +156,15 @@ export default async function StatsPage({ searchParams }: Props) {
         </>
       )}
 
-      <section className="rounded-2xl border border-pink-200 bg-white p-4 shadow-sm dark:border-pink-900 dark:bg-neutral-900">
+      <Link
+        href="/records"
+        className="block rounded-2xl border border-pink-200 bg-white p-4 shadow-sm transition hover:border-pink-300 hover:shadow-md active:scale-[0.99] dark:border-pink-900 dark:bg-neutral-900 dark:hover:border-pink-800"
+      >
         <header className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800 dark:text-neutral-200">
             🍼 분유/유축/모유 수유 통계
           </h2>
-          <span className="text-gray-300 dark:text-neutral-600">›</span>
+          <span className="text-gray-400 dark:text-neutral-500">›</span>
         </header>
         <div className="mt-4 space-y-3 text-sm">
           <StatRow label="횟수" value={`${totalCount}회`} />
@@ -165,7 +174,10 @@ export default async function StatsPage({ searchParams }: Props) {
             value={avgInterval != null ? intervalText(avgInterval) : "—"}
           />
         </div>
-      </section>
+        <p className="mt-3 text-right text-xs text-gray-500 dark:text-neutral-500">
+          전체 기록 보기 →
+        </p>
+      </Link>
     </main>
   );
 }
