@@ -59,8 +59,18 @@ export function DayClock({ feeds, dPlus }: { feeds: Feed[]; dPlus: number | null
         height={SIZE}
         className="max-w-full"
       >
-        <circle cx={CX} cy={CY} r={R_OUTER} fill="#f3f4f6" />
-        <circle cx={CX} cy={CY} r={R_INNER} fill="#ffffff" />
+        <circle
+          cx={CX}
+          cy={CY}
+          r={R_OUTER}
+          className="fill-gray-100 dark:fill-neutral-800"
+        />
+        <circle
+          cx={CX}
+          cy={CY}
+          r={R_INNER}
+          className="fill-white dark:fill-neutral-900"
+        />
 
         {tickHours.map((h) => {
           const a = angleFor(h * 60);
@@ -73,8 +83,8 @@ export function DayClock({ feeds, dPlus }: { feeds: Feed[]; dPlus: number | null
               y1={y1}
               x2={x2}
               y2={y2}
-              stroke="#d1d5db"
               strokeWidth={1}
+              className="stroke-gray-300 dark:stroke-neutral-700"
             />
           );
         })}
@@ -100,8 +110,7 @@ export function DayClock({ feeds, dPlus }: { feeds: Feed[]; dPlus: number | null
               textAnchor="middle"
               dominantBaseline="middle"
               fontSize={14}
-              fill="#9ca3af"
-              className="tabular-nums"
+              className="fill-gray-400 tabular-nums dark:fill-neutral-500"
             >
               {h}
             </text>
@@ -115,8 +124,8 @@ export function DayClock({ feeds, dPlus }: { feeds: Feed[]; dPlus: number | null
             textAnchor="middle"
             dominantBaseline="middle"
             fontSize={22}
-            fill="#6b7280"
             fontWeight={500}
+            className="fill-gray-500 dark:fill-neutral-400"
           >
             D+{dPlus}
           </text>

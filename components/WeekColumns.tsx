@@ -50,14 +50,14 @@ export function WeekColumns({
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 pb-2">
+    <div className="rounded-2xl bg-white p-4 pb-2 dark:bg-neutral-900">
       <div className="grid grid-cols-[28px_repeat(7,minmax(0,1fr))_28px] gap-x-1">
         <div className="relative h-[480px]">
           {HOUR_LABELS.map((h) => (
             <span
               key={`l${h}`}
               style={{ top: `${(h / 24) * 100}%` }}
-              className="absolute right-1 -translate-y-1/2 text-[11px] tabular-nums text-gray-400"
+              className="absolute right-1 -translate-y-1/2 text-[11px] tabular-nums text-gray-400 dark:text-neutral-500"
             >
               {pad(h)}
             </span>
@@ -69,13 +69,13 @@ export function WeekColumns({
           return (
             <div
               key={day}
-              className="relative h-[480px] rounded-sm bg-gray-50/80"
+              className="relative h-[480px] rounded-sm bg-gray-50/80 dark:bg-neutral-800/60"
             >
               {HOUR_LABELS.slice(1, -1).map((h) => (
                 <div
                   key={`g${h}`}
                   style={{ top: `${(h / 24) * 100}%` }}
-                  className="pointer-events-none absolute inset-x-0 border-t border-gray-100"
+                  className="pointer-events-none absolute inset-x-0 border-t border-gray-100 dark:border-neutral-800"
                 />
               ))}
               {list.map((f, i) => {
@@ -105,7 +105,7 @@ export function WeekColumns({
             <span
               key={`r${h}`}
               style={{ top: `${(h / 24) * 100}%` }}
-              className="absolute left-1 -translate-y-1/2 text-[11px] tabular-nums text-gray-400"
+              className="absolute left-1 -translate-y-1/2 text-[11px] tabular-nums text-gray-400 dark:text-neutral-500"
             >
               {pad(h)}
             </span>
@@ -120,7 +120,7 @@ export function WeekColumns({
           return (
             <div
               key={`d${day}`}
-              className="text-center text-[11px] tabular-nums text-gray-500"
+              className="text-center text-[11px] tabular-nums text-gray-500 dark:text-neutral-400"
             >
               {d}일
             </div>

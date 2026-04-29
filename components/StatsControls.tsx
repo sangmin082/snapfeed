@@ -70,7 +70,7 @@ export function StatsControls({
 
   return (
     <div className="flex flex-col items-center gap-5">
-      <div className="flex rounded-full bg-gray-100 p-1">
+      <div className="flex rounded-full bg-gray-100 p-1 dark:bg-neutral-800">
         {(["day", "week"] as View[]).map((v) => {
           const active = v === currentView;
           return (
@@ -81,9 +81,9 @@ export function StatsControls({
               className={`min-w-20 rounded-full px-6 py-1.5 text-sm font-semibold transition ${
                 active
                   ? v === "day"
-                    ? "bg-white text-pink-500 shadow-sm ring-1 ring-pink-200"
-                    : "bg-white text-emerald-500 shadow-sm ring-1 ring-emerald-200"
-                  : "text-gray-400"
+                    ? "bg-white text-pink-500 shadow-sm ring-1 ring-pink-200 dark:bg-neutral-900 dark:text-pink-300 dark:ring-pink-900"
+                    : "bg-white text-emerald-500 shadow-sm ring-1 ring-emerald-200 dark:bg-neutral-900 dark:text-emerald-300 dark:ring-emerald-900"
+                  : "text-gray-400 dark:text-neutral-500"
               }`}
             >
               {v === "day" ? "일" : "주"}
@@ -92,12 +92,12 @@ export function StatsControls({
         })}
       </div>
 
-      <div className="flex items-center gap-3 text-gray-700">
+      <div className="flex items-center gap-3 text-gray-700 dark:text-neutral-200">
         <button
           type="button"
           onClick={() => navigate(currentView, prevDate)}
           aria-label="이전"
-          className="grid h-7 w-7 place-items-center text-gray-400 hover:text-gray-700"
+          className="grid h-7 w-7 place-items-center text-gray-400 hover:text-gray-700 dark:text-neutral-500 dark:hover:text-neutral-200"
         >
           ‹
         </button>
@@ -105,9 +105,9 @@ export function StatsControls({
           <button
             type="button"
             onClick={openDatePicker}
-            className="flex items-center gap-2 text-base font-semibold tabular-nums hover:text-gray-900"
+            className="flex items-center gap-2 text-base font-semibold tabular-nums hover:text-gray-900 dark:hover:text-neutral-50"
           >
-            <span aria-hidden className="text-gray-500">📅</span>
+            <span aria-hidden className="text-gray-500 dark:text-neutral-400">📅</span>
             <span>{label}</span>
           </button>
           <input
@@ -129,7 +129,7 @@ export function StatsControls({
           onClick={() => canGoNext && navigate(currentView, nextDate)}
           aria-label="다음"
           disabled={!canGoNext}
-          className="grid h-7 w-7 place-items-center text-gray-400 hover:text-gray-700 disabled:opacity-30"
+          className="grid h-7 w-7 place-items-center text-gray-400 hover:text-gray-700 disabled:opacity-30 dark:text-neutral-500 dark:hover:text-neutral-200"
         >
           ›
         </button>

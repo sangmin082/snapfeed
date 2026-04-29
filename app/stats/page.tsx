@@ -117,11 +117,11 @@ export default async function StatsPage({ searchParams }: Props) {
         <Link
           href="/"
           aria-label="뒤로"
-          className="absolute left-0 grid h-10 w-10 place-items-center text-2xl text-gray-700"
+          className="absolute left-0 grid h-10 w-10 place-items-center text-2xl text-gray-700 dark:text-neutral-300"
         >
           ‹
         </Link>
-        <h1 className="text-base font-semibold tracking-tight text-gray-900">
+        <h1 className="text-base font-semibold tracking-tight text-gray-900 dark:text-neutral-100">
           기록 패턴
         </h1>
       </header>
@@ -133,29 +133,29 @@ export default async function StatsPage({ searchParams }: Props) {
       {view === "day" ? (
         <>
           <DayClock feeds={feeds} dPlus={dPlus} />
-          <p className="text-center text-sm text-gray-500">
-            <span className="text-gray-700">{baby.name}</span>
-            <span className="mx-1.5 text-gray-300">•</span>
+          <p className="text-center text-sm text-gray-500 dark:text-neutral-500">
+            <span className="text-gray-700 dark:text-neutral-300">{baby.name}</span>
+            <span className="mx-1.5 text-gray-300 dark:text-neutral-700">•</span>
             {ageLabel}
           </p>
         </>
       ) : (
         <>
           <WeekColumns feeds={feeds} endDate={selectedDate} />
-          <p className="text-center text-sm text-gray-500">
-            <span className="text-gray-700">{baby.name}</span>
-            <span className="mx-1.5 text-gray-300">•</span>
+          <p className="text-center text-sm text-gray-500 dark:text-neutral-500">
+            <span className="text-gray-700 dark:text-neutral-300">{baby.name}</span>
+            <span className="mx-1.5 text-gray-300 dark:text-neutral-700">•</span>
             {ageLabel}
           </p>
         </>
       )}
 
-      <section className="rounded-2xl border border-pink-200 bg-white p-4 shadow-sm">
+      <section className="rounded-2xl border border-pink-200 bg-white p-4 shadow-sm dark:border-pink-900 dark:bg-neutral-900">
         <header className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-gray-800">
+          <h2 className="text-sm font-semibold text-gray-800 dark:text-neutral-200">
             🍼 분유/유축/모유 수유 통계
           </h2>
-          <span className="text-gray-300">›</span>
+          <span className="text-gray-300 dark:text-neutral-600">›</span>
         </header>
         <div className="mt-4 space-y-3 text-sm">
           <StatRow label="횟수" value={`${totalCount}회`} />
@@ -173,25 +173,40 @@ export default async function StatsPage({ searchParams }: Props) {
 function StatRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="text-gray-500">{label}</span>
-      <span className="font-semibold tabular-nums text-gray-900">{value}</span>
+      <span className="text-gray-500 dark:text-neutral-500">{label}</span>
+      <span className="font-semibold tabular-nums text-gray-900 dark:text-neutral-100">{value}</span>
     </div>
   );
 }
 
-const CHIPS: { key: string; label: string; ring: string; bg: string; emoji: string }[] = [
-  { key: "formula", label: "분유", ring: "ring-blue-200", bg: "bg-blue-50", emoji: "🍼" },
-  { key: "breast_pumped", label: "유축", ring: "ring-violet-200", bg: "bg-violet-50", emoji: "📣" },
-  { key: "breast_direct", label: "모유", ring: "ring-pink-200", bg: "bg-pink-50", emoji: "🤱" },
+const CHIPS: { key: string; label: string; tone: string; emoji: string }[] = [
+  {
+    key: "formula",
+    label: "분유",
+    tone: "ring-blue-200 bg-blue-50 dark:ring-blue-900 dark:bg-blue-950/40",
+    emoji: "🍼",
+  },
+  {
+    key: "breast_pumped",
+    label: "유축",
+    tone: "ring-violet-200 bg-violet-50 dark:ring-violet-900 dark:bg-violet-950/40",
+    emoji: "📣",
+  },
+  {
+    key: "breast_direct",
+    label: "모유",
+    tone: "ring-pink-200 bg-pink-50 dark:ring-pink-900 dark:bg-pink-950/40",
+    emoji: "🤱",
+  },
 ];
 
 function CategoryChips() {
   return (
-    <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+    <div className="flex flex-wrap justify-center gap-2">
       {CHIPS.map((c) => (
         <span
           key={c.key}
-          className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-gray-700 ring-1 ${c.ring} ${c.bg}`}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium text-gray-700 ring-1 dark:text-neutral-200 ${c.tone}`}
         >
           <span aria-hidden>{c.emoji}</span>
           {c.label}
