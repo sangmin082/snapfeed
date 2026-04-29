@@ -97,6 +97,49 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-2xl px-6 pb-10 sm:pb-12">
+        <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 dark:border-neutral-800 dark:bg-neutral-900">
+          <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+            왜 만들었나요
+          </span>
+          <h2 className="mt-3 text-xl font-bold tracking-tight text-gray-900 sm:text-2xl dark:text-neutral-100">
+            앱은 편하지만, 종이가 마음 편할 때가 있죠
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-gray-600 sm:text-base dark:text-neutral-400">
+            육아 앱들은 모두 매번 손으로 한 건씩 입력해야 합니다.
+            새벽에 일어나 분유 타고, 트림 시키고, 기저귀 갈고 나면
+            폰에 앉아 12개 항목을 입력할 여력이 안 남습니다.
+            그렇다고 손글씨로만 적자니, 며칠 뒤 패턴을 한눈에 보기가 어렵죠.
+          </p>
+          <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <li className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 dark:border-neutral-800 dark:bg-neutral-800/40">
+              <div className="text-xl">📓</div>
+              <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-neutral-100">
+                아날로그 감성으로 수기 수유 기록을 남기고 싶으신 분
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-neutral-400">
+                수첩에 한 줄씩 또박또박 적어가는 그 시간을 그대로 두고,
+                기록만 디지털로 보관하고 싶으신 분.
+              </p>
+            </li>
+            <li className="rounded-xl border border-gray-200 bg-gray-50/60 p-4 dark:border-neutral-800 dark:bg-neutral-800/40">
+              <div className="text-xl">😮‍💨</div>
+              <p className="mt-2 text-sm font-semibold text-gray-900 dark:text-neutral-100">
+                여러 육아 앱에 일일이 입력하는 게 너무 귀찮으신 분
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500 dark:text-neutral-400">
+                바쁜 육아 후 화면을 켜서 항목 하나하나 누르는 대신,
+                하루 끝에 사진 한 장으로 끝내고 싶으신 분.
+              </p>
+            </li>
+          </ul>
+          <p className="mt-5 text-xs leading-relaxed text-gray-500 dark:text-neutral-500">
+            이 두 분 모두를 위해 snapfeed를 만들었습니다.
+            손은 종이에 두고, 디지털화는 AI가 한 장의 사진으로 대신합니다.
+          </p>
+        </div>
+      </section>
+
       <section className="mx-auto w-full max-w-2xl px-6 pb-4 sm:pb-6">
         <div className="rounded-3xl border-2 border-dashed border-pink-300 bg-pink-50/50 p-6 sm:p-8 dark:border-pink-800 dark:bg-pink-950/30">
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
