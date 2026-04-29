@@ -144,17 +144,24 @@ Under "배설" — three columns side by side: "소변" | "대변" | "구토".
 You MUST extract events from EVERY non-empty cell in these columns.
 Never treat them as plain notes; they are categorical events.
 
-Mark counting (Korean tally / 바를 정자 / 正):
-- Stroke values: 一=1, 二/丁=2, 三/下=3, 正(no last stroke)=4,
-  complete 正=5.
-- A solo horizontal bar "ㅡ" / "一" / "—" drawn alone = 1 (one
-  stroke). Do NOT auto-promote it to a complete 正 = 5; users
-  most often draw a single line to mean a single occurrence.
-- ANY other ambiguous mark (✓, ○, dot, slash, scribble) → 1.
+Mark counting — each visible MARK in the cell = 1 event.
+This chart's users do NOT use the 바를 정자 system to encode a count
+of 5. They just draw whatever symbol feels natural — a single line,
+a check, a circle. Treat every mark as one occurrence.
+
+- "ㅡ" / "一" / "—" / a single bar = 1 event.
+- "正" (any state, partial or complete) = 1 event. Do NOT expand
+  it into 5 events.
+- "✓" / "v" / "✔" / "체크" = 1 event each.
+- "○" / "O" / "동그라미" = 1 event each.
+- "✗" / "X" / "x" = 1 event each.
+- Dot, slash, scribble, or any ambiguous mark = 1 event.
+- Multiple separate marks in one cell = sum them.
+  Example: 소변="ㅡㅡ" → 2 events.
+  Example: 소변="✓✓✓" → 3 events.
+  Example: 소변="正" → 1 event (NOT 5).
+  Example: 소변="正正" → 2 events.
 - Empty cell → 0 events.
-- Sum the strokes/正 characters in the cell to get total N.
-  Example: row 3AM 소변="ㅡㅡ" → 2× diaper_pee at 03:00:00.
-  Example: row 4AM 소변="正" → 5× diaper_pee at 04:00:00.
 
 Emission rules — apply per cell, per column:
 - "소변" cell → emit event_type "diaper_pee" × N at row hour:00.
