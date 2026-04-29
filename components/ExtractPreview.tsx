@@ -29,6 +29,11 @@ const KIND_LABEL: Record<Kind, string> = {
 const isFeedKind = (k: Kind): k is FeedKind =>
   (FEED_KINDS as readonly string[]).includes(k);
 
+function displayLabel(kind: Kind, notes: string | null): string {
+  if (kind === "note" && notes && notes.trim().startsWith("구토")) return "구토";
+  return KIND_LABEL[kind];
+}
+
 type Item = {
   id: string;
   kind: Kind;
@@ -304,7 +309,7 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
                         <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">
                           {timeLabel(it.at)}
                         </td>
-                        <td className="px-3 py-1.5 whitespace-nowrap">{KIND_LABEL[it.kind]}</td>
+                        <td className="px-3 py-1.5 whitespace-nowrap">{displayLabel(it.kind, it.notes)}</td>
                         <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailLabel(it)}</td>
                         <td className="px-3 py-1.5 whitespace-nowrap text-right">
                           <div className="inline-flex items-center gap-3">

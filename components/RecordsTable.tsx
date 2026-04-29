@@ -23,6 +23,11 @@ const KIND_LABEL: Record<Kind, string> = {
 const isFeedKind = (k: Kind): k is FeedKind =>
   (FEED_KINDS as readonly string[]).includes(k);
 
+function displayLabel(kind: Kind, notes: string | null): string {
+  if (kind === "note" && notes && notes.trim().startsWith("구토")) return "구토";
+  return KIND_LABEL[kind];
+}
+
 export type FeedRow = {
   id: string;
   start_at: string;
@@ -188,7 +193,7 @@ export function RecordsTable({
   }
 
   async function remove(it: Item) {
-    if (!confirm(`이 ${KIND_LABEL[it.kind]} 기록을 삭제하시겠습니까?`)) return;
+    if (!confirm(`이 ${displayLabel(it.kind, it.notes)} 기록을 삭제하시겠습니까?`)) return;
     setError(null);
     const url = it.source === "feed" ? `/api/feeds/${it.id}` : `/api/events/${it.id}`;
     const res = await fetch(url, { method: "DELETE" });
@@ -289,7 +294,7 @@ export function RecordsTable({
                       <Fragment key={`${it.source}-${it.id}`}>
                         <tr className="border-t border-gray-100 dark:border-neutral-800">
                           <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">{fmtTime(it.at)}</td>
-                          <td className="px-3 py-1.5 whitespace-nowrap">{KIND_LABEL[it.kind]}</td>
+                          <td className="px-3 py-1.5 whitespace-nowrap">{displayLabel(it.kind, it.notes)}</td>
                           <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailText(it)}</td>
                           <td className="px-3 py-1.5 whitespace-nowrap text-right">
                             <button

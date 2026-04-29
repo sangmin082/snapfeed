@@ -134,15 +134,30 @@ Under "섭취":
 - "양(ml)" = integer ml. Strip "ml" suffix. Empty → null.
 - Multiple feeds in the same hour cell → separate feed entries.
 
-Under "배설" — counts written as Korean tally marks (바를 정자 / 正):
+Under "배설" — three columns side by side: "소변" | "대변" | "구토".
+You MUST extract events from EVERY non-empty cell in these columns.
+Never treat them as plain notes; they are categorical events.
+
+Mark counting (Korean tally / 바를 정자 / 正):
 - Stroke values: 一=1, 二/丁=2, 三/下=3, 正(no last stroke)=4,
   complete 正=5. A solo horizontal bar "ㅡ"/"一" drawn alone
   means ONE complete 正 = 5.
-- Sum the strokes/正's in the cell → count N. Emit N SEPARATE
-  events of the matching event_type at the row's hour (minute=0).
-  Example: row 3AM 소변="ㅡㅡ" → 10× diaper_pee at 03:00.
-- 구토 (vomit) goes to event_type "note" with details = "구토" ×N
-  (one per stroke); we don't have a vomit enum.
+- ANY ambiguous mark (✓, ○, dot, slash, scribble) → count = 1.
+  Empty cell → 0 events.
+
+Emission rules — apply per cell, per column:
+- "소변" cell → emit event_type "diaper_pee" × N at row hour:00.
+  Example: row 3AM 소변="ㅡㅡ" → 10× diaper_pee at 03:00:00.
+- "대변" cell → emit event_type "diaper_poop" × N at row hour:00.
+- "구토" cell → emit event_type "note" × N at row hour:00 with
+  details = '{"kind":"vomit","raw":"구토"}'. Use the literal word
+  "구토" for raw (NOT the cell mark) so the UI can render it
+  as the 구토 category. This is the only way 구토 reaches the
+  schema since there is no vomit enum.
+
+Do NOT collapse multiple columns into a single note. If a row has
+both 소변 and 대변 marked, you emit BOTH diaper_pee events AND
+diaper_poop events — separately.
 
 Per-row "기타" column (free-text notes anchored to that hour):
 - Common contents:
@@ -232,11 +247,24 @@ PER-COLUMN EXTRACTION
     feed_type = "breast_pumped", start_at = row hour:00,
     volume_ml = number, end_at = null.
 
-"소변" / "대변" — cells hold CHECKMARKS (✓ or v) ONLY in this
-layout — NOT 正-style tally marks. Count the checkmarks in the
-cell; emit one event per ✓:
+"소변" / "대변" — these columns are CATEGORICAL events. Cells in
+this layout hold checkmarks (✓ / v / ○ / dot / slash). EVERY non-
+empty cell in these columns MUST become at least one diaper event;
+never demote them to "note".
+- Count the marks in the cell. If you can't count clearly, default
+  to count = 1 (a non-empty cell never produces 0 events).
+- Emit one event per mark:
     event_type = "diaper_pee" (소변) or "diaper_poop" (대변)
     at         = row hour:00, end_at = null
+- If a row has marks in BOTH columns, emit BOTH categories — never
+  merge them into one event.
+
+"구토" — vomit column. Emit one note per mark at row hour:00 with
+    event_type = "note"
+    details    = '{"kind":"vomit","raw":"구토"}'
+Use the literal word "구토" for raw so the UI can render it as
+the 구토 category. This is the ONLY way 구토 reaches the schema
+since there is no vomit enum.
 
 "수면" — vertical arrow ↕ spans across multiple hour rows with a
 duration label nearby (e.g. "2시간", "1시간 30분", "2시간뜸").
