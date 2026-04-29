@@ -154,12 +154,25 @@ function toEvent(item: Item): EventRecord {
   };
 }
 
+type DateConflict = { date: string; feeds: number; events: number };
+
+function ymdKstFromIso(iso: string): string | null {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
+  const y = kst.getUTCFullYear();
+  const m = String(kst.getUTCMonth() + 1).padStart(2, "0");
+  const da = String(kst.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${da}`;
+}
+
 export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Props) {
   const [items, setItems] = useState<Item[]>(() => initialItems(initial));
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [zoomed, setZoomed] = useState(false);
+  const [conflicts, setConflicts] = useState<DateConflict[] | null>(null);
 
   useEffect(() => {
     if (!previewUrl) return;
@@ -203,10 +216,64 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
     setEditingId(id);
   }
 
-  async function save() {
+  function uniqueDates(): string[] {
+    const dates = new Set<string>();
+    for (const it of items) {
+      const d = ymdKstFromIso(it.at);
+      if (d) dates.add(d);
+    }
+    return [...dates];
+  }
+
+  async function requestSave() {
     setSaving(true);
     setError(null);
     try {
+      const dates = uniqueDates();
+      if (dates.length > 0) {
+        const res = await fetch("/api/records/check-dates", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ dates }),
+        });
+        if (res.ok) {
+          const json = (await res.json()) as {
+            counts: Record<string, { feeds: number; events: number }>;
+          };
+          const conflicting: DateConflict[] = dates
+            .map((d) => ({
+              date: d,
+              feeds: json.counts[d]?.feeds ?? 0,
+              events: json.counts[d]?.events ?? 0,
+            }))
+            .filter((c) => c.feeds > 0 || c.events > 0);
+          if (conflicting.length > 0) {
+            setConflicts(conflicting);
+            setSaving(false);
+            return;
+          }
+        }
+      }
+      await commitSave([]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      setSaving(false);
+    }
+  }
+
+  async function commitSave(replaceDates: string[]) {
+    setSaving(true);
+    setError(null);
+    try {
+      // Replace mode: delete existing records on the listed days first.
+      for (const d of replaceDates) {
+        const del = await fetch(`/api/records/day/${d}`, { method: "DELETE" });
+        if (!del.ok) {
+          const body = (await del.json().catch(() => ({}))) as { error?: string };
+          throw new Error(`기존 ${d} 삭제 실패: ${body.error ?? del.status}`);
+        }
+      }
+
       const feeds = items.filter((it) => isFeedKind(it.kind)).map(toFeed);
       const events = items.filter((it) => !isFeedKind(it.kind)).map(toEvent);
       const calls: Promise<Response>[] = [];
@@ -235,6 +302,7 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
           throw new Error(body.error ?? `HTTP ${r.status}`);
         }
       }
+      setConflicts(null);
       onSaved();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -462,7 +530,7 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
 
       <button
         type="button"
-        onClick={save}
+        onClick={requestSave}
         disabled={saving || items.length === 0}
         className="rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white disabled:opacity-50"
       >
@@ -491,6 +559,61 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
           >
             ×
           </button>
+        </div>
+      ) : null}
+
+      {conflicts ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        >
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl dark:bg-neutral-900">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-neutral-100">
+              이미 기록이 있는 날짜가 있어요
+            </h3>
+            <p className="mt-1 text-sm text-gray-600 dark:text-neutral-400">
+              아래 날짜에 이미 저장된 기록이 있습니다. 어떻게 하시겠어요?
+            </p>
+            <ul className="mt-3 max-h-48 space-y-1 overflow-y-auto rounded-lg bg-gray-50 p-3 text-sm dark:bg-neutral-800">
+              {conflicts.map((c) => (
+                <li key={c.date} className="flex items-center justify-between">
+                  <span className="font-medium tabular-nums text-gray-900 dark:text-neutral-100">
+                    {c.date}
+                  </span>
+                  <span className="text-gray-500 dark:text-neutral-400">
+                    수유 {c.feeds}건 · 이벤트 {c.events}건
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex flex-col gap-2">
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => commitSave(conflicts.map((c) => c.date))}
+                className="rounded-full bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                기존 삭제 후 새로 저장
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => commitSave([])}
+                className="rounded-full border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:hover:bg-neutral-800"
+              >
+                기존에 추가로 더하기
+              </button>
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => setConflicts(null)}
+                className="rounded-full px-4 py-2 text-sm text-gray-500 hover:text-gray-900 disabled:opacity-50 dark:text-neutral-400 dark:hover:text-neutral-100"
+              >
+                취소
+              </button>
+            </div>
+          </div>
         </div>
       ) : null}
     </div>
