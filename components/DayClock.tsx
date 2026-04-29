@@ -12,6 +12,10 @@ const R_INNER = 96;
 const R_TICK_OUT = 137;
 const R_TICK_IN = 128;
 const R_LABEL = 156;
+// Padding so the outermost hour labels (0/6/12/18) don't get clipped at the
+// viewBox edge — the labels live at radius R_LABEL=156 from the center but
+// SIZE/2=160, so a 2-digit "18" overshoots the box without breathing room.
+const PAD = 18;
 
 const COLOR: Record<string, string> = {
   formula: "#60a5fa",
@@ -54,9 +58,9 @@ export function DayClock({ feeds, dPlus }: { feeds: Feed[]; dPlus: number | null
   return (
     <div className="flex justify-center">
       <svg
-        viewBox={`0 0 ${SIZE} ${SIZE}`}
-        width={SIZE}
-        height={SIZE}
+        viewBox={`${-PAD} ${-PAD} ${SIZE + PAD * 2} ${SIZE + PAD * 2}`}
+        width={SIZE + PAD * 2}
+        height={SIZE + PAD * 2}
         className="max-w-full"
       >
         <circle
