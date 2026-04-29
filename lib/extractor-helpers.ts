@@ -56,12 +56,20 @@ export function safeJsonParse(s: string): Record<string, unknown> {
 }
 
 /**
- * Match the subset of error strings we treat as transient and worth retrying
- * (HTTP 408/429/5xx, Google's `UNAVAILABLE`, `RESOURCE_EXHAUSTED`, etc).
+ * Match the subset of error strings we treat as transient and worth retrying.
+ * Covers HTTP 408/429/5xx, Google-specific `UNAVAILABLE` /
+ * `RESOURCE_EXHAUSTED`, plus the SDK-side truncation signatures we see when
+ * a streamed JSON response gets cut off ("Incomplete JSON segment at the
+ * end", "Unterminated string", "MAX_TOKENS").
  */
 export function isTransientError(err: unknown): boolean {
   const msg = err instanceof Error ? err.message : String(err);
-  return /\b(408|429|500|502|503|504|522|523|524|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)\b/i.test(
-    msg,
-  );
+  if (
+    /\b(408|429|500|502|503|504|522|523|524|UNAVAILABLE|overloaded|high demand|RESOURCE_EXHAUSTED)\b/i.test(
+      msg,
+    )
+  ) {
+    return true;
+  }
+  return /(Incomplete JSON|Unterminated string|MAX_TOKENS|truncated)/i.test(msg);
 }

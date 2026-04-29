@@ -7,6 +7,12 @@ const MODEL_CHAIN = ["gemini-2.5-flash-lite"] as const;
 const RETRIES_PER_MODEL = 0;
 const PER_CALL_TIMEOUT_MS = 22_000;
 
+function looksLikeCompleteJson(s: string): boolean {
+  const trimmed = s.trim();
+  if (!trimmed) return false;
+  return trimmed.endsWith("}") || trimmed.endsWith("]");
+}
+
 // Streaming model chain: try the smarter (thinking) model first, fall back
 // to the lite model when Gemini Flash is overloaded ("This model is currently
 // experiencing high demand", 503 UNAVAILABLE, etc).
@@ -480,18 +486,27 @@ export async function* extractFromImageStream(
             responseMimeType: "application/json",
             responseSchema,
             temperature: 0,
+            // A single dense chart can produce 30+ events × ~100 tokens
+            // each. Default cap (~8K) was getting hit and the JSON ended
+            // up truncated mid-token, producing "Incomplete JSON segment".
+            maxOutputTokens: attempt.thinking ? 32_768 : 16_384,
             thinkingConfig: attempt.thinking
               ? { thinkingBudget: -1, includeThoughts: true }
               : { thinkingBudget: 0 },
           },
         });
 
+        let truncated = false;
         for await (const part of stream) {
           if (Date.now() > overallDeadline) {
             yield { type: "error", message: "전체 시간 초과 (150초)" };
             return;
           }
-          const parts = part.candidates?.[0]?.content?.parts ?? [];
+          const candidate = part.candidates?.[0];
+          if (candidate?.finishReason === "MAX_TOKENS") {
+            truncated = true;
+          }
+          const parts = candidate?.content?.parts ?? [];
           for (const p of parts) {
             const text = (p as { text?: string }).text;
             const isThought = (p as { thought?: boolean }).thought === true;
@@ -502,6 +517,15 @@ export async function* extractFromImageStream(
               acc += text;
             }
           }
+        }
+
+        // Treat output-cap truncation and unparseable JSON as transient
+        // so the next attempt (lite model with no thinking budget) gets
+        // a shot at a complete response.
+        if (truncated || !looksLikeCompleteJson(acc)) {
+          throw new Error(
+            `Incomplete JSON from ${attempt.model}${truncated ? " (MAX_TOKENS)" : ""} — UNAVAILABLE`,
+          );
         }
 
         succeeded = true;
