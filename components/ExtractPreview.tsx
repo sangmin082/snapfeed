@@ -132,7 +132,19 @@ function detailLabel(it: Item): string {
       if (mins > 0) parts.push(`${mins}분`);
     }
   }
-  if (it.notes) parts.push(it.notes);
+  // Each diaper / vomit row represents a single occurrence — surface
+  // that as "1회" instead of a blank cell or the literal word "구토".
+  if (it.kind === "diaper_pee" || it.kind === "diaper_poop") {
+    if (parts.length === 0) parts.push("1회");
+  } else if (
+    it.kind === "note" &&
+    it.notes &&
+    it.notes.trim().startsWith("구토")
+  ) {
+    parts.push("1회");
+  } else if (it.notes) {
+    parts.push(it.notes);
+  }
   return parts.join(" · ");
 }
 

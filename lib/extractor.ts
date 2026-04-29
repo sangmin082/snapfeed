@@ -140,7 +140,14 @@ Under "섭취":
 - "양(ml)" = integer ml. Strip "ml" suffix. Empty → null.
 - Multiple feeds in the same hour cell → separate feed entries.
 
-Under "배설" — three columns side by side: "소변" | "대변" | "구토".
+Under "배설" — three columns SIDE BY SIDE in this LEFT→RIGHT order:
+"소변" (urine) | "대변" (stool) | "구토" (vomit). Mismatching the
+column is a common mistake — verify the column header above each
+mark before assigning a category. A mark sitting under "소변"
+becomes diaper_pee, never diaper_poop. A mark under "대변" becomes
+diaper_poop, never diaper_pee. Visual proximity to a neighboring
+column does not change the category — only the column header does.
+
 You MUST extract events from EVERY non-empty cell in these columns.
 Never treat them as plain notes; they are categorical events.
 

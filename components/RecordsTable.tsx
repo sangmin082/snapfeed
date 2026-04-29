@@ -131,7 +131,17 @@ function fromLocalInput(v: string): string | null {
 function detailText(it: Item): string {
   const parts: string[] = [];
   if (isFeedKind(it.kind) && it.volume_ml != null) parts.push(`${it.volume_ml}ml`);
-  if (it.notes) parts.push(it.notes);
+  if (it.kind === "diaper_pee" || it.kind === "diaper_poop") {
+    if (parts.length === 0) parts.push("1회");
+  } else if (
+    it.kind === "note" &&
+    it.notes &&
+    it.notes.trim().startsWith("구토")
+  ) {
+    parts.push("1회");
+  } else if (it.notes) {
+    parts.push(it.notes);
+  }
   return parts.join(" · ") || "—";
 }
 
