@@ -13,19 +13,20 @@ function looksLikeCompleteJson(s: string): boolean {
   return trimmed.endsWith("}") || trimmed.endsWith("]");
 }
 
-// Streaming model chain: try the smarter (thinking) model first, fall back
-// to the lite model when Gemini Flash is overloaded ("This model is currently
-// experiencing high demand", 503 UNAVAILABLE, etc).
+// Streaming model: lite-only, thinking off. The chart layout is rigid and
+// the prompt is exhaustive, so the smarter (slower, pricier) model wasn't
+// pulling its weight — and turning thinking off frees the entire output
+// budget for the JSON itself, which kills the "Incomplete JSON segment"
+// truncation we used to hit on dense charts.
 type StreamAttempt = {
   model: string;
   thinking: boolean;
   retriesOnTransient: number;
 };
 const STREAM_MODEL_CHAIN: readonly StreamAttempt[] = [
-  { model: "gemini-2.5-flash", thinking: true, retriesOnTransient: 1 },
-  { model: "gemini-2.5-flash-lite", thinking: false, retriesOnTransient: 1 },
+  { model: "gemini-2.5-flash-lite", thinking: false, retriesOnTransient: 2 },
 ] as const;
-const STREAM_OVERALL_TIMEOUT_MS = 150_000;
+const STREAM_OVERALL_TIMEOUT_MS = 90_000;
 const STREAM_RETRY_BACKOFF_MS = 1500;
 
 const SYSTEM = `You are shown a photograph of a handwritten Korean baby care
