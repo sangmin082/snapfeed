@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState, useTransition } from "react";
+import { Fragment, useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 type FeedKind = "breast_direct" | "breast_pumped" | "formula";
@@ -34,6 +34,7 @@ export type FeedRow = {
   volume_ml: number | null;
   feed_type: FeedKind | null;
   notes: string | null;
+  source_photo: string | null;
 };
 
 export type EventRow = {
@@ -41,6 +42,7 @@ export type EventRow = {
   at: string;
   event_type: EventKind;
   details: Record<string, unknown> | null;
+  source_photo: string | null;
 };
 
 type Item = {
@@ -50,6 +52,7 @@ type Item = {
   at: string;
   volume_ml: number | null;
   notes: string | null;
+  source_photo: string | null;
 };
 
 function feedToItem(f: FeedRow): Item {
@@ -60,6 +63,7 @@ function feedToItem(f: FeedRow): Item {
     at: f.start_at,
     volume_ml: f.volume_ml,
     notes: f.notes,
+    source_photo: f.source_photo,
   };
 }
 
@@ -76,6 +80,7 @@ function eventToItem(e: EventRow): Item {
     at: e.at,
     volume_ml: null,
     notes,
+    source_photo: e.source_photo,
   };
 }
 
@@ -137,15 +142,33 @@ function ymdKst(iso: string): string {
 export function RecordsTable({
   feeds,
   events,
+  photoUrls = {},
 }: {
   feeds: FeedRow[];
   events: EventRow[];
+  photoUrls?: Record<string, string>;
 }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDay, setConfirmDay] = useState<string | null>(null);
+  const [openPhoto, setOpenPhoto] = useState<string | null>(null);
+  const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!zoomedPhoto) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setZoomedPhoto(null);
+    };
+    document.addEventListener("keydown", onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
+  }, [zoomedPhoto]);
 
   const items: Item[] = [
     ...feeds.map(feedToItem),
@@ -237,6 +260,17 @@ export function RecordsTable({
         const eventCount = rows.filter((r) => r.source === "event").length;
         const totalMl = rows.reduce((s, r) => s + (r.volume_ml ?? 0), 0);
         const isConfirming = confirmDay === dateKey;
+
+        // Unique source_photo paths used by this day's rows, in row order.
+        const photosForDay: string[] = [];
+        const seen = new Set<string>();
+        for (const r of rows) {
+          if (r.source_photo && !seen.has(r.source_photo) && photoUrls[r.source_photo]) {
+            seen.add(r.source_photo);
+            photosForDay.push(r.source_photo);
+          }
+        }
+        const isExpanded = openPhoto !== null && photosForDay.includes(openPhoto);
         return (
           <section key={dateKey} className="flex flex-col gap-2">
             <div className="flex items-center justify-between gap-3">
@@ -275,6 +309,63 @@ export function RecordsTable({
                 </button>
               )}
             </div>
+
+            {photosForDay.length > 0 ? (
+              <div className="flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-gray-500 dark:text-neutral-500">
+                    원본 사진 {photosForDay.length}장
+                  </span>
+                  {photosForDay.map((p) => {
+                    const active = openPhoto === p;
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => setOpenPhoto(active ? null : p)}
+                        className={
+                          active
+                            ? "h-12 w-12 overflow-hidden rounded-md ring-2 ring-emerald-500"
+                            : "h-12 w-12 overflow-hidden rounded-md ring-1 ring-gray-200 transition hover:ring-emerald-400 dark:ring-neutral-800 dark:hover:ring-emerald-700"
+                        }
+                        aria-label="원본 사진 펼치기"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photoUrls[p]}
+                          alt="기록지 미리보기"
+                          className="h-full w-full object-cover"
+                        />
+                      </button>
+                    );
+                  })}
+                  {isExpanded ? (
+                    <button
+                      type="button"
+                      onClick={() => setOpenPhoto(null)}
+                      className="ml-auto text-xs text-gray-500 underline-offset-4 hover:text-gray-700 hover:underline dark:text-neutral-500 dark:hover:text-neutral-300"
+                    >
+                      접기
+                    </button>
+                  ) : null}
+                </div>
+                {isExpanded && openPhoto ? (
+                  <button
+                    type="button"
+                    onClick={() => setZoomedPhoto(openPhoto)}
+                    className="block overflow-hidden rounded-xl border border-gray-200 bg-gray-50 transition hover:border-emerald-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-emerald-700"
+                    aria-label="사진 크게 보기"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photoUrls[openPhoto]}
+                      alt="기록지 원본"
+                      className="block max-h-[60vh] w-full object-contain"
+                    />
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="overflow-hidden rounded-xl border border-gray-200 dark:border-neutral-800">
               <table className="w-full text-sm">
@@ -323,6 +414,31 @@ export function RecordsTable({
           </section>
         );
       })}
+
+      {zoomedPhoto && photoUrls[zoomedPhoto] ? (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setZoomedPhoto(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={photoUrls[zoomedPhoto]}
+            alt="기록지 원본 (확대)"
+            onClick={(e) => e.stopPropagation()}
+            className="max-h-[95vh] max-w-[95vw] cursor-default object-contain"
+          />
+          <button
+            type="button"
+            onClick={() => setZoomedPhoto(null)}
+            aria-label="닫기"
+            className="fixed top-4 right-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-xl text-gray-900 shadow-md hover:bg-white"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
