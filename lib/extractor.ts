@@ -85,6 +85,31 @@ arranged side-by-side (left → middle → right). Each block has:
     different field from the day-level footer "기타기록 / 비고"
     described in (5) below — do not merge them.
 
+    COLUMN TYPE CONTRACT — each column accepts ONE kind of value.
+    Mismatched content means you've drifted into a neighboring
+    column; re-locate the cell against the header row before
+    emitting anything.
+       시간(분)  : INTEGER 0–59 (clock minutes) or empty.
+       형태      : TEXT enum 모유 / 직수 / 유축 / 분유 / 혼합,
+                   or empty. A bare stroke / check / circle is
+                   NEVER a "형태" value.
+       양(ml)    : INTEGER 1–500 with optional "ml" suffix, or
+                   empty. A bare stroke / check / "ㅡ" / "—" is
+                   NEVER a 양(ml) value.
+       소변/대변/구토 : MARKS ONLY — strokes (一 ㅡ —), checks
+                   (✓ v), circles (○ O), X marks. NEVER numbers,
+                   NEVER feed-type words. If you read a number
+                   here, you've slipped into 양(ml).
+       기타      : Free-form Korean text (유산균, 약, 체온, etc).
+
+    Feed-event emission rule (consequence of the contract):
+       Emit a "feed" entry ONLY when the row has at least one of
+       {시간(분), 형태, 양(ml)} actually filled with the matching
+       data type. A row whose ONLY content is a mark in 소변 /
+       대변 / 구토 → that is a DIAPER (or vomit-note) event, NOT
+       a feed. Do not invent a feed_type "formula" with empty
+       volume just because a mark exists somewhere on the row.
+
 (4) 24 body rows: 0AM, 1AM, …, 11AM, 12PM, 1PM, …, 11PM.
     Hour mapping:
        0AM → 00, 1AM..11AM → 01..11, 12PM → 12, 1PM..11PM → 13..23.
@@ -213,8 +238,8 @@ DERIVED FIELDS — what to put on each output entry
 - If multiple entries share an hour cell, emit each separately
   (left-to-right, top-to-bottom within the cell).
 
-Feed type default (when the row shows a volume but no explicit
-"형태"):
+Feed type default (when the row shows a NUMERIC volume in 양(ml)
+but no explicit "형태"):
 - Use the sheet header "수유방법:" if present and unambiguous.
   "직수" → breast_direct; "유축" → breast_pumped; "분유" →
   formula; "혼합" or two methods listed → formula (safer
@@ -222,6 +247,9 @@ Feed type default (when the row shows a volume but no explicit
 - If "수유방법" is missing, default to "formula".
 - Only classify as breast_direct / breast_pumped when the row
   itself, or the sheet header, says so unambiguously.
+- This default ONLY applies when 양(ml) actually contains a
+  numeric volume. Do NOT trigger it from a mark in 배설 columns
+  or from an empty row.
 
 Use null for unclear/missing numerics — never invent numbers.
 Keep free-text observations in notes/details verbatim.
