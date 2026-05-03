@@ -28,6 +28,13 @@ function displayLabel(kind: Kind, notes: string | null): string {
   return KIND_LABEL[kind];
 }
 
+const FOOTER_NOTE_PREFIX = /^(체중|체온|수유총량|기타기록|비고)/;
+
+function isDayLevelNote(kind: Kind, notes: string | null): boolean {
+  if (kind !== "note" || !notes) return false;
+  return FOOTER_NOTE_PREFIX.test(notes.trim());
+}
+
 export type FeedRow = {
   id: string;
   start_at: string;
@@ -394,7 +401,9 @@ export function RecordsTable({
                     return (
                       <Fragment key={`${it.source}-${it.id}`}>
                         <tr className="border-t border-gray-100 dark:border-neutral-800">
-                          <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">{fmtTime(it.at)}</td>
+                          <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">
+                            {isDayLevelNote(it.kind, it.notes) ? "" : fmtTime(it.at)}
+                          </td>
                           <td className="px-3 py-1.5 whitespace-nowrap">{displayLabel(it.kind, it.notes)}</td>
                           <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailText(it)}</td>
                           <td className="px-3 py-1.5 whitespace-nowrap text-right">

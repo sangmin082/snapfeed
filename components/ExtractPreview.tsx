@@ -34,6 +34,13 @@ function displayLabel(kind: Kind, notes: string | null): string {
   return KIND_LABEL[kind];
 }
 
+const FOOTER_NOTE_PREFIX = /^(체중|체온|수유총량|기타기록|비고)/;
+
+function isDayLevelNote(kind: Kind, notes: string | null): boolean {
+  if (kind !== "note" || !notes) return false;
+  return FOOTER_NOTE_PREFIX.test(notes.trim());
+}
+
 type Item = {
   id: string;
   kind: Kind;
@@ -387,7 +394,7 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
                           {showDate ? dLabel : ""}
                         </td>
                         <td className="px-3 py-1.5 tabular-nums whitespace-nowrap">
-                          {timeLabel(it.at)}
+                          {isDayLevelNote(it.kind, it.notes) ? "" : timeLabel(it.at)}
                         </td>
                         <td className="px-3 py-1.5 whitespace-nowrap">{displayLabel(it.kind, it.notes)}</td>
                         <td className="px-3 py-1.5 text-gray-600 dark:text-neutral-400">{detailLabel(it)}</td>
