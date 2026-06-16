@@ -1,0 +1,43 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10b981"/>
+      <stop offset="1" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="bottle" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#ecfdf5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+
+  <!-- camera body -->
+  <rect x="176" y="288" width="672" height="496" rx="84" fill="#ffffff" opacity="0.97"/>
+  <!-- camera top -->
+  <path d="M 392 232 L 632 232 Q 668 232 678 268 L 690 308 L 334 308 L 346 268 Q 356 232 392 232 Z" fill="#ffffff" opacity="0.97"/>
+
+  <!-- shutter -->
+  <circle cx="512" cy="536" r="180" fill="#10b981"/>
+  <circle cx="512" cy="536" r="148" fill="url(#bottle)"/>
+
+  <!-- baby bottle inside the lens -->
+  <g transform="translate(440 408)">
+    <!-- nipple -->
+    <path d="M 56 0 Q 72 -20 88 0 L 88 24 L 56 24 Z" fill="#f9a8d4"/>
+    <!-- collar -->
+    <rect x="48" y="22" width="48" height="20" rx="6" fill="#e5e7eb"/>
+    <!-- body -->
+    <rect x="40" y="42" width="64" height="148" rx="14" fill="#ffffff" stroke="#10b981" stroke-width="6"/>
+    <!-- liquid level line -->
+    <path d="M 40 130 Q 72 122 104 130 L 104 178 Q 88 188 72 188 Q 56 188 40 178 Z" fill="#fde68a" opacity="0.85"/>
+    <!-- measurement lines -->
+    <line x1="48" y1="70" x2="64" y2="70" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+    <line x1="48" y1="100" x2="64" y2="100" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+    <line x1="48" y1="130" x2="64" y2="130" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+  </g>
+
+  <!-- flash indicator -->
+  <circle cx="772" cy="368" r="20" fill="#fbbf24"/>
+</svg>
