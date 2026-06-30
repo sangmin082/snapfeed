@@ -294,7 +294,11 @@ export default async function Home() {
             </>
           )}
         </nav>
-        <p className="mt-5 text-center text-xs text-gray-400 dark:text-neutral-500">
+        <nav className="mt-5 flex flex-row justify-center gap-5 text-xs text-gray-400 dark:text-neutral-500">
+          <Link href="/privacy" className="underline-offset-4 hover:text-gray-700 hover:underline dark:hover:text-neutral-300">개인정보처리방침</Link>
+          <Link href="/terms" className="underline-offset-4 hover:text-gray-700 hover:underline dark:hover:text-neutral-300">이용약관</Link>
+        </nav>
+        <p className="mt-4 text-center text-xs text-gray-400 dark:text-neutral-500">
           snapfeed · MVP · 본인 · 가족 전용
         </p>
       </footer>

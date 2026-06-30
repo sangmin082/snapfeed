@@ -42,6 +42,11 @@ export default async function LoginPage({ searchParams }: Props) {
           {isSignup ? "가입하기" : "로그인"}
         </h1>
 
+        {sp.notice === "deleted" ? (
+          <div className="rounded-xl bg-gray-100 p-4 text-center text-sm text-gray-700 dark:bg-neutral-800 dark:text-neutral-200">
+            계정과 데이터가 삭제되었습니다. 그동안 이용해주셔서 감사합니다.
+          </div>
+        ) : null}
         {sp.notice === "check-email" ? (
           <div className="rounded-xl bg-emerald-50 p-4 text-center text-sm text-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100">
             이메일로 확인 링크를 보냈습니다. 링크를 눌러 가입을 완료해주세요.

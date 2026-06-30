@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { babyPhotoUrl, requireUser } from "@/lib/auth";
 import { serviceSupabase } from "@/lib/supabase-server";
 import { BabyForm } from "@/components/BabyForm";
+import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { updateBaby } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ type Props = {
 const ERROR_MESSAGE: Record<string, string> = {
   required: "이름·생년월일·아이와의 관계는 필수입니다.",
   number: "몸무게(kg)와 키(cm)는 숫자로 입력해주세요.",
+  confirm: "확인 문구가 일치하지 않습니다. '삭제합니다'를 정확히 입력해주세요.",
 };
 
 export default async function ProfilePage({ searchParams }: Props) {
@@ -83,6 +85,17 @@ export default async function ProfilePage({ searchParams }: Props) {
         >
           취소하고 돌아가기
         </Link>
+
+        <DeleteAccountSection />
+
+        <nav className="flex justify-center gap-4 text-xs text-gray-400 dark:text-neutral-600">
+          <Link href="/privacy" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-400">
+            개인정보처리방침
+          </Link>
+          <Link href="/terms" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-400">
+            이용약관
+          </Link>
+        </nav>
       </div>
     </main>
   );
