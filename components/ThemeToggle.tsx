@@ -88,7 +88,7 @@ export default function ThemeToggle() {
             title={opt.label}
             className={
               active
-                ? "inline-flex h-7 w-7 items-center justify-center rounded-full bg-rose-600 text-white shadow-sm transition"
+                ? "inline-flex h-7 w-7 items-center justify-center rounded-full bg-pink-600 text-white shadow-sm transition"
                 : "inline-flex h-7 w-7 items-center justify-center rounded-full text-gray-500 transition hover:text-gray-900 dark:text-neutral-400 dark:hover:text-neutral-100"
             }
           >

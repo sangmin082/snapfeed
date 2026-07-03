@@ -84,7 +84,7 @@ export function BabyForm({
           name="name"
           maxLength={40}
           defaultValue={defaults.name ?? ""}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-pink-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
           placeholder="예: 복덩이"
         />
       </label>
@@ -96,7 +96,7 @@ export function BabyForm({
           type="date"
           name="birth_date"
           defaultValue={defaults.birth_date ?? ""}
-          className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+          className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-pink-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
         />
       </label>
 
@@ -112,7 +112,7 @@ export function BabyForm({
             min={0}
             step={0.01}
             defaultValue={defaults.birth_weight_kg ?? ""}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-pink-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
             placeholder="예: 3.20"
           />
         </label>
@@ -125,7 +125,7 @@ export function BabyForm({
             min={0}
             step={0.1}
             defaultValue={defaults.birth_height_cm ?? ""}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-rose-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-pink-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
             placeholder="예: 49.5"
           />
         </label>
@@ -141,7 +141,7 @@ export function BabyForm({
               setPhoto(e.target.files?.[0] ?? null);
               setRemoveExisting(false);
             }}
-            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 file:mr-3 file:rounded-md file:border-0 file:bg-rose-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-rose-700 hover:file:bg-rose-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:file:bg-rose-900/40 dark:file:text-rose-300 dark:hover:file:bg-rose-900/60"
+            className="rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 file:mr-3 file:rounded-md file:border-0 file:bg-pink-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-pink-700 hover:file:bg-pink-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:file:bg-pink-900/40 dark:file:text-pink-300 dark:hover:file:bg-pink-900/60"
           />
           <span className="text-xs text-gray-500 dark:text-neutral-500">
             프로필용 사진. 업로드 전에 자동으로 800px로 줄여집니다.
@@ -149,7 +149,7 @@ export function BabyForm({
         </label>
 
         {showExistingPhoto ? (
-          <div className="flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50/50 p-3 dark:border-rose-900 dark:bg-rose-950/30">
+          <div className="flex items-center gap-3 rounded-lg border border-pink-200 bg-pink-50/50 p-3 dark:border-pink-900 dark:bg-pink-950/30">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={defaults.photoUrl ?? ""}
@@ -175,7 +175,7 @@ export function BabyForm({
         ) : null}
 
         {previewUrl ? (
-          <div className="flex items-center gap-3 rounded-lg border border-rose-200 bg-rose-50/50 p-3 dark:border-rose-900 dark:bg-rose-950/30">
+          <div className="flex items-center gap-3 rounded-lg border border-pink-200 bg-pink-50/50 p-3 dark:border-pink-900 dark:bg-pink-950/30">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={previewUrl}
@@ -223,7 +223,7 @@ export function BabyForm({
       <button
         type="submit"
         disabled={pending}
-        className="mt-4 rounded-full bg-rose-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-rose-700 active:scale-[0.98] disabled:opacity-60"
+        className="mt-4 rounded-full bg-pink-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-pink-700 active:scale-[0.98] disabled:opacity-60"
       >
         {pending ? pendingLabel : submitLabel}
       </button>

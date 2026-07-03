@@ -24,7 +24,7 @@ export default async function OnboardingPage({ searchParams }: Props) {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2 text-center">
-          <span className="mx-auto rounded-full bg-rose-100 px-3 py-1 text-xs font-medium text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">
+          <span className="mx-auto rounded-full bg-pink-100 px-3 py-1 text-xs font-medium text-pink-700 dark:bg-pink-900/40 dark:text-pink-300">
             환영합니다 👋
           </span>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl dark:text-neutral-100">

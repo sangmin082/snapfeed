@@ -65,7 +65,7 @@ export function StatsControls({
                 active
                   ? v === "day"
                     ? "bg-white text-sky-500 shadow-sm ring-1 ring-sky-200 dark:bg-neutral-900 dark:text-sky-300 dark:ring-sky-900"
-                    : "bg-white text-rose-500 shadow-sm ring-1 ring-rose-200 dark:bg-neutral-900 dark:text-rose-300 dark:ring-rose-900"
+                    : "bg-white text-pink-500 shadow-sm ring-1 ring-pink-200 dark:bg-neutral-900 dark:text-pink-300 dark:ring-pink-900"
                   : "text-gray-400 dark:text-neutral-500"
               }`}
             >

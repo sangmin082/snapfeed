@@ -65,7 +65,7 @@ export default async function InvitePage({ params, searchParams }: Props) {
             <RelationshipPicker />
             <button
               type="submit"
-              className="rounded-full bg-rose-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-rose-700 active:scale-[0.98]"
+              className="rounded-full bg-pink-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-pink-700 active:scale-[0.98]"
             >
               수락하고 가족으로 참여
             </button>
@@ -76,7 +76,7 @@ export default async function InvitePage({ params, searchParams }: Props) {
         ) : (
           <Link
             href={{ pathname: "/login", query: { from: `/invite/${code}` } }}
-            className="rounded-full bg-rose-600 px-6 py-3 text-center text-base font-semibold text-white shadow-sm transition hover:bg-rose-700 active:scale-[0.98]"
+            className="rounded-full bg-pink-600 px-6 py-3 text-center text-base font-semibold text-white shadow-sm transition hover:bg-pink-700 active:scale-[0.98]"
           >
             로그인하고 수락하기
           </Link>

@@ -40,14 +40,14 @@ export function UploadClient({ babyName }: { babyName: string }) {
   if (saved) {
     return (
       <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-center gap-3 rounded-2xl bg-rose-50 p-8 text-center dark:bg-rose-950/40">
+        <div className="flex flex-col items-center gap-3 rounded-2xl bg-pink-50 p-8 text-center dark:bg-pink-950/40">
           <div className="text-5xl">✅</div>
-          <h1 className="text-2xl font-bold text-rose-900 sm:text-3xl dark:text-rose-100">저장 완료</h1>
-          <p className="text-base text-rose-800 dark:text-rose-200">기록이 성공적으로 저장되었습니다.</p>
+          <h1 className="text-2xl font-bold text-pink-900 sm:text-3xl dark:text-pink-100">저장 완료</h1>
+          <p className="text-base text-pink-800 dark:text-pink-200">기록이 성공적으로 저장되었습니다.</p>
         </div>
         <Link
           href="/stats"
-          className="rounded-full bg-rose-600 px-6 py-4 text-center text-base font-semibold text-white shadow-sm transition hover:bg-rose-700 active:scale-[0.98]"
+          className="rounded-full bg-pink-600 px-6 py-4 text-center text-base font-semibold text-white shadow-sm transition hover:bg-pink-700 active:scale-[0.98]"
         >
           📊 패턴 보기
         </Link>
@@ -90,7 +90,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
           <p className="text-base leading-relaxed text-gray-600 dark:text-neutral-400">
             수기 수유 기록지를 촬영하면 AI가 자동으로 인식해서 수정 가능한 표로 보여줍니다.
           </p>
-          <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-5 text-sm leading-relaxed text-rose-900 sm:p-6 sm:text-base dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-100">
+          <div className="rounded-2xl border border-pink-200 bg-pink-50/60 p-5 text-sm leading-relaxed text-pink-900 sm:p-6 sm:text-base dark:border-pink-900 dark:bg-pink-950/40 dark:text-pink-100">
             <p className="font-semibold">📝 잘 찍는 팁</p>
             <ul className="mt-3 flex flex-col gap-1.5 pl-1">
               <li>· 기록지 전체가 프레임에 들어오게</li>
@@ -117,8 +117,8 @@ export function UploadClient({ babyName }: { babyName: string }) {
                   🤖 Gemini 추론 로그
                 </h3>
                 {busy ? (
-                  <span className="inline-flex items-center gap-1.5 text-xs text-rose-700 dark:text-rose-300">
-                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-rose-500" />
+                  <span className="inline-flex items-center gap-1.5 text-xs text-pink-700 dark:text-pink-300">
+                    <span className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-pink-500" />
                     분석 중
                   </span>
                 ) : null}
@@ -130,7 +130,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
                 {progress.map((l, i) => (
                   <div key={i} className="mb-1.5 last:mb-0">
                     {l.kind === "status" ? (
-                      <span className="text-rose-700 dark:text-rose-400">▸ {l.text}</span>
+                      <span className="text-pink-700 dark:text-pink-400">▸ {l.text}</span>
                     ) : (
                       <span className="whitespace-pre-wrap text-gray-600 dark:text-neutral-400">
                         💭 {l.text}

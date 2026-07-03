@@ -37,26 +37,26 @@ export function InviteButton() {
           type="button"
           disabled={pending}
           onClick={generate}
-          className="rounded-full border border-rose-300 bg-rose-50 px-6 py-3 text-base font-semibold text-rose-700 transition hover:bg-rose-100 active:scale-[0.98] disabled:opacity-50 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-300 dark:hover:bg-rose-900/40"
+          className="rounded-full border border-pink-300 bg-pink-50 px-6 py-3 text-base font-semibold text-pink-700 transition hover:bg-pink-100 active:scale-[0.98] disabled:opacity-50 dark:border-pink-800 dark:bg-pink-950/40 dark:text-pink-300 dark:hover:bg-pink-900/40"
         >
           {pending ? "초대 링크 생성 중…" : "👨‍👩‍👧 가족 초대 링크 만들기"}
         </button>
       ) : (
-        <div className="flex flex-col gap-2 rounded-2xl border border-rose-200 bg-rose-50 p-4 dark:border-rose-900 dark:bg-rose-950/40">
-          <p className="text-xs font-medium text-rose-800 dark:text-rose-200">
+        <div className="flex flex-col gap-2 rounded-2xl border border-pink-200 bg-pink-50 p-4 dark:border-pink-900 dark:bg-pink-950/40">
+          <p className="text-xs font-medium text-pink-800 dark:text-pink-200">
             7일 동안 유효합니다. 이 링크를 공유하면 가족이 같은 아이 기록을 볼 수 있어요.
           </p>
           <input
             readOnly
             value={link}
             onClick={(e) => (e.target as HTMLInputElement).select()}
-            className="w-full rounded-lg border border-rose-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-rose-800 dark:bg-neutral-900 dark:text-neutral-100"
+            className="w-full rounded-lg border border-pink-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-pink-800 dark:bg-neutral-900 dark:text-neutral-100"
           />
           <div className="flex gap-2">
             <button
               type="button"
               onClick={copy}
-              className="flex-1 rounded-full bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700"
+              className="flex-1 rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-pink-700"
             >
               {copied ? "복사됨 ✓" : "링크 복사"}
             </button>

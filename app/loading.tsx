@@ -8,10 +8,10 @@ export default function Loading() {
         </div>
       </div>
 
-      <section className="bg-rose-600/5 dark:bg-rose-900/10">
+      <section className="bg-pink-600/5 dark:bg-pink-900/10">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 py-6">
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 animate-pulse rounded-full bg-rose-100 dark:bg-rose-900/40" />
+            <div className="h-14 w-14 animate-pulse rounded-full bg-pink-100 dark:bg-pink-900/40" />
             <div className="flex flex-1 flex-col gap-2">
               <div className="h-5 w-40 animate-pulse rounded bg-gray-200 dark:bg-neutral-800" />
               <div className="h-3 w-24 animate-pulse rounded bg-gray-200 dark:bg-neutral-800" />
@@ -21,14 +21,14 @@ export default function Loading() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-gradient-to-b from-rose-50 via-white to-white dark:from-rose-950/40 dark:via-neutral-950 dark:to-neutral-950">
+      <section className="relative overflow-hidden bg-gradient-to-b from-pink-50 via-white to-white dark:from-pink-950/40 dark:via-neutral-950 dark:to-neutral-950">
         <div className="mx-auto max-w-2xl px-6 pt-12 pb-14 sm:pt-20 sm:pb-20">
           <div className="flex flex-col items-center gap-6">
-            <div className="h-6 w-48 animate-pulse rounded-full bg-rose-100 dark:bg-rose-900/40" />
+            <div className="h-6 w-48 animate-pulse rounded-full bg-pink-100 dark:bg-pink-900/40" />
             <div className="h-12 w-full max-w-xl animate-pulse rounded bg-gray-200 dark:bg-neutral-800" />
             <div className="h-12 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-neutral-800" />
             <div className="mt-4 flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
-              <div className="h-14 w-full animate-pulse rounded-full bg-rose-200 dark:bg-rose-900/40 sm:w-44" />
+              <div className="h-14 w-full animate-pulse rounded-full bg-pink-200 dark:bg-pink-900/40 sm:w-44" />
               <div className="h-14 w-full animate-pulse rounded-full bg-gray-200 dark:bg-neutral-800 sm:w-44" />
             </div>
           </div>
