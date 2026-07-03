@@ -14,7 +14,7 @@ export default function Loading() {
             />
           ))}
         </div>
-        <div className="h-12 animate-pulse rounded-full bg-pink-200 dark:bg-pink-900/40" />
+        <div className="h-12 animate-pulse rounded-full bg-amber-200 dark:bg-amber-900/40" />
       </div>
     </main>
   );

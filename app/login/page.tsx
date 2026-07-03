@@ -35,7 +35,7 @@ export default async function LoginPage({ searchParams }: Props) {
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
       <div className="flex flex-col gap-6">
-        <Link href="/" className="mx-auto text-2xl font-bold tracking-tight text-pink-600 dark:text-pink-400">
+        <Link href="/" className="mx-auto text-2xl font-bold tracking-tight text-amber-600 dark:text-amber-400">
           snapfeed
         </Link>
         <h1 className="text-center text-2xl font-bold text-gray-900 sm:text-3xl dark:text-neutral-100">
@@ -48,12 +48,12 @@ export default async function LoginPage({ searchParams }: Props) {
           </div>
         ) : null}
         {sp.notice === "check-email" ? (
-          <div className="rounded-xl bg-pink-50 p-4 text-center text-sm text-pink-900 dark:bg-pink-950/40 dark:text-pink-100">
+          <div className="rounded-xl bg-amber-50 p-4 text-center text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
             이메일로 확인 링크를 보냈습니다. 링크를 눌러 가입을 완료해주세요.
           </div>
         ) : null}
         {sp.notice === "resent" ? (
-          <div className="rounded-xl bg-pink-50 p-4 text-center text-sm text-pink-900 dark:bg-pink-950/40 dark:text-pink-100">
+          <div className="rounded-xl bg-amber-50 p-4 text-center text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
             확인 메일을 다시 보냈습니다. 메일함(스팸 포함)을 확인해주세요.
           </div>
         ) : null}
@@ -78,7 +78,7 @@ export default async function LoginPage({ searchParams }: Props) {
                   <input type="hidden" name="from" value={from} />
                   <button
                     type="submit"
-                    className="rounded-full bg-pink-600 px-4 py-2 text-sm font-semibold text-white hover:bg-pink-700"
+                    className="rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700"
                   >
                     확인 메일 재전송
                   </button>
@@ -117,7 +117,7 @@ export default async function LoginPage({ searchParams }: Props) {
               type="email"
               name="email"
               autoComplete="email"
-              className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-pink-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+              className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-amber-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
               placeholder="you@example.com"
             />
           </label>
@@ -129,13 +129,13 @@ export default async function LoginPage({ searchParams }: Props) {
               name="password"
               autoComplete={isSignup ? "new-password" : "current-password"}
               minLength={6}
-              className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-pink-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+              className="rounded-lg border border-gray-300 bg-white px-3 py-3 text-base text-gray-900 focus:border-amber-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500"
               placeholder="6자 이상"
             />
           </label>
           <button
             type="submit"
-            className="mt-2 rounded-full bg-pink-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-pink-700 active:scale-[0.98]"
+            className="mt-2 rounded-full bg-amber-600 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-amber-700 active:scale-[0.98]"
           >
             {isSignup ? "가입" : "로그인"}
           </button>
@@ -147,7 +147,7 @@ export default async function LoginPage({ searchParams }: Props) {
               이미 계정이 있나요?{" "}
               <Link
                 href={{ pathname: "/login", query: { from, mode: "signin" } }}
-                className="font-medium text-pink-700 underline-offset-4 hover:underline dark:text-pink-300"
+                className="font-medium text-amber-700 underline-offset-4 hover:underline dark:text-amber-300"
               >
                 로그인
               </Link>
@@ -157,7 +157,7 @@ export default async function LoginPage({ searchParams }: Props) {
               처음 방문하셨나요?{" "}
               <Link
                 href={{ pathname: "/login", query: { from, mode: "signup" } }}
-                className="font-medium text-pink-700 underline-offset-4 hover:underline dark:text-pink-300"
+                className="font-medium text-amber-700 underline-offset-4 hover:underline dark:text-amber-300"
               >
                 가입하기
               </Link>

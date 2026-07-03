@@ -1,9 +1,9 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#f9a8d4"/>
-      <stop offset="0.5" stop-color="#f472b6"/>
-      <stop offset="1" stop-color="#db2777"/>
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.5" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f59e0b"/>
     </linearGradient>
     <radialGradient id="glow" cx="0.3" cy="0.18" r="0.9">
       <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/>
@@ -14,7 +14,7 @@
       <stop offset="1" stop-color="#fdeee9"/>
     </linearGradient>
     <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="18" stdDeviation="28" flood-color="#831843" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="18" stdDeviation="28" flood-color="#78350f" flood-opacity="0.35"/>
     </filter>
   </defs>
 
@@ -43,28 +43,28 @@
       <!-- cap ring -->
       <rect x="-76" y="110" width="152" height="48" rx="19" fill="#5eead4"/>
       <!-- body -->
-      <rect x="-96" y="156" width="192" height="264" rx="40" fill="#ffffff" stroke="#db2777" stroke-width="12"/>
+      <rect x="-96" y="156" width="192" height="264" rx="40" fill="#ffffff" stroke="#44403c" stroke-width="12"/>
       <!-- milk -->
       <path d="M -83 258 C -48 240 -10 272 28 258 C 54 248 70 252 83 258 L 83 364 C 83 386 66 402 44 402 L -44 402 C -66 402 -83 386 -83 364 Z" fill="#fde68a"/>
       <!-- milk shine -->
       <ellipse cx="-36" cy="304" rx="16" ry="30" fill="#ffffff" opacity="0.5" transform="rotate(-14 -36 304)"/>
       <!-- measurement ticks -->
-      <line x1="50" y1="208" x2="74" y2="208" stroke="#db2777" stroke-width="9" stroke-linecap="round"/>
-      <line x1="50" y1="256" x2="74" y2="256" stroke="#db2777" stroke-width="9" stroke-linecap="round"/>
-      <line x1="50" y1="304" x2="74" y2="304" stroke="#db2777" stroke-width="9" stroke-linecap="round"/>
+      <line x1="50" y1="208" x2="74" y2="208" stroke="#44403c" stroke-width="9" stroke-linecap="round"/>
+      <line x1="50" y1="256" x2="74" y2="256" stroke="#44403c" stroke-width="9" stroke-linecap="round"/>
+      <line x1="50" y1="304" x2="74" y2="304" stroke="#44403c" stroke-width="9" stroke-linecap="round"/>
     </g>
 
     <!-- handwritten caption: squiggle + heart -->
     <g stroke="#d8cac2" stroke-width="12" stroke-linecap="round" fill="none">
       <path d="M 312 764 C 342 750 370 776 402 764 C 434 752 462 776 494 764 C 520 754 544 772 566 764"/>
     </g>
-    <path transform="translate(646 736) scale(1.15)" fill="#f472b6"
+    <path transform="translate(646 736) scale(1.15)" fill="#fb7185"
       d="M 0 10 C -12 -8 -38 -2 -38 20 C -38 40 -12 52 0 62 C 12 52 38 40 38 20 C 38 -2 12 -8 0 10 Z"/>
   </g>
 
   <!-- heart sticker on the corner -->
   <g transform="rotate(12 766 216)">
-    <path transform="translate(766 192) scale(1.7)" fill="#be185d" stroke="#ffffff" stroke-width="9"
+    <path transform="translate(766 192) scale(1.7)" fill="#e11d48" stroke="#ffffff" stroke-width="9"
       d="M 0 10 C -12 -8 -38 -2 -38 20 C -38 40 -12 52 0 62 C 12 52 38 40 38 20 C 38 -2 12 -8 0 10 Z"/>
   </g>
 </svg>

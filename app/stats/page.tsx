@@ -126,7 +126,7 @@ export default async function StatsPage({ searchParams }: Props) {
         </h1>
         <Link
           href="/records"
-          className="absolute right-0 inline-flex h-10 items-center px-2 text-sm font-medium text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300"
+          className="absolute right-0 inline-flex h-10 items-center px-2 text-sm font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
         >
           기록 보기
         </Link>

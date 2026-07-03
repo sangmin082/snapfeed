@@ -342,8 +342,8 @@ export function RecordsTable({
                         onClick={() => setOpenPhoto(active ? null : p)}
                         className={
                           active
-                            ? "h-12 w-12 overflow-hidden rounded-md ring-2 ring-pink-500"
-                            : "h-12 w-12 overflow-hidden rounded-md ring-1 ring-gray-200 transition hover:ring-pink-400 dark:ring-neutral-800 dark:hover:ring-pink-700"
+                            ? "h-12 w-12 overflow-hidden rounded-md ring-2 ring-amber-500"
+                            : "h-12 w-12 overflow-hidden rounded-md ring-1 ring-gray-200 transition hover:ring-amber-400 dark:ring-neutral-800 dark:hover:ring-amber-700"
                         }
                         aria-label="원본 사진 펼치기"
                       >
@@ -370,7 +370,7 @@ export function RecordsTable({
                   <button
                     type="button"
                     onClick={() => setZoomedPhoto(openPhoto)}
-                    className="block overflow-hidden rounded-xl border border-gray-200 bg-gray-50 transition hover:border-pink-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-pink-700"
+                    className="block overflow-hidden rounded-xl border border-gray-200 bg-gray-50 transition hover:border-amber-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-amber-700"
                     aria-label="사진 크게 보기"
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -568,7 +568,7 @@ function EditRow({
             <button
               type="button"
               onClick={handleSave}
-              className="rounded bg-pink-600 px-3 py-1 text-xs font-semibold text-white hover:bg-pink-700"
+              className="rounded bg-amber-600 px-3 py-1 text-xs font-semibold text-white hover:bg-amber-700"
             >
               저장
             </button>
