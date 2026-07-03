@@ -126,7 +126,7 @@ export default async function StatsPage({ searchParams }: Props) {
         </h1>
         <Link
           href="/records"
-          className="absolute right-0 inline-flex h-10 items-center px-2 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
+          className="absolute right-0 inline-flex h-10 items-center px-2 text-sm font-medium text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300"
         >
           기록 보기
         </Link>
@@ -158,7 +158,7 @@ export default async function StatsPage({ searchParams }: Props) {
 
       <Link
         href="/records"
-        className="block rounded-2xl border border-pink-200 bg-white p-4 shadow-sm transition hover:border-pink-300 hover:shadow-md active:scale-[0.99] dark:border-pink-900 dark:bg-neutral-900 dark:hover:border-pink-800"
+        className="block rounded-2xl border border-sky-200 bg-white p-4 shadow-sm transition hover:border-sky-300 hover:shadow-md active:scale-[0.99] dark:border-sky-900 dark:bg-neutral-900 dark:hover:border-sky-800"
       >
         <header className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800 dark:text-neutral-200">
@@ -207,7 +207,7 @@ const CHIPS: { key: string; label: string; tone: string; emoji: string }[] = [
   {
     key: "breast_direct",
     label: "모유",
-    tone: "ring-pink-200 bg-pink-50 dark:ring-pink-900 dark:bg-pink-950/40",
+    tone: "ring-sky-200 bg-sky-50 dark:ring-sky-900 dark:bg-sky-950/40",
     emoji: "🤱",
   },
 ];

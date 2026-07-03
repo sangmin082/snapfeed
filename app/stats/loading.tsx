@@ -15,14 +15,14 @@ export default function Loading() {
       <div className="flex flex-wrap justify-center gap-2">
         <div className="h-9 w-20 animate-pulse rounded-full bg-blue-50 dark:bg-blue-950/40" />
         <div className="h-9 w-20 animate-pulse rounded-full bg-violet-50 dark:bg-violet-950/40" />
-        <div className="h-9 w-20 animate-pulse rounded-full bg-pink-50 dark:bg-pink-950/40" />
+        <div className="h-9 w-20 animate-pulse rounded-full bg-amber-50 dark:bg-amber-950/40" />
       </div>
 
       <div className="flex justify-center">
         <div className="h-72 w-72 animate-pulse rounded-full bg-gray-100 dark:bg-neutral-800" />
       </div>
 
-      <div className="rounded-2xl border border-pink-200 bg-white p-4 shadow-sm dark:border-pink-900 dark:bg-neutral-900">
+      <div className="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm dark:border-amber-900 dark:bg-neutral-900">
         <div className="h-5 w-48 animate-pulse rounded bg-gray-200 dark:bg-neutral-800" />
         <div className="mt-4 space-y-3">
           {[0, 1, 2].map((i) => (

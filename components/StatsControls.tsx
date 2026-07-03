@@ -64,8 +64,8 @@ export function StatsControls({
               className={`min-w-20 rounded-full px-6 py-1.5 text-sm font-semibold transition ${
                 active
                   ? v === "day"
-                    ? "bg-white text-pink-500 shadow-sm ring-1 ring-pink-200 dark:bg-neutral-900 dark:text-pink-300 dark:ring-pink-900"
-                    : "bg-white text-emerald-500 shadow-sm ring-1 ring-emerald-200 dark:bg-neutral-900 dark:text-emerald-300 dark:ring-emerald-900"
+                    ? "bg-white text-sky-500 shadow-sm ring-1 ring-sky-200 dark:bg-neutral-900 dark:text-sky-300 dark:ring-sky-900"
+                    : "bg-white text-amber-500 shadow-sm ring-1 ring-amber-200 dark:bg-neutral-900 dark:text-amber-300 dark:ring-amber-900"
                   : "text-gray-400 dark:text-neutral-500"
               }`}
             >

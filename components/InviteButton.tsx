@@ -37,26 +37,26 @@ export function InviteButton() {
           type="button"
           disabled={pending}
           onClick={generate}
-          className="rounded-full border border-emerald-300 bg-emerald-50 px-6 py-3 text-base font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-[0.98] disabled:opacity-50 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+          className="rounded-full border border-amber-300 bg-amber-50 px-6 py-3 text-base font-semibold text-amber-700 transition hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40"
         >
           {pending ? "초대 링크 생성 중…" : "👨‍👩‍👧 가족 초대 링크 만들기"}
         </button>
       ) : (
-        <div className="flex flex-col gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/40">
-          <p className="text-xs font-medium text-emerald-800 dark:text-emerald-200">
+        <div className="flex flex-col gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+          <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
             7일 동안 유효합니다. 이 링크를 공유하면 가족이 같은 아이 기록을 볼 수 있어요.
           </p>
           <input
             readOnly
             value={link}
             onClick={(e) => (e.target as HTMLInputElement).select()}
-            className="w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-emerald-800 dark:bg-neutral-900 dark:text-neutral-100"
+            className="w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-amber-800 dark:bg-neutral-900 dark:text-neutral-100"
           />
           <div className="flex gap-2">
             <button
               type="button"
               onClick={copy}
-              className="flex-1 rounded-full bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+              className="flex-1 rounded-full bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
             >
               {copied ? "복사됨 ✓" : "링크 복사"}
             </button>

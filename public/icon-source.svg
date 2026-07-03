@@ -1,43 +1,70 @@
 <svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#10b981"/>
-      <stop offset="1" stop-color="#047857"/>
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="0.5" stop-color="#fbbf24"/>
+      <stop offset="1" stop-color="#f59e0b"/>
     </linearGradient>
-    <linearGradient id="bottle" x1="0" y1="0" x2="0" y2="1" gradientUnits="objectBoundingBox">
-      <stop offset="0" stop-color="#ffffff"/>
-      <stop offset="1" stop-color="#ecfdf5"/>
+    <radialGradient id="glow" cx="0.3" cy="0.18" r="0.9">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.32"/>
+      <stop offset="0.55" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="photo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff8f2"/>
+      <stop offset="1" stop-color="#fdeee9"/>
     </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="18" stdDeviation="28" flood-color="#78350f" flood-opacity="0.35"/>
+    </filter>
   </defs>
 
   <!-- background -->
-  <rect width="1024" height="1024" rx="220" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+  <rect width="1024" height="1024" rx="232" fill="url(#glow)"/>
 
-  <!-- camera body -->
-  <rect x="176" y="288" width="672" height="496" rx="84" fill="#ffffff" opacity="0.97"/>
-  <!-- camera top -->
-  <path d="M 392 232 L 632 232 Q 668 232 678 268 L 690 308 L 334 308 L 346 268 Q 356 232 392 232 Z" fill="#ffffff" opacity="0.97"/>
-
-  <!-- shutter -->
-  <circle cx="512" cy="536" r="180" fill="#10b981"/>
-  <circle cx="512" cy="536" r="148" fill="url(#bottle)"/>
-
-  <!-- baby bottle inside the lens -->
-  <g transform="translate(440 408)">
-    <!-- nipple -->
-    <path d="M 56 0 Q 72 -20 88 0 L 88 24 L 56 24 Z" fill="#f9a8d4"/>
-    <!-- collar -->
-    <rect x="48" y="22" width="48" height="20" rx="6" fill="#e5e7eb"/>
-    <!-- body -->
-    <rect x="40" y="42" width="64" height="148" rx="14" fill="#ffffff" stroke="#10b981" stroke-width="6"/>
-    <!-- liquid level line -->
-    <path d="M 40 130 Q 72 122 104 130 L 104 178 Q 88 188 72 188 Q 56 188 40 178 Z" fill="#fde68a" opacity="0.85"/>
-    <!-- measurement lines -->
-    <line x1="48" y1="70" x2="64" y2="70" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
-    <line x1="48" y1="100" x2="64" y2="100" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
-    <line x1="48" y1="130" x2="64" y2="130" stroke="#10b981" stroke-width="4" stroke-linecap="round"/>
+  <!-- background sparkles -->
+  <g fill="#ffffff" opacity="0.9">
+    <path transform="translate(150 232)" d="M 0 -30 C 4 -9 9 -4 30 0 C 9 4 4 9 0 30 C -4 9 -9 4 -30 0 C -9 -4 -4 -9 0 -30 Z"/>
+    <path transform="translate(876 748)" d="M 0 -22 C 3 -7 7 -3 22 0 C 7 3 3 7 0 22 C -3 7 -7 3 -22 0 C -7 -3 -3 -7 0 -22 Z" opacity="0.75"/>
   </g>
 
-  <!-- flash indicator -->
-  <circle cx="772" cy="368" r="20" fill="#fbbf24"/>
+  <!-- polaroid -->
+  <g transform="rotate(-6 512 512)">
+    <rect x="248" y="192" width="528" height="656" rx="40" fill="#ffffff" filter="url(#shadow)"/>
+    <!-- photo window -->
+    <rect x="292" y="236" width="440" height="452" rx="24" fill="url(#photo)"/>
+
+    <!-- baby bottle (fills the photo) -->
+    <g transform="translate(512 256)">
+      <!-- teat -->
+      <path d="M -42 88 C -42 36 -25 8 0 8 C 25 8 42 36 42 88 Z" fill="#fdba74"/>
+      <!-- flange -->
+      <rect x="-62" y="80" width="124" height="30" rx="14" fill="#fb923c"/>
+      <!-- cap ring -->
+      <rect x="-76" y="110" width="152" height="48" rx="19" fill="#5eead4"/>
+      <!-- body -->
+      <rect x="-96" y="156" width="192" height="264" rx="40" fill="#ffffff" stroke="#44403c" stroke-width="12"/>
+      <!-- milk -->
+      <path d="M -83 258 C -48 240 -10 272 28 258 C 54 248 70 252 83 258 L 83 364 C 83 386 66 402 44 402 L -44 402 C -66 402 -83 386 -83 364 Z" fill="#fde68a"/>
+      <!-- milk shine -->
+      <ellipse cx="-36" cy="304" rx="16" ry="30" fill="#ffffff" opacity="0.5" transform="rotate(-14 -36 304)"/>
+      <!-- measurement ticks -->
+      <line x1="50" y1="208" x2="74" y2="208" stroke="#44403c" stroke-width="9" stroke-linecap="round"/>
+      <line x1="50" y1="256" x2="74" y2="256" stroke="#44403c" stroke-width="9" stroke-linecap="round"/>
+      <line x1="50" y1="304" x2="74" y2="304" stroke="#44403c" stroke-width="9" stroke-linecap="round"/>
+    </g>
+
+    <!-- handwritten caption: squiggle + heart -->
+    <g stroke="#d8cac2" stroke-width="12" stroke-linecap="round" fill="none">
+      <path d="M 312 764 C 342 750 370 776 402 764 C 434 752 462 776 494 764 C 520 754 544 772 566 764"/>
+    </g>
+    <path transform="translate(646 736) scale(1.15)" fill="#fb7185"
+      d="M 0 10 C -12 -8 -38 -2 -38 20 C -38 40 -12 52 0 62 C 12 52 38 40 38 20 C 38 -2 12 -8 0 10 Z"/>
+  </g>
+
+  <!-- heart sticker on the corner -->
+  <g transform="rotate(12 766 216)">
+    <path transform="translate(766 192) scale(1.7)" fill="#e11d48" stroke="#ffffff" stroke-width="9"
+      d="M 0 10 C -12 -8 -38 -2 -38 20 C -38 40 -12 52 0 62 C 12 52 38 40 38 20 C 38 -2 12 -8 0 10 Z"/>
+  </g>
 </svg>
