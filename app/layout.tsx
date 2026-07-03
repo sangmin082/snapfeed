@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeToggle from "@/components/ThemeToggle";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 
 const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;var d=s==='dark'||((s===null||s==='system')&&m);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
@@ -81,6 +82,7 @@ export default function RootLayout({
           <ThemeToggle />
         </div>
         {children}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
