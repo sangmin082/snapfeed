@@ -346,7 +346,7 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
           <button
             type="button"
             onClick={() => setZoomed(true)}
-            className="group relative block overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 transition hover:border-emerald-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-emerald-700"
+            className="group relative block overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 transition hover:border-rose-300 dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-rose-700"
             aria-label="사진 크게 보기"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -551,7 +551,7 @@ export function ExtractPreview({ initial, sourcePhoto, previewUrl, onSaved }: Pr
         type="button"
         onClick={requestSave}
         disabled={saving || items.length === 0}
-        className="rounded-xl bg-emerald-600 px-6 py-3 font-medium text-white disabled:opacity-50"
+        className="rounded-xl bg-rose-600 px-6 py-3 font-medium text-white disabled:opacity-50"
       >
         {saving ? "저장 중…" : items.length === 0 ? "저장할 항목 없음" : "저장"}
       </button>

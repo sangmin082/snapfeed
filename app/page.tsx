@@ -19,14 +19,14 @@ export default async function Home() {
       {user && !baby ? <OnboardingPrompt /> : null}
 
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-[linear-gradient(175deg,#fdf6f0_0%,#f0faf5_55%,#ffffff_100%)] dark:bg-[linear-gradient(175deg,#171412_0%,#0f1713_55%,#0a0a0a_100%)]">
+      <section className="relative overflow-hidden bg-[linear-gradient(175deg,#fdf3ef_0%,#fdf5f7_55%,#ffffff_100%)] dark:bg-[linear-gradient(175deg,#171210_0%,#170f12_55%,#0a0a0a_100%)]">
         <div className="relative mx-auto w-full max-w-2xl px-6 pt-14 pb-16 sm:pt-20 sm:pb-20">
           <div className="flex flex-col items-center gap-5 text-center">
             <span
               className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-1.5 text-xs font-medium text-gray-600 shadow-sm ring-1 ring-gray-900/5 backdrop-blur animate-fade-up sm:text-sm dark:bg-neutral-900/80 dark:text-neutral-300 dark:ring-white/10"
               style={{ animationDelay: "0ms" }}
             >
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
               어르신 · 산후도우미와 부모를 잇는 기록
             </span>
 
@@ -36,7 +36,7 @@ export default async function Home() {
             >
               손으로 적은 육아 수첩,
               <br />
-              <span className="text-emerald-600 dark:text-emerald-400">찰칵 한 번</span>이면
+              <span className="text-rose-600 dark:text-rose-400">찰칵 한 번</span>이면
               기록 끝
             </h1>
 
@@ -54,7 +54,7 @@ export default async function Home() {
             >
               <Link
                 href={user ? "/upload" : "/login?mode=signup"}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-lg shadow-gray-900/10 transition hover:-translate-y-0.5 hover:bg-gray-800 active:scale-[0.98] sm:text-lg dark:bg-emerald-500 dark:text-emerald-950 dark:shadow-emerald-500/20 dark:hover:bg-emerald-400"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gray-900 px-8 py-4 text-base font-bold text-white shadow-lg shadow-gray-900/10 transition hover:-translate-y-0.5 hover:bg-gray-800 active:scale-[0.98] sm:text-lg dark:bg-rose-500 dark:text-rose-950 dark:shadow-rose-500/20 dark:hover:bg-rose-400"
               >
                 {user ? "📷 지금 기록하기" : "무료로 시작하기"}
               </Link>
@@ -86,7 +86,7 @@ export default async function Home() {
 
       {/* ── 공감 섹션 ────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-20">
-        <p className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400">이런 마음, 아시죠?</p>
+        <p className="text-center text-sm font-semibold text-rose-600 dark:text-rose-400">이런 마음, 아시죠?</p>
         <h2 className="mt-2 text-center text-[1.55rem] font-extrabold tracking-tight text-gray-900 sm:text-3xl dark:text-neutral-100">
           기록은 남기고 싶고,
           <br className="sm:hidden" /> 입력은 버겁고
@@ -109,8 +109,8 @@ export default async function Home() {
             </p>
           </div>
         </div>
-        <div className="mt-4 rounded-3xl bg-emerald-600 p-6 text-center dark:bg-emerald-500">
-          <p className="text-[15px] font-bold text-white sm:text-base dark:text-emerald-950">
+        <div className="mt-4 rounded-3xl bg-rose-600 p-6 text-center dark:bg-rose-500">
+          <p className="text-[15px] font-bold text-white sm:text-base dark:text-rose-950">
             손은 종이에, 정리는 AI에게.
             <span className="font-medium opacity-80"> snapfeed가 두 마음을 잇습니다.</span>
           </p>
@@ -120,7 +120,7 @@ export default async function Home() {
       {/* ── 사용 순서 ────────────────────────────────────── */}
       <section className="bg-gray-50/80 dark:bg-neutral-900/40">
         <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-20">
-          <p className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400">how it works</p>
+          <p className="text-center text-sm font-semibold text-rose-600 dark:text-rose-400">how it works</p>
           <h2 className="mt-2 text-center text-[1.55rem] font-extrabold tracking-tight text-gray-900 sm:text-3xl dark:text-neutral-100">
             종이에서 그래프까지, 다섯 걸음
           </h2>
@@ -131,12 +131,12 @@ export default async function Home() {
                   className="flex items-center gap-4 rounded-3xl bg-white p-4 shadow-sm ring-1 ring-gray-900/5 animate-fade-up sm:p-5 dark:bg-neutral-900 dark:ring-white/5"
                   style={{ animationDelay: `${i * 70}ms` }}
                 >
-                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-2xl dark:bg-emerald-950/60">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-2xl dark:bg-rose-950/60">
                     {s.emoji}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline gap-2">
-                      <span className="text-[11px] font-extrabold text-emerald-500 dark:text-emerald-400">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="text-[11px] font-extrabold text-rose-500 dark:text-rose-400">{String(i + 1).padStart(2, "0")}</span>
                       <h3 className="text-[15px] font-bold text-gray-900 sm:text-base dark:text-neutral-100">{s.title}</h3>
                     </div>
                     <p className="mt-0.5 text-[13px] text-gray-500 sm:text-sm dark:text-neutral-400">{s.body}</p>
@@ -160,14 +160,14 @@ export default async function Home() {
 
       {/* ── 무료 기록지 ──────────────────────────────────── */}
       <section className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-20">
-        <div className="overflow-hidden rounded-[2rem] bg-rose-50/80 ring-1 ring-rose-100 dark:bg-rose-950/20 dark:ring-rose-900/40">
+        <div className="overflow-hidden rounded-[2rem] bg-amber-50/80 ring-1 ring-amber-100 dark:bg-amber-950/20 dark:ring-amber-900/40">
           <div className="flex flex-col gap-6 p-7 sm:flex-row sm:items-center sm:p-9">
             <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-white text-5xl shadow-sm sm:h-28 sm:w-28 dark:bg-neutral-900">
               📋
             </div>
             <div className="flex flex-1 flex-col gap-3">
               <div>
-                <span className="rounded-full bg-rose-500 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white">
+                <span className="rounded-full bg-amber-500 px-2.5 py-1 text-[10px] font-extrabold tracking-wider text-white">
                   FREE
                 </span>
                 <h2 className="mt-2.5 text-xl font-extrabold tracking-tight text-gray-900 sm:text-2xl dark:text-neutral-100">
@@ -204,7 +204,7 @@ export default async function Home() {
       {/* ── 특징 ─────────────────────────────────────────── */}
       <section className="bg-gray-50/80 dark:bg-neutral-900/40">
         <div className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-20">
-          <p className="text-center text-sm font-semibold text-emerald-600 dark:text-emerald-400">why snapfeed</p>
+          <p className="text-center text-sm font-semibold text-rose-600 dark:text-rose-400">why snapfeed</p>
           <h2 className="mt-2 text-center text-[1.55rem] font-extrabold tracking-tight text-gray-900 sm:text-3xl dark:text-neutral-100">
             육아 기록, 이렇게 가벼워져요
           </h2>
@@ -240,21 +240,21 @@ export default async function Home() {
 
       {/* ── CTA ──────────────────────────────────────────── */}
       <section className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-20">
-        <div className="relative overflow-hidden rounded-[2rem] bg-gray-900 p-8 text-center sm:p-12 dark:bg-emerald-500">
-          <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-emerald-500/20 blur-3xl dark:bg-white/20" />
+        <div className="relative overflow-hidden rounded-[2rem] bg-gray-900 p-8 text-center sm:p-12 dark:bg-rose-500">
+          <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-rose-500/20 blur-3xl dark:bg-white/20" />
           <div className="relative">
             <p className="text-3xl">🍼</p>
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl dark:text-emerald-950">
+            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl dark:text-rose-950">
               {user ? "오늘 수첩부터 찍어보세요" : "첫 사진, 지금 올려보세요"}
             </h2>
-            <p className="mt-2.5 text-[15px] text-gray-400 sm:text-base dark:text-emerald-900">
+            <p className="mt-2.5 text-[15px] text-gray-400 sm:text-base dark:text-rose-900">
               {user
                 ? "가장 최근 수유 기록 한 장이면 충분해요."
                 : "이메일이나 구글 계정으로 1분 안에 시작해요."}
             </p>
             <Link
               href={user ? "/upload" : "/login?mode=signup"}
-              className="mt-7 inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-50 active:scale-[0.98] sm:text-lg dark:bg-emerald-950 dark:text-emerald-50 dark:hover:bg-emerald-900"
+              className="mt-7 inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-50 active:scale-[0.98] sm:text-lg dark:bg-rose-950 dark:text-rose-50 dark:hover:bg-rose-900"
             >
               {user ? "📷 사진 찍으러 가기" : "무료로 시작하기"}
             </Link>
@@ -319,20 +319,20 @@ function HeroMockup() {
 
         {/* 가운데: 카메라 */}
         <div className="flex flex-col items-center gap-1.5">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 text-lg shadow-lg shadow-emerald-600/30 animate-float sm:h-13 sm:w-13 sm:text-xl dark:bg-emerald-500">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-rose-600 text-lg shadow-lg shadow-rose-600/30 animate-float sm:h-13 sm:w-13 sm:text-xl dark:bg-rose-500">
             📷
           </span>
-          <svg width="26" height="10" viewBox="0 0 26 10" fill="none" className="text-emerald-500 animate-arrow-pulse">
+          <svg width="26" height="10" viewBox="0 0 26 10" fill="none" className="text-rose-500 animate-arrow-pulse">
             <path d="M0 5h22m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
 
         {/* 정리된 앱 화면 */}
-        <div className="rotate-[2deg] rounded-2xl bg-white p-4 shadow-xl shadow-emerald-900/10 ring-1 ring-gray-900/5 dark:bg-neutral-900 dark:ring-white/10">
+        <div className="rotate-[2deg] rounded-2xl bg-white p-4 shadow-xl shadow-rose-900/10 ring-1 ring-gray-900/5 dark:bg-neutral-900 dark:ring-white/10">
           <div className="flex items-center justify-between">
             <p className="text-[10px] font-bold text-gray-900 dark:text-neutral-100">4월 22일</p>
-            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-1.5 py-0.5 text-[8px] font-bold text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-              <span className="h-1 w-1 rounded-full bg-emerald-500" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-1.5 py-0.5 text-[8px] font-bold text-rose-600 dark:bg-rose-950/60 dark:text-rose-400">
+              <span className="h-1 w-1 rounded-full bg-rose-500" />
               자동 정리
             </span>
           </div>
@@ -350,9 +350,9 @@ function HeroMockup() {
               </div>
             ))}
           </div>
-          <div className="mt-2.5 flex items-end justify-between rounded-lg bg-emerald-50/70 px-2.5 py-2 dark:bg-emerald-950/40">
-            <span className="text-[8px] font-semibold text-emerald-700 dark:text-emerald-300">오늘 총 수유량</span>
-            <span className="text-[11px] font-extrabold text-emerald-600 dark:text-emerald-400">360ml</span>
+          <div className="mt-2.5 flex items-end justify-between rounded-lg bg-rose-50/70 px-2.5 py-2 dark:bg-rose-950/40">
+            <span className="text-[8px] font-semibold text-rose-700 dark:text-rose-300">오늘 총 수유량</span>
+            <span className="text-[11px] font-extrabold text-rose-600 dark:text-rose-400">360ml</span>
           </div>
         </div>
       </div>
@@ -370,7 +370,7 @@ function UserBar({ user, baby }: UserBarProps) {
     <div className="border-b border-gray-100 bg-white dark:border-neutral-900 dark:bg-neutral-950">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3.5">
         <Link href="/" className="text-lg font-extrabold tracking-tight text-gray-900 dark:text-neutral-50">
-          snap<span className="text-emerald-600 dark:text-emerald-400">feed</span>
+          snap<span className="text-rose-600 dark:text-rose-400">feed</span>
         </Link>
         {user ? (
           <div className="flex items-center gap-3 text-sm">
@@ -386,7 +386,7 @@ function UserBar({ user, baby }: UserBarProps) {
             <Link href="/login" className="font-medium text-gray-500 hover:text-gray-900 dark:text-neutral-400 dark:hover:text-neutral-100">로그인</Link>
             <Link
               href="/login?mode=signup"
-              className="rounded-xl bg-gray-900 px-4 py-2 font-bold text-white transition hover:bg-gray-800 dark:bg-emerald-500 dark:text-emerald-950 dark:hover:bg-emerald-400"
+              className="rounded-xl bg-gray-900 px-4 py-2 font-bold text-white transition hover:bg-gray-800 dark:bg-rose-500 dark:text-rose-950 dark:hover:bg-rose-400"
             >
               시작하기
             </Link>
@@ -423,13 +423,13 @@ function DashboardBlock({
   photoUrl: string | null;
 }) {
   return (
-    <section className="bg-emerald-600/5 dark:bg-emerald-900/10">
+    <section className="bg-rose-600/5 dark:bg-rose-900/10">
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-6 py-6">
         <div className="flex items-center gap-4">
           <Link
             href="/profile"
             aria-label="프로필 수정"
-            className="group relative inline-block rounded-full transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500"
+            className="group relative inline-block rounded-full transition hover:scale-[1.03] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-500"
           >
             {photoUrl ? (
               <Image
@@ -441,11 +441,11 @@ function DashboardBlock({
                 unoptimized
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100 text-2xl ring-2 ring-white shadow-sm dark:bg-emerald-900/40 dark:ring-neutral-800">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-rose-100 text-2xl ring-2 ring-white shadow-sm dark:bg-rose-900/40 dark:ring-neutral-800">
                 👶
               </div>
             )}
-            <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-600 text-[11px] text-white ring-2 ring-white shadow-sm transition group-hover:bg-emerald-700 dark:ring-neutral-950">
+            <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-[11px] text-white ring-2 ring-white shadow-sm transition group-hover:bg-rose-700 dark:ring-neutral-950">
               {photoUrl ? "✎" : "+"}
             </span>
           </Link>
@@ -456,7 +456,7 @@ function DashboardBlock({
             </span>
             <Link
               href="/profile"
-              className="mt-0.5 text-xs font-medium text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-300"
+              className="mt-0.5 text-xs font-medium text-rose-700 underline-offset-4 hover:underline dark:text-rose-300"
             >
               프로필 수정
             </Link>

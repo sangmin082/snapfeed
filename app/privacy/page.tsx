@@ -14,7 +14,7 @@ export default function PrivacyPage() {
     <main className="mx-auto w-full max-w-2xl px-6 py-12">
       <Link
         href="/"
-        className="text-sm text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
+        className="text-sm text-rose-700 underline-offset-4 hover:underline dark:text-rose-400"
       >
         ← snapfeed 홈으로
       </Link>
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
           </p>
           <p className="mt-2">
             이메일:{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400">
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-rose-700 underline-offset-4 hover:underline dark:text-rose-400">
               {CONTACT_EMAIL}
             </a>
           </p>
@@ -167,7 +167,7 @@ export default function PrivacyPage() {
         </Section>
 
         <nav className="border-t border-gray-200 pt-6 text-sm dark:border-neutral-800">
-          <Link href="/terms" className="text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400">
+          <Link href="/terms" className="text-rose-700 underline-offset-4 hover:underline dark:text-rose-400">
             이용약관 보기 →
           </Link>
         </nav>

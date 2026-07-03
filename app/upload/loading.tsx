@@ -11,13 +11,13 @@ export default function Loading() {
 
       <div className="h-5 w-3/4 animate-pulse rounded bg-gray-200 dark:bg-neutral-800" />
 
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 dark:border-emerald-900 dark:bg-emerald-950/40 sm:p-6">
-        <div className="h-5 w-32 animate-pulse rounded bg-emerald-200/60 dark:bg-emerald-900/60" />
+      <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-5 dark:border-rose-900 dark:bg-rose-950/40 sm:p-6">
+        <div className="h-5 w-32 animate-pulse rounded bg-rose-200/60 dark:bg-rose-900/60" />
         <div className="mt-3 space-y-2">
           {[0, 1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-3 w-full animate-pulse rounded bg-emerald-200/40 dark:bg-emerald-900/40"
+              className="h-3 w-full animate-pulse rounded bg-rose-200/40 dark:bg-rose-900/40"
             />
           ))}
         </div>
