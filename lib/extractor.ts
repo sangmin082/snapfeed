@@ -1,7 +1,12 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ExtractResult } from "./schema";
-import { isTransientError, normalizeIso, safeJsonParse } from "./extractor-helpers";
+import {
+  isTransientError,
+  normalizeIso,
+  safeJsonParse,
+  sanitizeExtract,
+} from "./extractor-helpers";
 
 const MODEL_CHAIN = ["gemini-2.5-flash-lite"] as const;
 const RETRIES_PER_MODEL = 0;
@@ -33,8 +38,30 @@ const SYSTEM = `You are shown a photograph of a handwritten Korean baby care
 record (수유 / 배변 / 수면 일지). Extract every entry and return
 strict JSON only. No prose, no fences.
 
-The page may use one of two common formats. Decide which applies,
+The page may use one of the formats below. Decide which applies,
 then follow that section's rules.
+
+────────────────────────────────────────────────────────
+GLOBAL SAFETY RULES (apply to EVERY layout, EVERY entry)
+────────────────────────────────────────────────────────
+- If the photo is NOT a childcare record at all (no times, no
+  feeding/diaper content — e.g. a face, a room, a receipt, an
+  unrelated document), return {"feeds":[],"events":[]}. NEVER
+  invent entries to have something to return.
+- When a handwritten digit is genuinely illegible, output null for
+  that numeric field (or skip the mark) instead of guessing. A
+  wrong number is worse than a missing one — the parent reviews
+  and fills gaps, but silently wrong volumes corrupt their stats.
+- Plausibility check before emitting any feed volume: single-feed
+  양(ml) is essentially always 30–240 for this age group and NEVER
+  above 500. If you read 4-digit ml (e.g. "1200"), you have merged
+  two numbers or read the wrong column — re-read the cell; if it
+  is still unclear, output null.
+- Times must be real clock times: hour 0–23, minute 0–59. If your
+  reading violates that (e.g. "25:70"), you misread — re-read or
+  use hour:00.
+- Emit each physical mark/row exactly once. Never re-emit the same
+  entry while scanning a second column.
 
 ────────────────────────────────────────────────────────
 FORMAT IDENTIFICATION (do this FIRST)
@@ -49,9 +76,14 @@ FORMAT IDENTIFICATION (do this FIRST)
   Hour rows labelled "1시..12시" split into 오전 / 오후 sections.
   Columns: 시간 | 모유(분) | 분유(ml) | 유축(ml) | 소변 | 대변 |
   수면 | 이유식(양,종류) | 기타.
+- LAYOUT C — free-form 수첩/메모: NO printed grid. Handwritten
+  lines on plain, lined, or squared paper, one entry per line,
+  e.g. "6:30 분유 120", "9시10분 소변", "2:20 대변 ○". Use this
+  whenever neither A nor B matches.
 
 Tie-breakers: presence of "0AM..11PM" labels → LAYOUT A. Presence
 of "오전/오후" section headers and a "DAY+" header → LAYOUT B.
+No printed hour grid at all → LAYOUT C.
 Use only the rules of the chosen layout.
 
 ════════════════════════════════════════════════════════
@@ -159,6 +191,13 @@ Under "섭취":
 - "시간(분)" = the MINUTE part (0–59) of the actual feed time.
   Combine with the row's hour: row "1AM" with 시간(분)="35" →
   01:35. Empty cell → :00.
+  DISAMBIGUATION vs 양(ml): a lone 1–2 digit number ≤ 59 in the
+  FIRST 섭취 sub-column is a clock minute, never a volume. A 2–3
+  digit number ≥ 30 in the LAST 섭취 sub-column is a volume, never
+  a minute. When only ONE number exists in the 섭취 area and you
+  cannot tell which sub-column it sits in: ≤ 29 → minute,
+  ≥ 60 → volume, 30–59 → decide by horizontal alignment with the
+  sub-column headers.
 - "형태" = feed type. Map (case/spacing-insensitive):
        모유직수 / 직수 / 모유            → "breast_direct"
        유축 / 짜둔 / 짠 모유 / 짠젖      → "breast_pumped"
@@ -350,7 +389,53 @@ DERIVED FIELDS — LAYOUT B
   sleep events (use duration).
 - volume_ml comes only from 분유(ml) / 유축(ml) cells. Strip "ml".
 - Use null for unclear/missing numerics — never invent numbers.
-- Keep free-text observations in notes/details verbatim.`;
+- Keep free-text observations in notes/details verbatim.
+
+════════════════════════════════════════════════════════
+LAYOUT C — free-form 수첩 (no printed grid)
+════════════════════════════════════════════════════════
+
+DATE: look for a heading like "4/22", "4월 22일", "22일 (화)" at
+the top of the page or above a group of lines. Year omitted → use
+reference_date's year. No date anywhere → reference_date. If the
+page has several date headings, associate each line with the
+nearest heading ABOVE it.
+
+TIME PARSING — the hard part of this layout is that writers use
+12-hour times without am/pm ("2:20", "4시 50분"). Resolve with
+these rules, in order:
+1. Explicit markers win: 새벽/아침/오전 → AM. 낮/오후/저녁/밤 → PM
+   (낮 12시 = 12:00, 밤 12시 = 00:00).
+2. Chronological order: entries on a page run top-to-bottom through
+   the day. Pick AM/PM so each entry's time is >= the previous
+   entry's time. Example sequence "6:30, 9:10, 11:40, 2:20, 4:50"
+   → 06:30, 09:10, 11:40, 14:20, 16:50.
+3. Still ambiguous (single entry, no context) → take the literal
+   reading (2:20 → 02:20).
+Times like "9시10분", "9시 10분", "9:10", "9.10" all mean 09:10.
+"9시" alone → 09:00.
+
+CONTENT PER LINE — one line usually holds time + one event:
+- 분유/우유 + number → feed, feed_type "formula", volume_ml =
+  number (a bare 2–3 digit number 30–300 after 분유 is ml even
+  without the "ml" suffix).
+- 유축 + number → feed, feed_type "breast_pumped", volume_ml.
+- 모유/직수 (+ optional duration "15분" or "R10 L15") → feed,
+  feed_type "breast_direct", volume_ml = null, end_at = start +
+  duration when a duration is written, notes = R/L split verbatim.
+- 소변/쉬/오줌 (with or without a mark) → diaper_pee at that time.
+- 대변/응가/똥 (with or without a mark) → diaper_poop at that time.
+- 구토/게움/토 → note with details
+  '{"kind":"vomit","raw":"구토"}'.
+- 잠/수면/낮잠 with both start and end ("1:00~3:00") → sleep with
+  end_at; start only → note.
+- 체중/체온/투약/기타 문구 → note, details = verbatim text.
+- A line with several items ("6:30 분유 120 소변") → emit each
+  item separately at that line's time.
+
+Everything else (doodles, totals like "총 360", page decorations)
+→ skip totals and decorations; keep genuinely informative free
+text as a note.`;
 
 const responseSchema = {
   type: Type.OBJECT,
@@ -446,17 +531,20 @@ export async function extractFromImage(
   const raw = await callWithFallback(ai, imageB64, mimeType, userText);
   const parsed = JSON.parse(raw) as GeminiShape;
 
-  const feeds = parsed.feeds.map((f) => ({
-    ...f,
-    start_at: normalizeIso(f.start_at, referenceDate)!,
-    end_at: normalizeIso(f.end_at, referenceDate),
-  }));
-  const events = parsed.events.map((e) => ({
-    event_type: e.event_type,
-    at: normalizeIso(e.at, referenceDate)!,
-    end_at: normalizeIso(e.end_at, referenceDate),
-    details: e.details ? safeJsonParse(e.details) : null,
-  }));
+  const { feeds, events } = sanitizeExtract(
+    parsed.feeds.map((f) => ({
+      ...f,
+      start_at: normalizeIso(f.start_at, referenceDate),
+      end_at: normalizeIso(f.end_at, referenceDate),
+    })),
+    parsed.events.map((e) => ({
+      event_type: e.event_type,
+      at: normalizeIso(e.at, referenceDate),
+      end_at: normalizeIso(e.end_at, referenceDate),
+      details: e.details ? safeJsonParse(e.details) : null,
+    })),
+    referenceDate,
+  );
 
   const bundle: ExtractBundle = {
     transcript: "",
@@ -612,17 +700,20 @@ export async function* extractFromImageStream(
   }
 
   try {
-    const feeds = parsed.feeds.map((f) => ({
-      ...f,
-      start_at: normalizeIso(f.start_at, referenceDate)!,
-      end_at: normalizeIso(f.end_at, referenceDate),
-    }));
-    const events = parsed.events.map((e) => ({
-      event_type: e.event_type,
-      at: normalizeIso(e.at, referenceDate)!,
-      end_at: normalizeIso(e.end_at, referenceDate),
-      details: e.details ? safeJsonParse(e.details) : null,
-    }));
+    const { feeds, events } = sanitizeExtract(
+      parsed.feeds.map((f) => ({
+        ...f,
+        start_at: normalizeIso(f.start_at, referenceDate),
+        end_at: normalizeIso(f.end_at, referenceDate),
+      })),
+      parsed.events.map((e) => ({
+        event_type: e.event_type,
+        at: normalizeIso(e.at, referenceDate),
+        end_at: normalizeIso(e.end_at, referenceDate),
+        details: e.details ? safeJsonParse(e.details) : null,
+      })),
+      referenceDate,
+    );
     const bundle: ExtractBundle = { transcript: "", feeds, events };
     ExtractResult.parse({ feeds: bundle.feeds, events: bundle.events });
     yield { type: "result", bundle };
