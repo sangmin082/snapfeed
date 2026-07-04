@@ -6,7 +6,7 @@ name: iOS TestFlight
 # Required repository secrets:
 #   APP_STORE_CONNECT_KEY_ID     App Store Connect API key ID
 #   APP_STORE_CONNECT_ISSUER_ID  Issuer ID (Users and Access → Integrations)
-#   APP_STORE_CONNECT_API_KEY    Full contents of the AuthKey_XXXX.p8 file
+#   APP_STORE_CONNECT_PRIVATE_KEY  Full contents of the AuthKey_XXXX.p8 file
 #   APPLE_TEAM_ID                10-char team ID (developer.apple.com → Membership)
 #
 # One-time manual step: create the app record in App Store Connect
@@ -69,7 +69,7 @@ jobs:
 
       - name: Write App Store Connect API key
         env:
-          API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY }}
+          API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
         run: |
           set -euo pipefail
