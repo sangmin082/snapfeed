@@ -11,12 +11,13 @@ export default async function Home() {
   const baby = user ? await getPrimaryBaby(user.id) : null;
   const photoUrl = baby ? await babyPhotoUrl(baby.photo_path) : null;
 
+  // Signed-in users get an app-style home (paired with the bottom tab
+  // bar); the marketing landing is for visitors only.
+  if (user) return <AppHome baby={baby} photoUrl={photoUrl} />;
+
   return (
     <main className="flex flex-col">
-      <UserBar user={user} baby={baby} />
-
-      {user && baby ? <DashboardBlock baby={baby} photoUrl={photoUrl} /> : null}
-      {user && !baby ? <OnboardingPrompt /> : null}
+      <UserBar user={user} baby={null} />
 
       {/* ── Hero ─────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[linear-gradient(175deg,#faf3e3_0%,#fdf8ec_55%,#fdfbf5_100%)] dark:bg-[linear-gradient(175deg,#16130c_0%,#141108_55%,#0a0a0a_100%)]">
@@ -285,6 +286,92 @@ export default async function Home() {
         <p className="mt-4 text-center text-xs text-gray-300 dark:text-neutral-600">
           snapfeed — 우리 가족의 육아 기록
         </p>
+      </footer>
+    </main>
+  );
+}
+
+/* 로그인 사용자용 앱 홈 — 하단 탭바와 짝을 이루는 대시보드형 첫 화면 */
+function AppHome({
+  baby,
+  photoUrl,
+}: {
+  baby: { id: string; name: string; birth_date: string } | null;
+  photoUrl: string | null;
+}) {
+  return (
+    <main className="flex min-h-screen flex-col">
+      <UserBar user={{ email: null }} baby={baby} />
+      {baby ? <DashboardBlock baby={baby} photoUrl={photoUrl} /> : <OnboardingPrompt />}
+
+      <section className="mx-auto w-full max-w-2xl flex-1 px-5 py-6">
+        {/* 메인 액션 */}
+        <Link
+          href="/upload"
+          className="flex items-center gap-4 rounded-3xl bg-amber-300 p-5 shadow-lg shadow-amber-400/30 transition hover:-translate-y-0.5 hover:bg-amber-400 active:scale-[0.99]"
+        >
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/60 text-3xl">
+            📷
+          </span>
+          <span className="flex flex-col">
+            <span className="text-lg font-extrabold text-amber-950">사진으로 기록하기</span>
+            <span className="text-sm font-medium text-amber-900/70">
+              수첩 한 페이지, 찰칵이면 끝나요
+            </span>
+          </span>
+        </Link>
+
+        {/* 보조 액션 */}
+        <div className="mt-3.5 grid grid-cols-2 gap-3.5">
+          <Link
+            href="/records"
+            className="flex flex-col gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-neutral-900 dark:ring-white/5"
+          >
+            <span className="text-2xl">📋</span>
+            <span className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">기록 보기</span>
+            <span className="text-xs text-gray-500 dark:text-neutral-400">날짜별 수유 · 배변 내역</span>
+          </Link>
+          <Link
+            href="/stats"
+            className="flex flex-col gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-neutral-900 dark:ring-white/5"
+          >
+            <span className="text-2xl">📊</span>
+            <span className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">패턴 분석</span>
+            <span className="text-xs text-gray-500 dark:text-neutral-400">총량 · 간격 그래프</span>
+          </Link>
+        </div>
+
+        {/* 기록지 */}
+        <div className="mt-3.5 flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 dark:bg-neutral-900 dark:ring-white/5">
+          <span className="text-2xl">🖨️</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">신생아 기록지</p>
+            <p className="text-xs text-gray-500 dark:text-neutral-400">
+              인쇄해서 돌봐주시는 분께 드리세요
+            </p>
+          </div>
+          <a
+            href="/baby-chart.pdf"
+            download
+            className="shrink-0 rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-gray-800 dark:bg-neutral-100 dark:text-neutral-900"
+          >
+            PDF
+          </a>
+        </div>
+
+        <p className="mt-6 text-center text-xs leading-relaxed text-gray-400 dark:text-neutral-500">
+          하루가 끝나면 수첩 페이지를 찍어 올려주세요.
+          <br />
+          AI가 시간 · 양 · 배변까지 자동으로 정리합니다.
+        </p>
+      </section>
+
+      <footer className="mx-auto w-full max-w-2xl px-6 pb-8">
+        <nav className="flex flex-row justify-center gap-5 border-t border-gray-100 pt-5 text-xs text-gray-400 dark:border-neutral-900 dark:text-neutral-500">
+          <Link href="/profile" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-300">내 정보</Link>
+          <Link href="/privacy" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-300">개인정보처리방침</Link>
+          <Link href="/terms" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-300">이용약관</Link>
+        </nav>
       </footer>
     </main>
   );

@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Noto_Sans_KR, Nanum_Pen_Script } from "next/font/goo
 import "./globals.css";
 import ThemeToggle from "@/components/ThemeToggle";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import BottomTabBar from "@/components/BottomTabBar";
 
 const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;var d=s==='dark'||((s===null||s==='system')&&m);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
@@ -94,6 +95,7 @@ export default function RootLayout({
           <ThemeToggle />
         </div>
         {children}
+        <BottomTabBar />
         <ServiceWorkerRegister />
       </body>
     </html>
