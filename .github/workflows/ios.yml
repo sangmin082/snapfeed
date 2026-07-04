@@ -7,11 +7,9 @@ on:
     tags:
       - "v*"
 
-# --- 이 값들만 프로젝트에 맞게 확인하세요 ---
+# BUNDLE_ID must match capacitor.config.ts appId and the App Store Connect record.
 env:
-  BUNDLE_ID: com.snapfeed.com            # capacitor.config.ts 의 appId 와 동일해야 함
-  SCHEME: App                            # Capacitor iOS 기본 스킴
-  XCODE_VERSION: "16.2"                  # 러너에 설치된 Xcode 버전
+  BUNDLE_ID: com.snapfeed.com
 
 jobs:
   build:
@@ -48,6 +46,10 @@ jobs:
         run: |
           npx cap add ios || npx cap sync ios
           npx cap sync ios
+
+      # Generate iOS app icons + splash from assets/ (icon.png, splash.png)
+      - name: Generate app icons & splash
+        run: npx @capacitor/assets generate --ios
 
       # App Store Connect API 키(.p8)를 altool/xcodebuild 가 찾는 위치에 배치
       - name: Write App Store Connect API key
