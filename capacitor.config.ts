@@ -9,6 +9,9 @@ const PROD_URL = "https://snapfeed.sangmin082.workers.dev";
 const config: CapacitorConfig = {
   appId: "com.snapfeed.com",
   appName: "snapfeed",
+  // Lets the server tell the native shell apart from plain browsers, so the
+  // app skips the web marketing landing and gets an app-first flow.
+  appendUserAgent: "SnapfeedApp",
   // No bundled web assets — we load PROD_URL remotely. This dir just needs to
   // exist for `cap sync`; keep a tiny offline fallback here.
   webDir: "capacitor/public",

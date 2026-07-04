@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { headers } from "next/headers";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
 import { InviteButton } from "@/components/InviteButton";
 
@@ -14,6 +15,12 @@ export default async function Home() {
   // Signed-in users get an app-style home (paired with the bottom tab
   // bar); the marketing landing is for visitors only.
   if (user) return <AppHome baby={baby} photoUrl={photoUrl} />;
+
+  // Inside the native shell (Capacitor appends "SnapfeedApp" to the UA) guests
+  // get a native-style welcome instead of the web marketing landing — the web
+  // page was the MVP; the app flow goes straight to sign-up → onboarding.
+  const ua = (await headers()).get("user-agent") ?? "";
+  if (ua.includes("SnapfeedApp")) return <NativeWelcome />;
 
   return (
     <main className="flex flex-col">
@@ -569,3 +576,43 @@ const FEATURES = [
   { emoji: "📊", title: "패턴이 보여요", body: "일일 총량, 시간대 분포, 평균 수유 간격을 자동으로 그려드려요." },
   { emoji: "👨‍👩‍👧", title: "가족이 함께", body: "초대 코드 하나로 같은 아이 기록을 함께 보고 남겨요." },
 ];
+
+// Native-app first-run screen: welcome + straight into sign-up.
+// (The tutorial wizard itself lives in /onboarding, right after sign-up.)
+function NativeWelcome() {
+  return (
+    <main className="mx-auto flex min-h-[calc(100dvh-3rem)] w-full max-w-md flex-col">
+      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
+        <div className="flex items-center justify-center gap-3">
+          <span className="rotate-[-8deg] rounded-2xl bg-amber-100 p-4 text-4xl shadow-sm dark:bg-amber-900/40">🍼</span>
+          <span className="rounded-2xl bg-rose-100 p-4 text-4xl shadow-sm dark:bg-rose-900/40">👶</span>
+          <span className="rotate-[8deg] rounded-2xl bg-sky-100 p-4 text-4xl shadow-sm dark:bg-sky-900/40">📷</span>
+        </div>
+        <h1 className="text-3xl font-extrabold leading-snug tracking-tight text-gray-900 dark:text-neutral-100">
+          snapfeed에
+          <br />
+          오신 걸 환영합니다
+        </h1>
+        <p className="text-[15px] leading-relaxed text-gray-500 dark:text-neutral-400">
+          할머니 · 산후도우미가 수첩에 남겨주신 수유 기록,
+          <br />
+          사진 한 장이면 AI가 알아서 정리해드려요.
+        </p>
+      </div>
+      <div className="flex flex-col gap-3 px-6 pb-6 [padding-bottom:calc(env(safe-area-inset-bottom)+1.5rem)]">
+        <Link
+          href="/login?mode=signup"
+          className="rounded-2xl bg-amber-300 px-6 py-4 text-center text-base font-bold text-amber-950 shadow-sm transition active:scale-[0.98]"
+        >
+          시작하기
+        </Link>
+        <Link
+          href="/login"
+          className="rounded-2xl bg-gray-100 px-6 py-4 text-center text-base font-semibold text-gray-600 transition active:scale-[0.98] dark:bg-neutral-900 dark:text-neutral-300"
+        >
+          이미 계정이 있어요
+        </Link>
+      </div>
+    </main>
+  );
+}
