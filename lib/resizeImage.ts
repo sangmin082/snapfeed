@@ -1,5 +1,5 @@
 export async function resizeImageToBlob(
-  file: File,
+  file: Blob,
   maxEdge = 1280,
   quality = 0.85,
 ): Promise<Blob> {

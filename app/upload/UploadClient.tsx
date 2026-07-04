@@ -8,6 +8,7 @@ import {
   type ProgressEvent,
 } from "@/components/PhotoUploader";
 import { ExtractPreview } from "@/components/ExtractPreview";
+import { FeedReminderButton } from "@/components/FeedReminderButton";
 
 type ProgressLine = { kind: "status" | "thought"; text: string; ts: number };
 
@@ -45,6 +46,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
           <h1 className="text-2xl font-bold text-emerald-900 sm:text-3xl dark:text-emerald-100">저장 완료</h1>
           <p className="text-base text-emerald-800 dark:text-emerald-200">기록이 성공적으로 저장되었습니다.</p>
         </div>
+        <FeedReminderButton hoursFromNow={3} />
         <Link
           href="/stats"
           className="rounded-full bg-emerald-600 px-6 py-4 text-center text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.98]"

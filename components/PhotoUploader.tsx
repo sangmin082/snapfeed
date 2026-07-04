@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { resizeImageToBlob } from "@/lib/resizeImage";
+import { useIsNative } from "@/lib/native";
 import type { ExtractResult } from "@/lib/schema";
 
 function todayKstYmd(): string {
@@ -44,11 +45,12 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
   const libraryRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<"idle" | "resizing" | "uploading">("idle");
   const [error, setError] = useState<string | null>(null);
+  // false during SSR/hydration, true once mounted inside the native shell.
+  const native = useIsNative();
 
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const input = e.target;
-    const file = input.files?.[0];
-    if (!file) return;
+  // Core pipeline: resize → stream to /api/extract → hand off the result.
+  // Shared by the web <input> path and the native camera path.
+  async function processBlob(file: Blob) {
     setError(null);
     onStart?.();
     let previewUrl: string | undefined;
@@ -149,7 +151,40 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     } finally {
       setState("idle");
+    }
+  }
+
+  // Web path: <input type=file> change handler.
+  async function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const input = e.target;
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      await processBlob(file);
+    } finally {
       input.value = "";
+    }
+  }
+
+  // Native path: use the OS camera / photo library via Capacitor.
+  async function captureNative(source: "camera" | "photos") {
+    if (busy) return;
+    try {
+      const { Camera, CameraResultType, CameraSource } = await import("@capacitor/camera");
+      const photo = await Camera.getPhoto({
+        quality: 90,
+        resultType: CameraResultType.Uri,
+        source: source === "camera" ? CameraSource.Camera : CameraSource.Photos,
+        presentationStyle: "fullscreen",
+      });
+      if (!photo.webPath) return;
+      const blob = await (await fetch(photo.webPath)).blob();
+      await processBlob(blob);
+    } catch (err) {
+      // User cancelling the camera throws — treat cancel as a no-op.
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/cancel/i.test(msg)) return;
+      setError(msg);
     }
   }
 
@@ -159,27 +194,31 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
 
   return (
     <div className="flex flex-col gap-2">
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={handleChange}
-        disabled={busy}
-      />
-      <input
-        ref={libraryRef}
-        type="file"
-        accept="image/*"
-        className="hidden"
-        onChange={handleChange}
-        disabled={busy}
-      />
+      {!native ? (
+        <>
+          <input
+            ref={cameraRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="hidden"
+            onChange={handleChange}
+            disabled={busy}
+          />
+          <input
+            ref={libraryRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleChange}
+            disabled={busy}
+          />
+        </>
+      ) : null}
       <button
         type="button"
         disabled={busy}
-        onClick={() => cameraRef.current?.click()}
+        onClick={() => (native ? captureNative("camera") : cameraRef.current?.click())}
         className="rounded-xl bg-black px-6 py-4 text-lg font-medium text-white shadow-sm disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
       >
         {cameraLabel}
@@ -187,7 +226,7 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
       <button
         type="button"
         disabled={busy}
-        onClick={() => libraryRef.current?.click()}
+        onClick={() => (native ? captureNative("photos") : libraryRef.current?.click())}
         className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-800 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
       >
         🖼️ 사진 선택하기
