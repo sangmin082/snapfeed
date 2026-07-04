@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { browserSupabase } from "@/lib/supabase-browser";
 
 const TABS = [
   { href: "/", label: "홈", icon: HomeIcon },
@@ -13,32 +11,15 @@ const TABS = [
   { href: "/profile", label: "정보", icon: UserIcon },
 ] as const;
 
-// Native-app style bottom tab bar. Only shown to signed-in users on
-// mobile widths — guests keep the marketing landing untouched.
+// Native-app style bottom tab bar on mobile widths. Shown to guests too —
+// auth-gated tabs simply redirect to /login when tapped.
 export default function BottomTabBar() {
   const pathname = usePathname();
-  const [signedIn, setSignedIn] = useState(false);
-
-  useEffect(() => {
-    // Missing NEXT_PUBLIC_* env must degrade to "no tab bar", not crash
-    // the whole client tree.
-    let supabase: ReturnType<typeof browserSupabase>;
-    try {
-      supabase = browserSupabase();
-    } catch {
-      return;
-    }
-    supabase.auth.getSession().then(({ data }) => setSignedIn(!!data.session));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setSignedIn(!!session);
-    });
-    return () => sub.subscription.unsubscribe();
-  }, []);
 
   const hidden = ["/login", "/onboarding", "/invite"].some((p) =>
     pathname.startsWith(p),
   );
-  if (!signedIn || hidden) return null;
+  if (hidden) return null;
 
   return (
     <>
