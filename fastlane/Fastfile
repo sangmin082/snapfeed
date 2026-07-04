@@ -1,49 +1,64 @@
 default_platform(:ios)
 
+GIT_URL = "https://github.com/sangmin082/snapfeed.git"
+GIT_BRANCH = "match-certs"
+
+def asc_key
+  app_store_connect_api_key(
+    key_id: ENV["ASC_KEY_ID"],
+    issuer_id: ENV["ASC_ISSUER"],
+    key_filepath: ENV["ASC_KEY_PATH"],
+    in_house: false
+  )
+end
+
 platform :ios do
-  desc "Build and upload to TestFlight using App Store Connect API key"
+  desc "One-time: revoke existing distribution certs/profiles and reset match storage"
+  lane :certs_nuke do
+    match_nuke(
+      type: "appstore",
+      api_key: asc_key,
+      git_url: GIT_URL,
+      git_branch: GIT_BRANCH,
+      skip_confirmation: true
+    )
+  end
+
+  desc "Build and upload to TestFlight using match + App Store Connect API key"
   lane :beta do
-    # Dedicated, unlocked keychain so `cert` can import the distribution key
-    # without a UI password prompt.
-    keychain_name = "build.keychain"
-    keychain_password = "ci-temp-pass"
-    keychain_path = File.expand_path("~/Library/Keychains/#{keychain_name}-db")
-    delete_keychain(name: keychain_name) if File.exist?(keychain_path)
-    create_keychain(
-      name: keychain_name,
-      password: keychain_password,
-      default_keychain: true,
-      unlock: true,
-      timeout: 3600,
-      lock_when_sleeps: false
-    )
+    setup_ci
+    api_key = asc_key
 
-    api_key = app_store_connect_api_key(
-      key_id: ENV["ASC_KEY_ID"],
-      issuer_id: ENV["ASC_ISSUER"],
-      key_filepath: ENV["ASC_KEY_PATH"],
-      in_house: false
-    )
-
-    # Create / download an Apple Distribution certificate and an App Store
-    # provisioning profile via the API key. No registered devices required
-    # (that requirement only applies to *development* profiles).
-    cert(
+    # Reuse a stored distribution cert + App Store profile (creates them on the
+    # first run and commits them, encrypted, to the match-certs branch). This
+    # avoids re-minting a new certificate on every CI run.
+    match(
+      type: "appstore",
       api_key: api_key,
-      keychain_path: keychain_path,
-      keychain_password: keychain_password
+      app_identifier: ENV["BUNDLE_ID"],
+      git_url: GIT_URL,
+      git_branch: GIT_BRANCH,
+      readonly: false
     )
-    sigh(api_key: api_key, app_identifier: ENV["BUNDLE_ID"])
+    profile_name = ENV["sigh_#{ENV['BUNDLE_ID']}_appstore_profile-name"]
 
-    # Switch the Capacitor project to manual distribution signing with the
-    # profile we just created.
+    # Ensure the App Store Connect record exists (App ID already registered).
+    produce(
+      api_key: api_key,
+      app_identifier: ENV["BUNDLE_ID"],
+      app_name: ENV["APP_NAME"] || "snapfeed 수유기록",
+      language: "Korean",
+      sku: "snapfeed-001",
+      skip_devcenter: true
+    )
+
     update_code_signing_settings(
       path: "ios/App/App.xcodeproj",
       use_automatic_signing: false,
       team_id: ENV["TEAM_ID"],
       bundle_identifier: ENV["BUNDLE_ID"],
       code_sign_identity: "Apple Distribution",
-      profile_name: lane_context[SharedValues::SIGH_NAME]
+      profile_name: profile_name
     )
 
     build_app(
@@ -54,21 +69,8 @@ platform :ios do
       output_directory: ENV["RUNNER_TEMP"],
       xcargs: "CURRENT_PROJECT_VERSION=#{ENV['BUILD_NUMBER']}",
       export_options: {
-        provisioningProfiles: {
-          ENV["BUNDLE_ID"] => lane_context[SharedValues::SIGH_NAME]
-        }
+        provisioningProfiles: { ENV["BUNDLE_ID"] => profile_name }
       }
-    )
-
-    # Create the App Store Connect record if it doesn't exist yet (API key).
-    # The App ID is already registered, so skip the Developer Center step.
-    produce(
-      api_key: api_key,
-      app_identifier: ENV["BUNDLE_ID"],
-      app_name: ENV["APP_NAME"] || "snapfeed 수유기록",
-      language: "Korean",
-      sku: "snapfeed-001",
-      skip_devcenter: true
     )
 
     upload_to_testflight(

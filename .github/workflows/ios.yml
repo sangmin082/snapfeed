@@ -16,6 +16,8 @@ env:
 jobs:
   build:
     runs-on: macos-15
+    permissions:
+      contents: write # allow match to push encrypted certs to the match-certs branch
     steps:
       - uses: actions/checkout@v4
 
@@ -60,9 +62,13 @@ jobs:
           ASC_KEY_PATH: ${{ github.workspace }}/asc_key.p8
           TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           BUILD_NUMBER: ${{ github.run_number }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          GH_TOKEN_FOR_MATCH: ${{ github.token }}
+          FASTLANE_LANE: certs_nuke # one-time cert reset; revert to "beta" after
         run: |
           cp ~/private_keys/AuthKey_${ASC_KEY_ID}.p8 "$ASC_KEY_PATH"
-          fastlane ios beta
+          export MATCH_GIT_BASIC_AUTHORIZATION=$(printf '%s' "x-access-token:${GH_TOKEN_FOR_MATCH}" | base64 | tr -d '\n')
+          fastlane ios "${FASTLANE_LANE}"
 
       - name: Cleanup keys
         if: always()
