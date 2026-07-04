@@ -167,18 +167,24 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
   }
 
   // Native path: use the OS camera / photo library via Capacitor.
+  // Base64 (not Uri): the app page runs on the remote https origin, so it
+  // can't fetch capacitor://-scheme file URLs — that fetch dies with
+  // WebKit's "Load failed".
   async function captureNative(source: "camera" | "photos") {
     if (busy) return;
     try {
       const { Camera, CameraResultType, CameraSource } = await import("@capacitor/camera");
       const photo = await Camera.getPhoto({
         quality: 90,
-        resultType: CameraResultType.Uri,
+        resultType: CameraResultType.Base64,
         source: source === "camera" ? CameraSource.Camera : CameraSource.Photos,
         presentationStyle: "fullscreen",
       });
-      if (!photo.webPath) return;
-      const blob = await (await fetch(photo.webPath)).blob();
+      if (!photo.base64String) return;
+      const bin = atob(photo.base64String);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const blob = new Blob([bytes], { type: `image/${photo.format ?? "jpeg"}` });
       await processBlob(blob);
     } catch (err) {
       // User cancelling the camera throws — treat cancel as a no-op.
