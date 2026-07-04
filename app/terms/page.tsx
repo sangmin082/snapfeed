@@ -14,7 +14,7 @@ export default function TermsPage() {
     <main className="mx-auto w-full max-w-2xl px-6 py-12">
       <Link
         href="/"
-        className="text-sm text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400"
+        className="text-sm text-amber-700 underline-offset-4 hover:underline dark:text-amber-400"
       >
         ← snapfeed 홈으로
       </Link>
@@ -77,7 +77,7 @@ export default function TermsPage() {
           <p>
             이용자가 업로드·생성한 콘텐츠에 대한 권리는 이용자에게 있습니다. 서비스는 제3조의 기능 제공을 위한
             범위(저장·인식·통계 표시 등) 내에서만 콘텐츠를 처리하며, 자세한 처리 내용은{" "}
-            <Link href="/privacy" className="text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400">
+            <Link href="/privacy" className="text-amber-700 underline-offset-4 hover:underline dark:text-amber-400">
               개인정보처리방침
             </Link>
             을 따릅니다.
@@ -116,7 +116,7 @@ export default function TermsPage() {
         <Section title="문의">
           <p>
             약관에 관한 문의:{" "}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400">
+            <a href={`mailto:${CONTACT_EMAIL}`} className="text-amber-700 underline-offset-4 hover:underline dark:text-amber-400">
               {CONTACT_EMAIL}
             </a>
           </p>
@@ -125,7 +125,7 @@ export default function TermsPage() {
         <p className="text-xs text-gray-500 dark:text-neutral-500">부칙: 본 약관은 {EFFECTIVE_DATE}부터 시행합니다.</p>
 
         <nav className="border-t border-gray-200 pt-6 text-sm dark:border-neutral-800">
-          <Link href="/privacy" className="text-emerald-700 underline-offset-4 hover:underline dark:text-emerald-400">
+          <Link href="/privacy" className="text-amber-700 underline-offset-4 hover:underline dark:text-amber-400">
             개인정보처리방침 보기 →
           </Link>
         </nav>

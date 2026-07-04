@@ -1,0 +1,5 @@
+# Cloudflare Workers static assets headers
+# The service worker script must never be cached long-term, or updates
+# (and store-packaged app fixes) take up to 24h to reach installed clients.
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate

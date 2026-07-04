@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Sans_KR, Nanum_Pen_Script } from "next/font/google";
 import "./globals.css";
 import ThemeToggle from "@/components/ThemeToggle";
+import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import BottomTabBar from "@/components/BottomTabBar";
 
 const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;var d=s==='dark'||((s===null||s==='system')&&m);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
@@ -12,6 +14,18 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const notoSansKr = Noto_Sans_KR({
+  variable: "--font-noto-kr",
+  subsets: ["latin"],
+});
+
+// Only used for the handwritten-notebook mockup on the landing page.
+const nanumPen = Nanum_Pen_Script({
+  variable: "--font-hand",
+  weight: "400",
   subsets: ["latin"],
 });
 
@@ -55,7 +69,7 @@ export const metadata: Metadata = {
 
 export const viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#059669" },
+    { media: "(prefers-color-scheme: light)", color: "#fdfbf5" },
     { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
   ],
   width: "device-width",
@@ -71,7 +85,7 @@ export default function RootLayout({
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${notoSansKr.variable} ${nanumPen.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
@@ -81,6 +95,8 @@ export default function RootLayout({
           <ThemeToggle />
         </div>
         {children}
+        <BottomTabBar />
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

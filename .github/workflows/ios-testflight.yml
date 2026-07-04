@@ -1,0 +1,161 @@
+name: iOS TestFlight
+
+# Builds the PWABuilder iOS wrapper on a macOS runner and uploads it to
+# TestFlight. Manual trigger only — run it from the Actions tab.
+#
+# Required repository secrets:
+#   APP_STORE_CONNECT_KEY_ID     App Store Connect API key ID
+#   APP_STORE_CONNECT_ISSUER_ID  Issuer ID (Users and Access → Integrations)
+#   APP_STORE_CONNECT_PRIVATE_KEY  Full contents of the AuthKey_XXXX.p8 file
+#   APPLE_TEAM_ID                10-char team ID (developer.apple.com → Membership)
+#
+# One-time manual step: create the app record in App Store Connect
+# (My Apps → + → New App) with the same bundle ID as below.
+
+on:
+  workflow_dispatch:
+
+env:
+  APP_URL: https://snapfeed.sangmin082.workers.dev
+  APP_NAME: snapfeed
+  BUNDLE_ID: app.snapfeed.ios
+
+jobs:
+  build-and-upload:
+    runs-on: macos-14
+    timeout-minutes: 45
+    steps:
+      - name: Generate iOS wrapper via PWABuilder API
+        run: |
+          set -euxo pipefail
+          curl -sS "$APP_URL/manifest.webmanifest" -o manifest.json
+          jq -n \
+            --arg name "$APP_NAME" \
+            --arg bundleId "$BUNDLE_ID" \
+            --arg url "$APP_URL" \
+            --arg imageUrl "$APP_URL/icon-512.png" \
+            --arg manifestUrl "$APP_URL/manifest.webmanifest" \
+            --slurpfile manifest manifest.json \
+            '{
+              name: $name,
+              bundleId: $bundleId,
+              url: $url,
+              imageUrl: $imageUrl,
+              splashColor: "#fdfbf5",
+              progressBarColor: "#fbbf24",
+              statusBarColor: "#fdfbf5",
+              permittedUrls: [],
+              manifestUrl: $manifestUrl,
+              manifest: $manifest[0]
+            }' > body.json
+          curl -sS --fail-with-body -X POST \
+            "https://pwabuilder-ios.azurewebsites.net/packages/create" \
+            -H "Content-Type: application/json" \
+            -d @body.json -o ios.zip
+          mkdir ios-src
+          unzip -q ios.zip -d ios-src
+          find ios-src -maxdepth 4 | head -50
+
+      - name: Install CocoaPods dependencies
+        run: |
+          set -euxo pipefail
+          PODFILE=$(find ios-src -name Podfile -maxdepth 4 | head -1)
+          if [ -n "$PODFILE" ]; then
+            cd "$(dirname "$PODFILE")"
+            pod install
+          else
+            echo "no Podfile found — skipping"
+          fi
+
+      - name: Write App Store Connect API key
+        env:
+          API_KEY_P8: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p ~/private_keys
+          printf '%s' "$API_KEY_P8" > ~/private_keys/AuthKey_"$KEY_ID".p8
+
+      - name: Archive
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euxo pipefail
+          # Discover workspace/project + scheme instead of hard-coding the
+          # PWABuilder template layout.
+          WORKSPACE=$(find ios-src -name "*.xcworkspace" -not -path "*/project.xcworkspace*" | head -1 || true)
+          if [ -n "$WORKSPACE" ]; then
+            CONTAINER=(-workspace "$WORKSPACE")
+            LIST_DIR=$(dirname "$WORKSPACE")
+          else
+            PROJECT=$(find ios-src -name "*.xcodeproj" | head -1)
+            CONTAINER=(-project "$PROJECT")
+            LIST_DIR=$(dirname "$PROJECT")
+          fi
+          SCHEME=$(cd "$LIST_DIR" && xcodebuild -list -json | jq -r '.workspace.schemes[0] // .project.schemes[0]')
+          echo "container=${CONTAINER[*]} scheme=$SCHEME"
+
+          xcodebuild archive \
+            "${CONTAINER[@]}" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination "generic/platform=iOS" \
+            -archivePath "$PWD/build/snapfeed.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_"$KEY_ID".p8 \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID" \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            CODE_SIGN_STYLE=Automatic \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
+            MARKETING_VERSION="1.0.$GITHUB_RUN_NUMBER"
+
+      - name: Export signed IPA
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euxo pipefail
+          cat > ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>${TEAM_ID}</string>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "$PWD/build/snapfeed.xcarchive" \
+            -exportPath "$PWD/build/export" \
+            -exportOptionsPlist ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath ~/private_keys/AuthKey_"$KEY_ID".p8 \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID"
+          ls -la build/export
+
+      - name: Upload to TestFlight
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          set -euxo pipefail
+          IPA=$(find build/export -name "*.ipa" | head -1)
+          xcrun altool --upload-app -f "$IPA" -t ios \
+            --apiKey "$KEY_ID" --apiIssuer "$ISSUER_ID"
+
+      - name: Keep IPA as artifact (debugging)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapfeed-ios
+          path: |
+            build/export/*.ipa
+          if-no-files-found: ignore
