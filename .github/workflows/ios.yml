@@ -47,6 +47,17 @@ jobs:
           npx cap add ios || npx cap sync ios
           npx cap sync ios
 
+      # Apple rejects binaries that reference camera / photo APIs without
+      # user-facing purpose strings (ITMS-90683). The ios/ project is generated
+      # on the runner, so inject them into Info.plist here.
+      - name: Add Info.plist purpose strings
+        run: |
+          PLIST="ios/App/App/Info.plist"
+          add() { /usr/libexec/PlistBuddy -c "Add :$1 string $2" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Set :$1 $2" "$PLIST"; }
+          add NSCameraUsageDescription "수기 수유 기록지를 촬영해 자동으로 기록을 인식하기 위해 카메라를 사용합니다."
+          add NSPhotoLibraryUsageDescription "앨범에 저장된 수유 기록지 사진을 선택해 기록을 인식하기 위해 사진 보관함에 접근합니다."
+          add NSPhotoLibraryAddUsageDescription "촬영한 기록지 사진을 사진 보관함에 저장하기 위해 사용합니다."
+
       # Inject the app icon directly into the asset catalog. We avoid
       # @capacitor/assets because it needs sharp, whose native build is disabled
       # in this repo. Modern Xcode accepts a single 1024×1024 universal icon.
