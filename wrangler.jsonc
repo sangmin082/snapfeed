@@ -9,7 +9,10 @@
   },
   "vars": {
     "NEXT_PUBLIC_SUPABASE_URL": "https://rswasfflcyabqncldyzd.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_xzkgOIX6noWWQ8T7vWb-PA_YXLBxn5N"
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_xzkgOIX6noWWQ8T7vWb-PA_YXLBxn5N",
+    // Team ID + bundle id — served via /.well-known/apple-app-site-association
+    // so iOS universal links open the app for links on this domain.
+    "APPLE_APP_ID": "R49JBP66QZ.com.snapfeed.com"
   },
   "assets": {
     "directory": ".open-next/assets",

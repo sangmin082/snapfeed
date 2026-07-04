@@ -35,8 +35,8 @@ export default function PrivacyPage() {
           <p>서비스는 아래 정보를 수집합니다.</p>
           <ul className="mt-2 list-disc space-y-1.5 pl-5">
             <li>
-              <strong>계정 정보</strong>: 이메일 주소, 비밀번호(암호화 저장). Google 계정으로 가입·로그인하는
-              경우 Google이 제공하는 이메일 및 계정 식별자.
+              <strong>계정 정보</strong>: 이메일 주소, 비밀번호(암호화 저장). Google 또는 Apple 계정으로
+              가입·로그인하는 경우 해당 제공자가 전달하는 이메일 및 계정 식별자.
             </li>
             <li>
               <strong>아이 프로필</strong>: 아이의 이름(애칭), 생년월일, 출생 몸무게·키(선택), 프로필 사진(선택),

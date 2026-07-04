@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getUser } from "@/lib/auth";
+import { AppleSignInButton } from "@/components/AppleSignInButton";
 import {
   signInWithPassword,
   signUpWithPassword,
@@ -94,6 +95,17 @@ export default async function LoginPage({ searchParams }: Props) {
           </div>
         ) : null}
 
+        {isNativeApp ? (
+          <>
+            {/* Native Sign in with Apple — OS sheet, no Safari bounce */}
+            <AppleSignInButton from={from} />
+            <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-neutral-500">
+              <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
+              또는
+              <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
+            </div>
+          </>
+        ) : null}
         {!isNativeApp ? (
           <>
             <form action={signInWithGoogle}>

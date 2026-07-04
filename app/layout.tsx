@@ -4,6 +4,7 @@ import "./globals.css";
 import ThemeToggle from "@/components/ThemeToggle";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import BottomTabBar from "@/components/BottomTabBar";
+import { DeepLinkListener } from "@/components/DeepLinkListener";
 
 const themeInitScript = `(function(){try{var s=localStorage.getItem('theme');var m=window.matchMedia('(prefers-color-scheme: dark)').matches;var d=s==='dark'||((s===null||s==='system')&&m);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`;
 
@@ -97,6 +98,7 @@ export default function RootLayout({
         {children}
         <BottomTabBar />
         <ServiceWorkerRegister />
+        <DeepLinkListener />
       </body>
     </html>
   );
