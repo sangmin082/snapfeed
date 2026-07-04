@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { getUser } from "@/lib/auth";
 import {
   signInWithPassword,
@@ -31,6 +32,10 @@ export default async function LoginPage({ searchParams }: Props) {
     !!sp.error &&
     /invalid|email not confirmed|credentials/i.test(sp.error);
   const failedEmail = sp.email ?? "";
+  // Inside the native shell, Google OAuth gets bounced to Safari (external
+  // navigation) and the session lands in the web, not the app — so the app
+  // offers email/password only. (Also keeps us clear of guideline 4.8.)
+  const isNativeApp = ((await headers()).get("user-agent") ?? "").includes("SnapfeedApp");
 
   return (
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
@@ -49,7 +54,8 @@ export default async function LoginPage({ searchParams }: Props) {
         ) : null}
         {sp.notice === "check-email" ? (
           <div className="rounded-xl bg-amber-50 p-4 text-center text-sm text-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-            이메일로 확인 링크를 보냈습니다. 링크를 눌러 가입을 완료해주세요.
+            이메일로 확인 링크를 보냈습니다. 링크를 눌러 가입을 완료한 뒤,
+            이 화면으로 돌아와 로그인해주세요.
           </div>
         ) : null}
         {sp.notice === "resent" ? (
@@ -88,22 +94,26 @@ export default async function LoginPage({ searchParams }: Props) {
           </div>
         ) : null}
 
-        <form action={signInWithGoogle}>
-          <input type="hidden" name="from" value={from} />
-          <button
-            type="submit"
-            className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98] dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
-          >
-            <GoogleMark />
-            Google로 계속하기
-          </button>
-        </form>
+        {!isNativeApp ? (
+          <>
+            <form action={signInWithGoogle}>
+              <input type="hidden" name="from" value={from} />
+              <button
+                type="submit"
+                className="flex w-full items-center justify-center gap-3 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98] dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+              >
+                <GoogleMark />
+                Google로 계속하기
+              </button>
+            </form>
 
-        <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-neutral-500">
-          <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
-          또는
-          <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
-        </div>
+            <div className="flex items-center gap-3 text-xs text-gray-400 dark:text-neutral-500">
+              <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
+              또는
+              <div className="h-px flex-1 bg-gray-200 dark:bg-neutral-800" />
+            </div>
+          </>
+        ) : null}
 
         <form
           action={isSignup ? signUpWithPassword : signInWithPassword}
