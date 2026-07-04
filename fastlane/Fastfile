@@ -42,16 +42,9 @@ platform :ios do
     )
     profile_name = ENV["sigh_#{ENV['BUNDLE_ID']}_appstore_profile-name"]
 
-    # Ensure the App Store Connect record exists (App ID already registered).
-    # produce authenticates via the API key token set by app_store_connect_api_key
-    # above — it does not accept an api_key: parameter itself.
-    produce(
-      app_identifier: ENV["BUNDLE_ID"],
-      app_name: ENV["APP_NAME"] || "snapfeed 수유기록",
-      language: "Korean",
-      sku: "snapfeed-001",
-      skip_devcenter: true
-    )
+    # NOTE: the App Store Connect app record must be created once in the web UI
+    # (My Apps → New App, bundle id com.snapfeed.com). Apple's API key cannot
+    # create new app records, so we don't attempt it here.
 
     update_code_signing_settings(
       path: "ios/App/App.xcodeproj",
