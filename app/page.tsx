@@ -385,9 +385,13 @@ function AppHome({
 }
 
 /* 수첩(손글씨) → 앱(정리된 기록) 변환을 보여주는 CSS 목업 */
-function HeroMockup() {
+function HeroMockup({
+  className = "mx-auto mt-12 max-w-lg animate-fade-up",
+}: {
+  className?: string;
+}) {
   return (
-    <div className="mx-auto mt-12 max-w-lg animate-fade-up" style={{ animationDelay: "280ms" }}>
+    <div className={className} style={{ animationDelay: "280ms" }}>
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 sm:gap-4">
         {/* 손글씨 수첩 */}
         <div className="rotate-[-2.5deg] rounded-2xl bg-[#fffdf5] p-4 shadow-lg shadow-amber-900/5 ring-1 ring-amber-900/10 dark:bg-[#1c1a14] dark:ring-amber-100/10">
@@ -578,37 +582,34 @@ const FEATURES = [
 ];
 
 // Native-app first-run screen: welcome + straight into sign-up.
-// (The tutorial wizard itself lives in /onboarding, right after sign-up.)
+// Sized to fit a single viewport (minus the top bar and guest tab bar) so
+// 시작하기 is visible without scrolling.
 function NativeWelcome() {
   return (
-    <main className="mx-auto flex min-h-[calc(100dvh-3rem)] w-full max-w-md flex-col">
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
-        <div className="flex items-center justify-center gap-3">
-          <span className="rotate-[-8deg] rounded-2xl bg-amber-100 p-4 text-4xl shadow-sm dark:bg-amber-900/40">🍼</span>
-          <span className="rounded-2xl bg-rose-100 p-4 text-4xl shadow-sm dark:bg-rose-900/40">👶</span>
-          <span className="rotate-[8deg] rounded-2xl bg-sky-100 p-4 text-4xl shadow-sm dark:bg-sky-900/40">📷</span>
-        </div>
-        <h1 className="text-3xl font-extrabold leading-snug tracking-tight text-gray-900 dark:text-neutral-100">
+    <main className="mx-auto flex h-[calc(100dvh-8.5rem)] w-full max-w-md flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
+        <h1 className="text-2xl font-extrabold leading-snug tracking-tight text-gray-900 dark:text-neutral-100">
           snapfeed에
           <br />
           오신 걸 환영합니다
         </h1>
-        <p className="text-[15px] leading-relaxed text-gray-500 dark:text-neutral-400">
+        <p className="text-sm leading-relaxed text-gray-500 dark:text-neutral-400">
           할머니 · 산후도우미가 수첩에 남겨주신 수유 기록,
           <br />
           사진 한 장이면 AI가 알아서 정리해드려요.
         </p>
+        <HeroMockup className="w-full max-w-sm" />
       </div>
-      <div className="flex flex-col gap-3 px-6 pb-6 [padding-bottom:calc(env(safe-area-inset-bottom)+1.5rem)]">
+      <div className="flex flex-col gap-2.5 px-6 pb-3">
         <Link
           href="/login?mode=signup"
-          className="rounded-2xl bg-amber-300 px-6 py-4 text-center text-base font-bold text-amber-950 shadow-sm transition active:scale-[0.98]"
+          className="rounded-2xl bg-amber-300 px-6 py-3.5 text-center text-base font-bold text-amber-950 shadow-sm transition active:scale-[0.98]"
         >
           시작하기
         </Link>
         <Link
           href="/login"
-          className="rounded-2xl bg-gray-100 px-6 py-4 text-center text-base font-semibold text-gray-600 transition active:scale-[0.98] dark:bg-neutral-900 dark:text-neutral-300"
+          className="rounded-2xl bg-gray-100 px-6 py-3.5 text-center text-base font-semibold text-gray-600 transition active:scale-[0.98] dark:bg-neutral-900 dark:text-neutral-300"
         >
           이미 계정이 있어요
         </Link>
