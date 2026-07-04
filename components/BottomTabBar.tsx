@@ -8,7 +8,7 @@ const TABS = [
   { href: "/records", label: "기록", icon: ListIcon },
   { href: "/upload", label: "", icon: CameraIcon, primary: true },
   { href: "/stats", label: "패턴", icon: ChartIcon },
-  { href: "/profile", label: "정보", icon: UserIcon },
+  { href: "/settings", label: "설정", icon: GearIcon },
 ] as const;
 
 // Native-app style bottom tab bar on mobile widths. Shown to guests too —
@@ -108,11 +108,11 @@ function ChartIcon({ className }: IconProps) {
   );
 }
 
-function UserIcon({ className }: IconProps) {
+function GearIcon({ className }: IconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="8" r="4" />
-      <path d="M5 20c1.5-3.5 4-5 7-5s5.5 1.5 7 5" />
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.08A1.7 1.7 0 0 0 10.12 3V3a2 2 0 1 1 4 0v.09c0 .66.39 1.26 1.03 1.56.6.27 1.3.14 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.08c.3.64.9 1.03 1.56 1.03H21a2 2 0 1 1 0 4h-.09c-.66 0-1.26.39-1.51 1.03Z" />
     </svg>
   );
 }

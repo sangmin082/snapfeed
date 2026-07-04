@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { babyPhotoUrl, requireUser } from "@/lib/auth";
 import { serviceSupabase } from "@/lib/supabase-server";
 import { BabyForm } from "@/components/BabyForm";
-import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { updateBaby } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -85,8 +84,6 @@ export default async function ProfilePage({ searchParams }: Props) {
         >
           취소하고 돌아가기
         </Link>
-
-        <DeleteAccountSection />
 
         <nav className="flex justify-center gap-4 text-xs text-gray-400 dark:text-neutral-600">
           <Link href="/privacy" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-400">
