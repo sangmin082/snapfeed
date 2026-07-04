@@ -43,8 +43,9 @@ platform :ios do
     profile_name = ENV["sigh_#{ENV['BUNDLE_ID']}_appstore_profile-name"]
 
     # Ensure the App Store Connect record exists (App ID already registered).
+    # produce authenticates via the API key token set by app_store_connect_api_key
+    # above — it does not accept an api_key: parameter itself.
     produce(
-      api_key: api_key,
       app_identifier: ENV["BUNDLE_ID"],
       app_name: ENV["APP_NAME"] || "snapfeed 수유기록",
       language: "Korean",
