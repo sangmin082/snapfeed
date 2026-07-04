@@ -1,0 +1,35 @@
+default_platform(:ios)
+
+platform :ios do
+  desc "Build and upload to TestFlight using App Store Connect API key"
+  lane :beta do
+    api_key = app_store_connect_api_key(
+      key_id: ENV["ASC_KEY_ID"],
+      issuer_id: ENV["ASC_ISSUER"],
+      key_filepath: ENV["ASC_KEY_PATH"],
+      in_house: false
+    )
+
+    # Automatic (cloud-managed) signing. export_method "app-store" tells the whole
+    # pipeline this is a distribution build, so a distribution cert + App Store
+    # provisioning profile are created via the API key — no registered devices needed.
+    build_app(
+      project: "ios/App/App.xcodeproj",
+      scheme: "App",
+      configuration: "Release",
+      export_method: "app-store",
+      output_directory: ENV["RUNNER_TEMP"],
+      xcargs: [
+        "-allowProvisioningUpdates",
+        "DEVELOPMENT_TEAM=#{ENV['TEAM_ID']}",
+        "PRODUCT_BUNDLE_IDENTIFIER=#{ENV['BUNDLE_ID']}",
+        "CURRENT_PROJECT_VERSION=#{ENV['BUILD_NUMBER']}"
+      ].join(" ")
+    )
+
+    upload_to_testflight(
+      api_key: api_key,
+      skip_waiting_for_build_processing: true
+    )
+  end
+end
