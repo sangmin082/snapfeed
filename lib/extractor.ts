@@ -30,6 +30,10 @@ type StreamAttempt = {
 };
 const STREAM_MODEL_CHAIN: readonly StreamAttempt[] = [
   { model: "gemini-2.5-flash-lite", thinking: false, retriesOnTransient: 2 },
+  // Fallback when lite's stream keeps dying mid-flight ("Incomplete JSON
+  // segment"). Plain flash with thinking off — NOT the thinking variant that
+  // was dropped earlier; purely a second transport for reliability.
+  { model: "gemini-2.5-flash", thinking: false, retriesOnTransient: 1 },
 ] as const;
 const STREAM_OVERALL_TIMEOUT_MS = 90_000;
 const STREAM_RETRY_BACKOFF_MS = 1500;
