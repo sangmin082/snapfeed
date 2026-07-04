@@ -47,9 +47,23 @@ jobs:
           npx cap add ios || npx cap sync ios
           npx cap sync ios
 
-      # Generate iOS app icons + splash from assets/ (icon.png, splash.png)
-      - name: Generate app icons & splash
-        run: npx @capacitor/assets generate --ios
+      # Inject the app icon directly into the asset catalog. We avoid
+      # @capacitor/assets because it needs sharp, whose native build is disabled
+      # in this repo. Modern Xcode accepts a single 1024×1024 universal icon.
+      - name: Set app icon
+        run: |
+          ICONSET="ios/App/App/Assets.xcassets/AppIcon.appiconset"
+          mkdir -p "$ICONSET"
+          rm -f "$ICONSET"/*.png
+          cp assets/icon.png "$ICONSET/AppIcon-512@2x.png"
+          cat > "$ICONSET/Contents.json" <<'EOF'
+          {
+            "images": [
+              { "filename": "AppIcon-512@2x.png", "idiom": "universal", "platform": "ios", "size": "1024x1024" }
+            ],
+            "info": { "author": "xcode", "version": 1 }
+          }
+          EOF
 
       # App Store Connect API 키(.p8)를 altool/xcodebuild 가 찾는 위치에 배치
       - name: Write App Store Connect API key
