@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
 import { InviteButton } from "@/components/InviteButton";
 
@@ -11,6 +12,11 @@ export default async function Home() {
   const user = await getUser();
   const baby = user ? await getPrimaryBaby(user.id) : null;
   const photoUrl = baby ? await babyPhotoUrl(baby.photo_path) : null;
+
+  // A signed-in user with no baby yet goes straight into the onboarding
+  // wizard — right after sign-up (email confirm / Apple) there's nothing
+  // else to do on the home screen.
+  if (user && !baby) redirect("/onboarding");
 
   // Signed-in users get an app-style home (paired with the bottom tab
   // bar); the marketing landing is for visitors only.
