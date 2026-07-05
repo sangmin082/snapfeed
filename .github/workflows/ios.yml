@@ -79,6 +79,9 @@ jobs:
           add NSCameraUsageDescription "수기 수유 기록지를 촬영해 자동으로 기록을 인식하기 위해 카메라를 사용합니다."
           add NSPhotoLibraryUsageDescription "앨범에 저장된 수유 기록지 사진을 선택해 기록을 인식하기 위해 사진 보관함에 접근합니다."
           add NSPhotoLibraryAddUsageDescription "촬영한 기록지 사진을 사진 보관함에 저장하기 위해 사용합니다."
+          # Standard HTTPS only — auto-answers the export compliance question
+          # so every TestFlight build is immediately distributable.
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" 2>/dev/null || true
 
       # Inject the app icon directly into the asset catalog. We avoid
       # @capacitor/assets because it needs sharp, whose native build is disabled
