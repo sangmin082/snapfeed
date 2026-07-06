@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { resizeImageToBlob } from "@/lib/resizeImage";
 import { useIsNative } from "@/lib/native";
+import { CameraIcon, PictureIcon } from "@/components/icons";
 import type { ExtractResult } from "@/lib/schema";
 
 function todayKstYmd(): string {
@@ -196,7 +197,7 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
 
   const busy = state !== "idle";
   const cameraLabel =
-    state === "resizing" ? "사진 압축 중…" : state === "uploading" ? "인식 중…" : "📷 사진 찍어 기록하기";
+    state === "resizing" ? "사진 압축 중…" : state === "uploading" ? "인식 중…" : "사진 찍어 기록하기";
 
   return (
     <div className="flex flex-col gap-2">
@@ -225,17 +226,19 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
         type="button"
         disabled={busy}
         onClick={() => (native ? captureNative("camera") : cameraRef.current?.click())}
-        className="rounded-xl bg-black px-6 py-4 text-lg font-medium text-white shadow-sm disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
+        className="flex items-center justify-center gap-2.5 rounded-xl bg-black px-6 py-4 text-lg font-medium text-white shadow-sm disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900"
       >
+        {!busy ? <CameraIcon className="h-5 w-5" /> : null}
         {cameraLabel}
       </button>
       <button
         type="button"
         disabled={busy}
         onClick={() => (native ? captureNative("photos") : libraryRef.current?.click())}
-        className="rounded-xl border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-800 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
+        className="flex items-center justify-center gap-2.5 rounded-xl border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-800 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200"
       >
-        🖼️ 사진 선택하기
+        <PictureIcon className="h-5 w-5 text-gray-500 dark:text-neutral-400" />
+        사진 선택하기
       </button>
       {error ? <p className="text-sm text-red-600 dark:text-red-400">오류: {error}</p> : null}
     </div>

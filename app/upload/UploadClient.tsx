@@ -9,6 +9,7 @@ import {
 } from "@/components/PhotoUploader";
 import { ExtractPreview } from "@/components/ExtractPreview";
 import { FeedReminderButton } from "@/components/FeedReminderButton";
+import { CheckCircleIcon } from "@/components/icons";
 
 type ProgressLine = { kind: "status" | "thought"; text: string; ts: number };
 
@@ -42,7 +43,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
     return (
       <div className="flex flex-col gap-6">
         <div className="flex flex-col items-center gap-3 rounded-2xl bg-amber-50 p-8 text-center dark:bg-amber-950/40">
-          <div className="text-5xl">✅</div>
+          <CheckCircleIcon className="h-12 w-12 text-amber-600 dark:text-amber-400" />
           <h1 className="text-2xl font-bold text-amber-900 sm:text-3xl dark:text-amber-100">저장 완료</h1>
           <p className="text-base text-amber-800 dark:text-amber-200">기록이 성공적으로 저장되었습니다.</p>
         </div>
@@ -51,7 +52,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
           href="/stats"
           className="rounded-full bg-amber-600 px-6 py-4 text-center text-base font-semibold text-white shadow-sm transition hover:bg-amber-700 active:scale-[0.98]"
         >
-          📊 패턴 보기
+          패턴 보기
         </Link>
         <div className="flex flex-col gap-3 sm:flex-row">
           <button
@@ -62,7 +63,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
             }}
             className="flex-1 rounded-full border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-900 transition hover:bg-gray-50 active:scale-[0.98] dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
           >
-            📷 다른 사진 기록하기
+            다른 사진 기록하기
           </button>
           <Link
             href="/records"
@@ -80,7 +81,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">사진으로 기록</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-neutral-500">👶 {babyName}</p>
+          <p className="mt-1 text-sm text-gray-500 dark:text-neutral-500">{babyName}</p>
         </div>
         <Link href="/" className="text-sm font-medium text-gray-500 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
           홈
@@ -93,7 +94,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
             수기 수유 기록지를 촬영하면 AI가 자동으로 인식해서 수정 가능한 표로 보여줍니다.
           </p>
           <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5 text-sm leading-relaxed text-amber-900 sm:p-6 sm:text-base dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-            <p className="font-semibold">📝 잘 찍는 팁</p>
+            <p className="font-semibold">잘 찍는 팁</p>
             <ul className="mt-3 flex flex-col gap-1.5 pl-1">
               <li>· 기록지 전체가 프레임에 들어오게</li>
               <li>· 글씨가 선명하게 보이도록 밝은 곳에서</li>
@@ -116,7 +117,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
             <section className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-neutral-300">
-                  🤖 Gemini 추론 로그
+                  인식 과정
                 </h3>
                 {busy ? (
                   <span className="inline-flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
@@ -156,7 +157,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
         <>
           {extracted.warning ? (
             <p className="rounded bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-              ⚠️ {extracted.warning}
+              {extracted.warning}
             </p>
           ) : null}
           <ExtractPreview

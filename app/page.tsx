@@ -5,6 +5,14 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
 import { InviteButton } from "@/components/InviteButton";
+import {
+  BabyIcon,
+  CameraIcon,
+  ChartIcon,
+  ListIcon,
+  PencilIcon,
+  PrinterIcon,
+} from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +78,7 @@ export default async function Home() {
                 href={user ? "/upload" : "/login?mode=signup"}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-300 px-8 py-4 text-base font-bold text-amber-950 shadow-lg shadow-amber-400/30 transition hover:-translate-y-0.5 hover:bg-amber-400 active:scale-[0.98] sm:text-lg dark:bg-amber-300 dark:hover:bg-amber-200"
               >
-                {user ? "📷 지금 기록하기" : "무료로 시작하기"}
+                {user ? "지금 기록하기" : "무료로 시작하기"}
               </Link>
               <Link
                 href={user ? "/records" : "/login"}
@@ -176,8 +184,8 @@ export default async function Home() {
       <section className="mx-auto w-full max-w-2xl px-6 py-16 sm:py-20">
         <div className="overflow-hidden rounded-[2rem] bg-amber-50/80 ring-1 ring-amber-100 dark:bg-amber-950/20 dark:ring-amber-900/40">
           <div className="flex flex-col gap-6 p-7 sm:flex-row sm:items-center sm:p-9">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-white text-5xl shadow-sm sm:h-28 sm:w-28 dark:bg-neutral-900">
-              📋
+            <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl bg-white text-amber-600 shadow-sm sm:h-28 sm:w-28 dark:bg-neutral-900 dark:text-amber-400">
+              <ListIcon className="h-12 w-12" />
             </div>
             <div className="flex flex-1 flex-col gap-3">
               <div>
@@ -257,8 +265,7 @@ export default async function Home() {
         <div className="relative overflow-hidden rounded-[2rem] bg-gray-900 p-8 text-center sm:p-12 dark:bg-amber-300">
           <div className="pointer-events-none absolute -top-16 -right-16 h-48 w-48 rounded-full bg-amber-400/25 blur-3xl dark:bg-white/25" />
           <div className="relative">
-            <p className="text-3xl">🍼</p>
-            <h2 className="mt-3 text-2xl font-extrabold tracking-tight text-white sm:text-3xl dark:text-amber-950">
+            <h2 className="text-2xl font-extrabold tracking-tight text-white sm:text-3xl dark:text-amber-950">
               {user ? "오늘 수첩부터 찍어보세요" : "첫 사진, 지금 올려보세요"}
             </h2>
             <p className="mt-2.5 text-[15px] text-gray-400 sm:text-base dark:text-amber-900">
@@ -270,7 +277,7 @@ export default async function Home() {
               href={user ? "/upload" : "/login?mode=signup"}
               className="mt-7 inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-8 py-4 text-base font-bold text-gray-900 shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-50 active:scale-[0.98] sm:text-lg dark:bg-amber-950 dark:text-amber-50 dark:hover:bg-amber-900"
             >
-              {user ? "📷 사진 찍으러 가기" : "무료로 시작하기"}
+              {user ? "사진 찍으러 가기" : "무료로 시작하기"}
             </Link>
           </div>
         </div>
@@ -323,8 +330,8 @@ function AppHome({
           href="/upload"
           className="flex items-center gap-4 rounded-3xl bg-amber-300 p-5 shadow-lg shadow-amber-400/30 transition hover:-translate-y-0.5 hover:bg-amber-400 active:scale-[0.99]"
         >
-          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/60 text-3xl">
-            📷
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/60 text-amber-950">
+            <CameraIcon className="h-7 w-7" />
           </span>
           <span className="flex flex-col">
             <span className="text-lg font-extrabold text-amber-950">사진으로 기록하기</span>
@@ -340,7 +347,7 @@ function AppHome({
             href="/records"
             className="flex flex-col gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-neutral-900 dark:ring-white/5"
           >
-            <span className="text-2xl">📋</span>
+            <ListIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             <span className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">기록 보기</span>
             <span className="text-xs text-gray-500 dark:text-neutral-400">날짜별 수유 · 배변 내역</span>
           </Link>
@@ -348,7 +355,7 @@ function AppHome({
             href="/stats"
             className="flex flex-col gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-neutral-900 dark:ring-white/5"
           >
-            <span className="text-2xl">📊</span>
+            <ChartIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             <span className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">패턴 분석</span>
             <span className="text-xs text-gray-500 dark:text-neutral-400">총량 · 간격 그래프</span>
           </Link>
@@ -356,7 +363,7 @@ function AppHome({
 
         {/* 기록지 */}
         <div className="mt-3.5 flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 dark:bg-neutral-900 dark:ring-white/5">
-          <span className="text-2xl">🖨️</span>
+          <PrinterIcon className="h-6 w-6 shrink-0 text-gray-400 dark:text-neutral-500" />
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">신생아 기록지</p>
             <p className="text-xs text-gray-500 dark:text-neutral-400">
@@ -423,8 +430,8 @@ function HeroMockup({
 
         {/* 가운데: 카메라 */}
         <div className="flex flex-col items-center gap-1.5">
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-600 text-lg shadow-lg shadow-amber-600/30 animate-float sm:h-13 sm:w-13 sm:text-xl dark:bg-amber-500">
-            📷
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-amber-600 text-white shadow-lg shadow-amber-600/30 animate-float sm:h-13 sm:w-13 dark:bg-amber-500">
+            <CameraIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </span>
           <svg width="26" height="10" viewBox="0 0 26 10" fill="none" className="text-amber-500 animate-arrow-pulse">
             <path d="M0 5h22m0 0l-4-4m4 4l-4 4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -478,7 +485,7 @@ function UserBar({ user, baby }: UserBarProps) {
         </Link>
         {user ? (
           <div className="flex items-center gap-3 text-sm">
-            {baby ? <span className="text-gray-500 dark:text-neutral-400">👶 {baby.name}</span> : null}
+            {baby ? <span className="text-gray-500 dark:text-neutral-400">{baby.name}</span> : null}
             <form action="/auth/logout" method="post">
               <button type="submit" className="text-gray-400 underline-offset-4 hover:text-gray-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
                 로그아웃
@@ -545,16 +552,16 @@ function DashboardBlock({
                 unoptimized
               />
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-2xl ring-2 ring-white shadow-sm dark:bg-amber-900/40 dark:ring-neutral-800">
-                👶
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700 ring-2 ring-white shadow-sm dark:bg-amber-900/40 dark:text-amber-300 dark:ring-neutral-800">
+                <BabyIcon className="h-7 w-7" />
               </div>
             )}
-            <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-[11px] text-white ring-2 ring-white shadow-sm transition group-hover:bg-amber-700 dark:ring-neutral-950">
-              {photoUrl ? "✎" : "+"}
+            <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-amber-600 text-white ring-2 ring-white shadow-sm transition group-hover:bg-amber-700 dark:ring-neutral-950">
+              <PencilIcon className="h-3 w-3" />
             </span>
           </Link>
           <div className="flex flex-1 flex-col">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100">안녕하세요 👋</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100">안녕하세요</h2>
             <span className="text-xs text-gray-500 dark:text-neutral-500">
               {baby.name} · {baby.birth_date}
             </span>

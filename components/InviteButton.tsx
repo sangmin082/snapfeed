@@ -39,7 +39,7 @@ export function InviteButton() {
           onClick={generate}
           className="rounded-full border border-amber-300 bg-amber-50 px-6 py-3 text-base font-semibold text-amber-700 transition hover:bg-amber-100 active:scale-[0.98] disabled:opacity-50 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-300 dark:hover:bg-amber-900/40"
         >
-          {pending ? "초대 링크 생성 중…" : "👨‍👩‍👧 가족 초대 링크 만들기"}
+          {pending ? "초대 링크 생성 중…" : "가족 초대 링크 만들기"}
         </button>
       ) : (
         <div className="flex flex-col gap-2 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">

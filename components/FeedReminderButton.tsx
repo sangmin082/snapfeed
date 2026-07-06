@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useIsNative } from "@/lib/native";
 import { scheduleFeedReminder } from "@/lib/notifications";
+import { BellIcon } from "@/components/icons";
 
 // Shown only inside the native shell — lets the parent schedule an on-device
 // "time to feed" reminder. This is real native functionality (local
@@ -21,8 +22,9 @@ export function FeedReminderButton({ hoursFromNow = 3 }: { hoursFromNow?: number
 
   if (status === "scheduled") {
     return (
-      <p className="text-center text-sm text-emerald-700 dark:text-emerald-300">
-        🔔 {hoursFromNow}시간 후 수유 알림을 예약했어요.
+      <p className="flex items-center justify-center gap-1.5 text-sm text-amber-700 dark:text-amber-300">
+        <BellIcon className="h-4 w-4" />
+        {hoursFromNow}시간 후 수유 알림을 예약했어요.
       </p>
     );
   }
@@ -33,9 +35,10 @@ export function FeedReminderButton({ hoursFromNow = 3 }: { hoursFromNow?: number
         type="button"
         disabled={status === "scheduling"}
         onClick={onClick}
-        className="rounded-full border border-emerald-600 px-6 py-3 text-center text-base font-semibold text-emerald-700 disabled:opacity-50 dark:border-emerald-400 dark:text-emerald-300"
+        className="flex items-center justify-center gap-2 rounded-full border border-amber-500 px-6 py-3 text-center text-base font-semibold text-amber-700 disabled:opacity-50 dark:border-amber-400 dark:text-amber-300"
       >
-        {status === "scheduling" ? "예약 중…" : `🔔 ${hoursFromNow}시간 후 수유 알림 받기`}
+        <BellIcon className="h-4.5 w-4.5" />
+        {status === "scheduling" ? "예약 중…" : `${hoursFromNow}시간 후 수유 알림 받기`}
       </button>
       {status === "denied" ? (
         <p className="text-center text-xs text-gray-500 dark:text-neutral-500">

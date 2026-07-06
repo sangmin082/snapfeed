@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { createBaby } from "./actions";
+import { BottleIcon, CameraIcon } from "@/components/icons";
 
 const RELATIONSHIPS = [
   "엄마",
@@ -64,11 +65,9 @@ export function OnboardingForm() {
       <div className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
         {step === 0 ? (
           <>
-            <div className="flex items-center justify-center gap-3">
-              <span className="rotate-[-8deg] rounded-2xl bg-amber-100 p-4 text-4xl shadow-sm dark:bg-amber-900/40">🍼</span>
-              <span className="rounded-2xl bg-rose-100 p-4 text-4xl shadow-sm dark:bg-rose-900/40">👶</span>
-              <span className="rotate-[8deg] rounded-2xl bg-sky-100 p-4 text-4xl shadow-sm dark:bg-sky-900/40">📷</span>
-            </div>
+            <span className="flex h-16 w-16 items-center justify-center rounded-3xl bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+              <BottleIcon className="h-8 w-8" />
+            </span>
             <h1 className="text-2xl font-extrabold leading-snug tracking-tight text-gray-900 sm:text-3xl dark:text-neutral-100">
               snapfeed에
               <br />
@@ -144,13 +143,13 @@ export function OnboardingForm() {
             <button
               type="button"
               onClick={() => photoRef.current?.click()}
-              className="mx-auto flex h-40 w-40 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-5xl dark:bg-neutral-900"
+              className="mx-auto flex h-40 w-40 items-center justify-center overflow-hidden rounded-full bg-gray-100 text-gray-400 dark:bg-neutral-900 dark:text-neutral-500"
             >
               {photoPreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={photoPreview} alt="아기 사진 미리보기" className="h-full w-full object-cover" />
               ) : (
-                "📷"
+                <CameraIcon className="h-10 w-10" />
               )}
             </button>
             <p className="text-sm text-gray-500 dark:text-neutral-400">

@@ -7,6 +7,7 @@ import { DeleteAccountSection } from "@/components/DeleteAccountSection";
 import { FeedReminderButton } from "@/components/FeedReminderButton";
 import { ShareAppButton } from "@/components/ShareAppButton";
 import ThemeToggle from "@/components/ThemeToggle";
+import { BabyIcon, BellIcon, MailIcon, MoonIcon, UsersIcon } from "@/components/icons";
 
 export const dynamic = "force-dynamic";
 
@@ -37,8 +38,8 @@ export default async function SettingsPage() {
               className="h-13 w-13 rounded-full object-cover"
             />
           ) : (
-            <span className="flex h-13 w-13 items-center justify-center rounded-full bg-amber-100 text-2xl dark:bg-amber-900/40">
-              👶
+            <span className="flex h-13 w-13 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+              <BabyIcon className="h-6 w-6" />
             </span>
           )}
           <span className="flex flex-1 flex-col">
@@ -56,8 +57,9 @@ export default async function SettingsPage() {
       {/* ── 가족 함께 쓰기 ── */}
       <Card>
         <div className="flex flex-col gap-3 p-4">
-          <p className="text-sm font-semibold text-gray-900 dark:text-neutral-100">
-            👨‍👩‍👧 가족 초대하기
+          <p className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-neutral-100">
+            <UsersIcon className="h-4.5 w-4.5 text-gray-400 dark:text-neutral-500" />
+            가족 초대하기
           </p>
           <p className="text-xs leading-relaxed text-gray-500 dark:text-neutral-400">
             초대 링크로 배우자·조부모님과 같은 아기 기록을 함께 봐요.
@@ -69,8 +71,9 @@ export default async function SettingsPage() {
       {/* ── 앱 설정 ── */}
       <Card>
         <div className="flex items-center justify-between p-4">
-          <span className="text-sm font-medium text-gray-900 dark:text-neutral-100">
-            🌙 다크모드
+          <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
+            <MoonIcon className="h-4.5 w-4.5 text-gray-400 dark:text-neutral-500" />
+            다크모드
           </span>
           <ThemeToggle />
         </div>
@@ -78,8 +81,9 @@ export default async function SettingsPage() {
         <div className="p-4">
           {/* Native-only: schedules an on-device feeding reminder */}
           <FeedReminderButton hoursFromNow={3} />
-          <p className="text-xs text-gray-400 dark:text-neutral-500">
-            🔔 수유 알림은 앱에서만 사용할 수 있어요.
+          <p className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-neutral-500">
+            <BellIcon className="h-3.5 w-3.5" />
+            수유 알림은 앱에서만 사용할 수 있어요.
           </p>
         </div>
       </Card>
@@ -87,7 +91,10 @@ export default async function SettingsPage() {
       {/* ── 지원 ── */}
       <Card>
         <a href={`mailto:${CONTACT}?subject=${encodeURIComponent("[snapfeed] 문의")}`} className="flex items-center justify-between p-4">
-          <span className="text-sm font-medium text-gray-900 dark:text-neutral-100">✉️ 문의하기</span>
+          <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
+            <MailIcon className="h-4.5 w-4.5 text-gray-400 dark:text-neutral-500" />
+            문의하기
+          </span>
           <Chevron />
         </a>
         <Divider />

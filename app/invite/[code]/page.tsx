@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getUser } from "@/lib/auth";
 import { serviceSupabase } from "@/lib/supabase-server";
 import { RelationshipPicker } from "@/components/RelationshipPicker";
+import { UsersIcon } from "@/components/icons";
 import { acceptInvite } from "./actions";
 
 type Props = {
@@ -37,7 +38,9 @@ export default async function InvitePage({ params, searchParams }: Props) {
     <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-10">
       <div className="flex flex-col gap-6 rounded-3xl border border-gray-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
         <div className="flex flex-col items-center gap-2 text-center">
-          <div className="text-4xl">👨‍👩‍👧</div>
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+            <UsersIcon className="h-7 w-7" />
+          </span>
           <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-neutral-100">가족 초대</h1>
           {baby ? (
             <p className="text-base text-gray-600 dark:text-neutral-400">

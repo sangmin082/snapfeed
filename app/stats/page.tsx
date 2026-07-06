@@ -162,7 +162,7 @@ export default async function StatsPage({ searchParams }: Props) {
       >
         <header className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-gray-800 dark:text-neutral-200">
-            🍼 분유/유축/모유 수유 통계
+            분유 · 유축 · 모유 수유 통계
           </h2>
           <span className="text-gray-400 dark:text-neutral-500">›</span>
         </header>
