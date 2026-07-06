@@ -347,7 +347,9 @@ function AppHome({
             href="/records"
             className="flex flex-col gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-neutral-900 dark:ring-white/5"
           >
-            <ListIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
+              <ListIcon className="h-5.5 w-5.5" />
+            </span>
             <span className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">기록 보기</span>
             <span className="text-xs text-gray-500 dark:text-neutral-400">날짜별 수유 · 배변 내역</span>
           </Link>
@@ -355,7 +357,9 @@ function AppHome({
             href="/stats"
             className="flex flex-col gap-2 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 transition hover:-translate-y-0.5 hover:shadow-md dark:bg-neutral-900 dark:ring-white/5"
           >
-            <ChartIcon className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400">
+              <ChartIcon className="h-5.5 w-5.5" />
+            </span>
             <span className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">패턴 분석</span>
             <span className="text-xs text-gray-500 dark:text-neutral-400">총량 · 간격 그래프</span>
           </Link>
@@ -363,7 +367,9 @@ function AppHome({
 
         {/* 기록지 */}
         <div className="mt-3.5 flex items-center gap-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-gray-900/5 dark:bg-neutral-900 dark:ring-white/5">
-          <PrinterIcon className="h-6 w-6 shrink-0 text-gray-400 dark:text-neutral-500" />
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-500 dark:bg-neutral-800 dark:text-neutral-400">
+            <PrinterIcon className="h-5.5 w-5.5" />
+          </span>
           <div className="min-w-0 flex-1">
             <p className="text-[15px] font-bold text-gray-900 dark:text-neutral-100">신생아 기록지</p>
             <p className="text-xs text-gray-500 dark:text-neutral-400">
@@ -560,10 +566,15 @@ function DashboardBlock({
               <PencilIcon className="h-3 w-3" />
             </span>
           </Link>
-          <div className="flex flex-1 flex-col">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-neutral-100">안녕하세요</h2>
+          <div className="flex flex-1 flex-col gap-0.5">
+            <h2 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-neutral-100">
+              {baby.name}
+              <span className="ml-2 align-middle rounded-full bg-amber-100 px-2.5 py-0.5 text-[12px] font-bold text-amber-700 dark:bg-amber-900/50 dark:text-amber-300">
+                D+{daysSinceBirth(baby.birth_date)}
+              </span>
+            </h2>
             <span className="text-xs text-gray-500 dark:text-neutral-500">
-              {baby.name} · {baby.birth_date}
+              {baby.birth_date} 태어남
             </span>
             <Link
               href="/profile"
@@ -629,4 +640,12 @@ function NativeWelcome() {
       </div>
     </main>
   );
+}
+
+// D+n (오늘 포함) — 페이지는 force-dynamic이라 요청마다 새로 계산된다.
+ 
+function daysSinceBirth(birthDate: string): number {
+  const now = Date.now();
+  const birth = new Date(`${birthDate}T00:00:00+09:00`).getTime();
+  return Math.max(1, Math.floor((now - birth) / 86_400_000) + 1);
 }

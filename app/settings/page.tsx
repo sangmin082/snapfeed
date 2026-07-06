@@ -57,8 +57,10 @@ export default async function SettingsPage() {
       {/* ── 가족 함께 쓰기 ── */}
       <Card>
         <div className="flex flex-col gap-3 p-4">
-          <p className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-neutral-100">
-            <UsersIcon className="h-4.5 w-4.5 text-gray-400 dark:text-neutral-500" />
+          <p className="flex items-center gap-2.5 text-sm font-semibold text-gray-900 dark:text-neutral-100">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400">
+              <UsersIcon className="h-4.5 w-4.5" />
+            </span>
             가족 초대하기
           </p>
           <p className="text-xs leading-relaxed text-gray-500 dark:text-neutral-400">
@@ -71,8 +73,10 @@ export default async function SettingsPage() {
       {/* ── 앱 설정 ── */}
       <Card>
         <div className="flex items-center justify-between p-4">
-          <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
-            <MoonIcon className="h-4.5 w-4.5 text-gray-400 dark:text-neutral-500" />
+          <span className="flex items-center gap-2.5 text-sm font-medium text-gray-900 dark:text-neutral-100">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-100 text-indigo-500 dark:bg-indigo-900/40 dark:text-indigo-400">
+              <MoonIcon className="h-4.5 w-4.5" />
+            </span>
             다크모드
           </span>
           <ThemeToggle />
@@ -91,8 +95,10 @@ export default async function SettingsPage() {
       {/* ── 지원 ── */}
       <Card>
         <a href={`mailto:${CONTACT}?subject=${encodeURIComponent("[snapfeed] 문의")}`} className="flex items-center justify-between p-4">
-          <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-neutral-100">
-            <MailIcon className="h-4.5 w-4.5 text-gray-400 dark:text-neutral-500" />
+          <span className="flex items-center gap-2.5 text-sm font-medium text-gray-900 dark:text-neutral-100">
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-100 text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
+              <MailIcon className="h-4.5 w-4.5" />
+            </span>
             문의하기
           </span>
           <Chevron />
