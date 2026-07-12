@@ -66,7 +66,9 @@ platform :ios do
       configuration: "Release",
       export_method: "app-store",
       output_directory: ENV["RUNNER_TEMP"],
-      xcargs: "CURRENT_PROJECT_VERSION=#{ENV['BUILD_NUMBER']} CODE_SIGN_ENTITLEMENTS=App/App.entitlements",
+      # TARGETED_DEVICE_FAMILY=1 → iPhone-only; drops the iPad-screenshot
+      # requirement at submission (the UI is phone-first anyway).
+      xcargs: "CURRENT_PROJECT_VERSION=#{ENV['BUILD_NUMBER']} CODE_SIGN_ENTITLEMENTS=App/App.entitlements TARGETED_DEVICE_FAMILY=1",
       export_options: {
         provisioningProfiles: { ENV["BUNDLE_ID"] => profile_name }
       }
