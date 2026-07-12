@@ -1,9 +1,9 @@
 default_platform(:ios)
 
 GIT_URL = "https://github.com/sangmin082/snapfeed.git"
-# v1 branch holds a cert that was revoked on the portal (2026-07-05); a fresh
-# storage branch lets match mint & store a new one without deleting anything.
-GIT_BRANCH = "match-certs-v2"
+# Something keeps revoking our stored cert on the portal (v1: 07-05, v2: 07-09).
+# Bumping the storage branch mints a fresh cert without deleting anything.
+GIT_BRANCH = "match-certs-v3"
 
 def asc_key
   app_store_connect_api_key(
