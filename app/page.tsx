@@ -87,6 +87,10 @@ export default async function Home() {
                 {user ? "기록 보기" : "로그인"}
               </Link>
             </div>
+
+            <div className="animate-fade-up" style={{ animationDelay: "280ms" }}>
+              <AppStoreBadge />
+            </div>
           </div>
 
           <HeroMockup />
@@ -279,6 +283,9 @@ export default async function Home() {
             >
               {user ? "사진 찍으러 가기" : "무료로 시작하기"}
             </Link>
+            <div className="mt-4 flex justify-center">
+              <AppStoreBadge />
+            </div>
           </div>
         </div>
       </section>
@@ -648,4 +655,24 @@ function daysSinceBirth(birthDate: string): number {
   const now = Date.now();
   const birth = new Date(`${birthDate}T00:00:00+09:00`).getTime();
   return Math.max(1, Math.floor((now - birth) / 86_400_000) + 1);
+}
+
+// App Store 다운로드 배지 — 마케팅 랜딩(웹)에서만 노출.
+function AppStoreBadge() {
+  return (
+    <a
+      href="https://apps.apple.com/app/id6787368403"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-2.5 rounded-xl bg-black px-5 py-2.5 text-white shadow-sm ring-1 ring-white/10 transition hover:-translate-y-0.5 hover:bg-gray-900 active:scale-[0.98]"
+    >
+      <svg viewBox="0 0 24 24" className="h-6 w-6 fill-current" aria-hidden>
+        <path d="M16.365 12.79c.024 2.617 2.296 3.489 2.321 3.5-.019.061-.363 1.243-1.197 2.462-.721 1.055-1.47 2.106-2.65 2.128-1.16.021-1.533-.688-2.858-.688-1.326 0-1.74.667-2.838.71-1.139.042-2.007-1.14-2.734-2.19-1.486-2.149-2.62-6.07-1.096-8.719.757-1.315 2.11-2.148 3.578-2.169 1.119-.021 2.174.752 2.858.752.683 0 1.966-.93 3.314-.794.564.024 2.15.228 3.168 1.717-.082.05-1.892 1.104-1.866 3.291zM14.19 5.53c.604-.732 1.011-1.75.9-2.764-.87.035-1.923.58-2.548 1.311-.56.648-1.05 1.685-.918 2.678.97.075 1.961-.492 2.566-1.225z" />
+      </svg>
+      <span className="flex flex-col items-start leading-tight">
+        <span className="text-[10px] font-medium opacity-80">App Store에서</span>
+        <span className="text-[15px] font-bold">다운로드</span>
+      </span>
+    </a>
+  );
 }
