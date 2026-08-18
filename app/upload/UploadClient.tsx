@@ -15,6 +15,7 @@ type ProgressLine = { kind: "status" | "thought"; text: string; ts: number };
 
 export function UploadClient({ babyName }: { babyName: string }) {
   const [extracted, setExtracted] = useState<ExtractResponse | null>(null);
+  const [sampleMode, setSampleMode] = useState(false);
   const [saved, setSaved] = useState(false);
   const [progress, setProgress] = useState<ProgressLine[]>([]);
   const [busy, setBusy] = useState(false);
@@ -107,6 +108,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
           <PhotoUploader
             onExtracted={handleExtracted}
             onProgress={handleProgress}
+            onSample={setSampleMode}
             onStart={() => {
               setProgress([]);
               setBusy(true);
@@ -155,6 +157,16 @@ export function UploadClient({ babyName }: { babyName: string }) {
         </>
       ) : (
         <>
+          {sampleMode ? (
+            <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+              <p className="font-bold">🧪 샘플 체험 모드</p>
+              <p className="mt-1">
+                방금 보신 샘플 수첩을 AI가 읽은 결과예요. 실제 수첩 사진도 이렇게
+                자동 정리됩니다. 구경이 끝나면 <b>&ldquo;다시 찍기&rdquo;</b>를 눌러주세요 —
+                저장하면 샘플 데이터가 오늘 기록에 실제로 추가됩니다.
+              </p>
+            </div>
+          ) : null}
           {extracted.warning ? (
             <p className="rounded bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
               {extracted.warning}
@@ -177,6 +189,7 @@ export function UploadClient({ babyName }: { babyName: string }) {
             onClick={() => {
               setExtracted(null);
               setProgress([]);
+              setSampleMode(false);
             }}
             className="self-start text-sm text-gray-500 underline dark:text-neutral-500"
           >

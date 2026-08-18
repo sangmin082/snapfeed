@@ -32,6 +32,8 @@ type Props = {
   onExtracted: (resp: ExtractResponse) => void;
   onProgress?: (ev: ProgressEvent) => void;
   onStart?: () => void;
+  /** Reports whether the current run uses the bundled sample photo. */
+  onSample?: (active: boolean) => void;
 };
 
 type StreamEvent =
@@ -41,7 +43,7 @@ type StreamEvent =
   | { type: "result"; bundle: { transcript: string } & ExtractResult }
   | { type: "error"; message: string };
 
-export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart }: Props) {
+export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart, onSample }: Props) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const libraryRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<"idle" | "resizing" | "uploading">("idle");
@@ -51,9 +53,10 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
 
   // Core pipeline: resize → stream to /api/extract → hand off the result.
   // Shared by the web <input> path and the native camera path.
-  async function processBlob(file: Blob) {
+  async function processBlob(file: Blob, sample = false) {
     setError(null);
     onStart?.();
+    onSample?.(sample);
     let previewUrl: string | undefined;
     try {
       setState("resizing");
@@ -239,6 +242,22 @@ export function PhotoUploader({ referenceDate, onExtracted, onProgress, onStart 
       >
         <PictureIcon className="h-5 w-5 text-gray-500 dark:text-neutral-400" />
         사진 선택하기
+      </button>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={async () => {
+          try {
+            const res = await fetch("/sample-note.jpg");
+            if (!res.ok) throw new Error("샘플을 불러오지 못했습니다");
+            await processBlob(await res.blob(), true);
+          } catch (err) {
+            setError(err instanceof Error ? err.message : String(err));
+          }
+        }}
+        className="mt-1 self-center text-sm font-medium text-amber-700 underline underline-offset-4 disabled:opacity-50 dark:text-amber-400"
+      >
+        아직 수첩이 없다면? 샘플 수첩으로 체험해보기
       </button>
       {error ? <p className="text-sm text-red-600 dark:text-red-400">오류: {error}</p> : null}
     </div>

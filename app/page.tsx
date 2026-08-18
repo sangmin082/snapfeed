@@ -4,6 +4,7 @@ import Image from "next/image";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
+import { serverSupabase } from "@/lib/supabase-server";
 import { InviteButton } from "@/components/InviteButton";
 import {
   BabyIcon,
@@ -28,7 +29,19 @@ export default async function Home() {
 
   // Signed-in users get an app-style home (paired with the bottom tab
   // bar); the marketing landing is for visitors only.
-  if (user) return <AppHome baby={baby} photoUrl={photoUrl} />;
+  if (user) {
+    let hasRecords = true;
+    if (baby) {
+      const supabase = await serverSupabase();
+      const { count } = await supabase
+        .from("feeds")
+        .select("*", { count: "exact", head: true })
+        .eq("baby_id", baby.id)
+        .limit(1);
+      hasRecords = (count ?? 0) > 0;
+    }
+    return <AppHome baby={baby} photoUrl={photoUrl} hasRecords={hasRecords} />;
+  }
 
   // Inside the native shell (Capacitor appends "SnapfeedApp" to the UA) guests
   // get a native-style welcome instead of the web marketing landing — the web
@@ -318,13 +331,62 @@ export default async function Home() {
   );
 }
 
+/* 기록이 0건인 사용자에게 첫 업로드까지의 길을 손에 쥐여주는 카드.
+   퍼널 데이터상 최대 이탈 지점(아기 등록 후 업로드 0건)을 겨냥한다. */
+function FirstRecordGuide({ babyName }: { babyName: string }) {
+  return (
+    <div className="mb-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-amber-200 dark:bg-neutral-900 dark:ring-amber-900/60">
+      <p className="text-[15px] font-extrabold text-gray-900 dark:text-neutral-100">
+        {babyName}의 첫 기록, 이렇게 시작해요
+      </p>
+      <ol className="mt-3 flex flex-col gap-2.5 text-[13px] leading-relaxed text-gray-600 dark:text-neutral-400">
+        <li className="flex gap-2.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-300 text-[11px] font-extrabold text-amber-950">1</span>
+          <span>
+            <b className="text-gray-900 dark:text-neutral-100">기록지를 인쇄</b>해서 돌봐주시는 분께
+            드리거나, 쓰던 수첩 그대로도 좋아요
+          </span>
+        </li>
+        <li className="flex gap-2.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-300 text-[11px] font-extrabold text-amber-950">2</span>
+          <span>하루가 끝나면 <b className="text-gray-900 dark:text-neutral-100">페이지를 사진으로 찰칵</b></span>
+        </li>
+        <li className="flex gap-2.5">
+          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-amber-300 text-[11px] font-extrabold text-amber-950">3</span>
+          <span>AI가 시간 · 양 · 배변까지 <b className="text-gray-900 dark:text-neutral-100">자동으로 정리</b>해드려요</span>
+        </li>
+      </ol>
+      <div className="mt-4 flex gap-2.5">
+        <a
+          href="/baby-chart.pdf"
+          download
+          className="flex-1 rounded-xl bg-gray-900 px-4 py-2.5 text-center text-[13px] font-bold text-white transition hover:bg-gray-800 dark:bg-neutral-100 dark:text-neutral-900"
+        >
+          기록지 PDF 받기
+        </a>
+        <Link
+          href="/upload"
+          className="flex-1 rounded-xl bg-amber-100 px-4 py-2.5 text-center text-[13px] font-bold text-amber-900 transition hover:bg-amber-200 dark:bg-amber-950/60 dark:text-amber-200"
+        >
+          샘플로 체험하기
+        </Link>
+      </div>
+      <p className="mt-2.5 text-center text-[11px] text-gray-400 dark:text-neutral-500">
+        수첩이 아직 없어도 괜찮아요 — 샘플 수첩으로 AI 정리를 미리 볼 수 있어요
+      </p>
+    </div>
+  );
+}
+
 /* 로그인 사용자용 앱 홈 — 하단 탭바와 짝을 이루는 대시보드형 첫 화면 */
 function AppHome({
   baby,
   photoUrl,
+  hasRecords,
 }: {
   baby: { id: string; name: string; birth_date: string } | null;
   photoUrl: string | null;
+  hasRecords: boolean;
 }) {
   return (
     <main className="flex min-h-screen flex-col">
@@ -332,6 +394,8 @@ function AppHome({
       {baby ? <DashboardBlock baby={baby} photoUrl={photoUrl} /> : <OnboardingPrompt />}
 
       <section className="mx-auto w-full max-w-2xl flex-1 px-5 py-6">
+        {baby && !hasRecords ? <FirstRecordGuide babyName={baby.name} /> : null}
+
         {/* 메인 액션 */}
         <Link
           href="/upload"
