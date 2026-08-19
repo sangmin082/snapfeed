@@ -89,6 +89,12 @@ export default async function ProfilePage({ searchParams }: Props) {
         </Link>
 
         <nav className="flex justify-center gap-4 text-xs text-gray-400 dark:text-neutral-600">
+          <a
+            href="mailto:sangmin082@gmail.com?subject=%5Bsnapfeed%5D%20%EC%9D%98%EA%B2%AC%20%EB%B3%B4%EB%82%B4%EA%B8%B0"
+            className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-400"
+          >
+            의견 보내기
+          </a>
           <Link href="/privacy" className="underline-offset-4 hover:text-gray-600 hover:underline dark:hover:text-neutral-400">
             개인정보처리방침
           </Link>
