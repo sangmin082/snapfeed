@@ -46,3 +46,40 @@ export async function cancelFeedReminder(): Promise<void> {
   const { LocalNotifications } = await import("@capacitor/local-notifications");
   await LocalNotifications.cancel({ notifications: [{ id: 1001 }] });
 }
+
+// ── Daily "photograph the notebook" reminder ────────────────────────────
+// Repeats every evening on-device. Targets the retention gap where a page
+// gets written all day but never photographed.
+
+const DAILY_REMINDER_ID = 1002;
+
+export async function scheduleDailyReminder(hour = 21, minute = 0): Promise<boolean> {
+  const granted = await ensureNotificationPermission();
+  if (!granted) return false;
+
+  const { LocalNotifications } = await import("@capacitor/local-notifications");
+  await LocalNotifications.schedule({
+    notifications: [
+      {
+        id: DAILY_REMINDER_ID,
+        title: "오늘 수첩 찍으셨나요? 📷",
+        body: "하루가 끝나기 전에 수유 수첩을 찰칵 — 1분이면 기록 끝!",
+        schedule: { on: { hour, minute }, allowWhileIdle: true },
+      },
+    ],
+  });
+  return true;
+}
+
+export async function cancelDailyReminder(): Promise<void> {
+  if (!isNativePlatform()) return;
+  const { LocalNotifications } = await import("@capacitor/local-notifications");
+  await LocalNotifications.cancel({ notifications: [{ id: DAILY_REMINDER_ID }] });
+}
+
+export async function isDailyReminderScheduled(): Promise<boolean> {
+  if (!isNativePlatform()) return false;
+  const { LocalNotifications } = await import("@capacitor/local-notifications");
+  const pending = await LocalNotifications.getPending();
+  return pending.notifications.some((n) => n.id === DAILY_REMINDER_ID);
+}

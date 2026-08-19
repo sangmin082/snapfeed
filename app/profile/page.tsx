@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { babyPhotoUrl, requireUser } from "@/lib/auth";
 import { serviceSupabase } from "@/lib/supabase-server";
 import { BabyForm } from "@/components/BabyForm";
+import { DailyReminderToggle } from "@/components/DailyReminderToggle";
 import { updateBaby } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -77,6 +78,8 @@ export default async function ProfilePage({ searchParams }: Props) {
             photoUrl,
           }}
         />
+
+        <DailyReminderToggle />
 
         <Link
           href="/"

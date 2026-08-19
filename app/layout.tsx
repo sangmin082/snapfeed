@@ -57,11 +57,13 @@ export const metadata: Metadata = {
       "어르신·산후도우미가 적어주신 수유 기록을 부모가 한 번에 디지털로 정리합니다.",
     locale: "ko_KR",
     type: "website",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "snapfeed" }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "snapfeed",
     description: "수기 수유 기록을 AI로 디지털 통합",
+    images: ["/og.png"],
   },
   formatDetection: {
     telephone: false,
