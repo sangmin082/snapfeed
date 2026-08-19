@@ -4,6 +4,8 @@ import { serverSupabase } from "@/lib/supabase-server";
 import { StatsControls } from "@/components/StatsControls";
 import { DayClock } from "@/components/DayClock";
 import { WeekColumns } from "@/components/WeekColumns";
+import { WeeklyReportCard } from "@/components/WeeklyReportCard";
+import type { WeeklyReportData } from "@/lib/report-card";
 
 export const dynamic = "force-dynamic";
 
@@ -111,6 +113,68 @@ export default async function StatsPage({ searchParams }: Props) {
   const dPlus = view === "day" ? daysBetween(baby.birth_date, selectedDate) + 1 : null;
   const ageLabel = ageString(baby.birth_date, selectedDate);
 
+  // Weekly share card: always the 7 days ending on selectedDate, regardless
+  // of the current view.
+  const weekStartYmd = shiftYmd(selectedDate, -6);
+  const weekStartIso = new Date(weekStartYmd + "T00:00:00+09:00").toISOString();
+  const weekEndIso = new Date(shiftYmd(selectedDate, 1) + "T00:00:00+09:00").toISOString();
+  const [{ data: weekRaw }, { data: weekEventsRaw }] = await Promise.all([
+    view === "week"
+      ? Promise.resolve({ data: rangeFeeds })
+      : supabase
+          .from("feeds")
+          .select("start_at,end_at,volume_ml,feed_type")
+          .eq("baby_id", baby.id)
+          .gte("start_at", weekStartIso)
+          .lt("start_at", weekEndIso)
+          .order("start_at", { ascending: true }),
+    supabase
+      .from("events")
+      .select("event_type")
+      .eq("baby_id", baby.id)
+      .in("event_type", ["diaper_pee", "diaper_poop"])
+      .gte("at", weekStartIso)
+      .lt("at", weekEndIso),
+  ]);
+  const weekFeeds = (weekRaw ?? []) as Feed[];
+  const weekEvents = (weekEventsRaw ?? []) as { event_type: string }[];
+
+  const kstYmd = (iso: string) => {
+    const d = new Date(new Date(iso).getTime() + 9 * 60 * 60 * 1000);
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+  };
+  const reportDays: WeeklyReportData["days"] = [];
+  for (let i = 0; i < 7; i++) {
+    const ymd = shiftYmd(weekStartYmd, i);
+    const ml = weekFeeds
+      .filter((f) => kstYmd(f.start_at) === ymd)
+      .reduce((sum, f) => sum + (f.volume_ml ?? 0), 0);
+    reportDays.push({ label: `${Number(ymd.slice(5, 7))}.${Number(ymd.slice(8))}`, ml });
+  }
+  const weekIntervals: number[] = [];
+  for (let i = 1; i < weekFeeds.length; i++) {
+    const diff =
+      (new Date(weekFeeds[i].start_at).getTime() -
+        new Date(weekFeeds[i - 1].start_at).getTime()) /
+      60_000;
+    if (diff > 0 && diff < 24 * 60) weekIntervals.push(diff);
+  }
+  const weekAvg =
+    weekIntervals.length > 0
+      ? Math.round(weekIntervals.reduce((a, b) => a + b, 0) / weekIntervals.length)
+      : null;
+  const report: WeeklyReportData = {
+    babyName: baby.name,
+    rangeLabel: `${Number(weekStartYmd.slice(5, 7))}.${Number(weekStartYmd.slice(8))} – ${Number(selectedDate.slice(5, 7))}.${Number(selectedDate.slice(8))}`,
+    ageLabel,
+    totalMl: weekFeeds.reduce((sum, f) => sum + (f.volume_ml ?? 0), 0),
+    totalCount: weekFeeds.length,
+    avgIntervalText: weekAvg != null ? intervalText(weekAvg) : null,
+    peeCount: weekEvents.filter((e) => e.event_type === "diaper_pee").length,
+    poopCount: weekEvents.filter((e) => e.event_type === "diaper_poop").length,
+    days: reportDays,
+  };
+
   return (
     <main className="mx-auto flex max-w-2xl flex-col gap-6 px-4 pt-4 pb-10">
       <header className="relative flex h-10 items-center justify-center">
@@ -178,6 +242,8 @@ export default async function StatsPage({ searchParams }: Props) {
           전체 기록 보기 →
         </p>
       </Link>
+
+      <WeeklyReportCard data={report} />
     </main>
   );
 }
