@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getUser, getPrimaryBaby, babyPhotoUrl } from "@/lib/auth";
 import { serverSupabase } from "@/lib/supabase-server";
 import { InviteButton } from "@/components/InviteButton";
+import { ChartPdfButton } from "@/components/ChartPdfButton";
 import {
   BabyIcon,
   CameraIcon,
@@ -220,13 +221,9 @@ export default async function Home() {
                 A4 한 장에 3일치가 들어갑니다.
               </p>
               <div className="flex flex-col gap-2 pt-1 sm:flex-row">
-                <a
-                  href="/baby-chart.pdf"
-                  download
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gray-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-gray-800 active:scale-[0.98] dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white"
-                >
+                <ChartPdfButton className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gray-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-gray-800 active:scale-[0.98] dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-white">
                   PDF 다운로드
-                </a>
+                </ChartPdfButton>
                 <a
                   href="/baby-chart.xls"
                   download
@@ -357,13 +354,9 @@ function FirstRecordGuide({ babyName }: { babyName: string }) {
         </li>
       </ol>
       <div className="mt-4 flex gap-2.5">
-        <a
-          href="/baby-chart.pdf"
-          download
-          className="flex-1 rounded-xl bg-gray-900 px-4 py-2.5 text-center text-[13px] font-bold text-white transition hover:bg-gray-800 dark:bg-neutral-100 dark:text-neutral-900"
-        >
+        <ChartPdfButton className="flex-1 rounded-xl bg-gray-900 px-4 py-2.5 text-center text-[13px] font-bold text-white transition hover:bg-gray-800 dark:bg-neutral-100 dark:text-neutral-900">
           기록지 PDF 받기
-        </a>
+        </ChartPdfButton>
         <Link
           href="/upload"
           className="flex-1 rounded-xl bg-amber-100 px-4 py-2.5 text-center text-[13px] font-bold text-amber-900 transition hover:bg-amber-200 dark:bg-amber-950/60 dark:text-amber-200"
@@ -447,13 +440,9 @@ function AppHome({
               인쇄해서 돌봐주시는 분께 드리세요
             </p>
           </div>
-          <a
-            href="/baby-chart.pdf"
-            download
-            className="shrink-0 rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-gray-800 dark:bg-neutral-100 dark:text-neutral-900"
-          >
+          <ChartPdfButton className="shrink-0 rounded-xl bg-gray-900 px-4 py-2 text-xs font-bold text-white transition hover:bg-gray-800 dark:bg-neutral-100 dark:text-neutral-900">
             PDF
-          </a>
+          </ChartPdfButton>
         </div>
 
         <p className="mt-6 text-center text-xs leading-relaxed text-gray-400 dark:text-neutral-500">
