@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { useIsNative } from "@/lib/native";
 import {
   drawWeeklyReportCard,
   type WeeklyReportData,
@@ -10,9 +11,11 @@ import {
 // image card on canvas and hands it to the OS share sheet (KakaoTalk etc.),
 // falling back to a plain download where Web Share can't send files.
 export function WeeklyReportCard({ data }: { data: WeeklyReportData }) {
+  const native = useIsNative();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [saveHint, setSaveHint] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function makeBlob(): Promise<Blob> {
@@ -50,7 +53,14 @@ export function WeeklyReportCard({ data }: { data: WeeklyReportData }) {
           if (err instanceof Error && err.name === "AbortError") return;
         }
       }
-      // Fallback: download the image.
+      if (native) {
+        // WKWebView ignores the download attribute and would navigate the
+        // whole (back-button-less) webview into the image — never do that.
+        // The preview is already rendered; tell the user to long-press it.
+        setSaveHint(true);
+        return;
+      }
+      // Web fallback: download the image.
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = "snapfeed-weekly.png";
@@ -92,6 +102,11 @@ export function WeeklyReportCard({ data }: { data: WeeklyReportData }) {
       >
         {busy ? "이미지 만드는 중…" : previewUrl ? "다시 공유하기" : "이미지 카드 만들어 공유"}
       </button>
+      {saveHint ? (
+        <p className="mt-2 text-xs text-amber-700 dark:text-amber-300">
+          위 미리보기 이미지를 길게 눌러 &ldquo;사진에 추가&rdquo;로 저장할 수 있어요.
+        </p>
+      ) : null}
       {error ? (
         <p className="mt-2 text-xs text-red-600 dark:text-red-400">오류: {error}</p>
       ) : null}
